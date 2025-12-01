@@ -3,7 +3,6 @@ import HeroBanner from '@/components/home/HeroBanner';
 import PromotionalBanners from '@/components/home/PromotionalBanners';
 import CategoryGrid from '@/components/home/CategoryGrid';
 import FeaturedProducts from '@/components/home/FeaturedProducts';
-import TrendingSection from '@/components/home/TrendingSection';
 import NewArrivals from '@/components/home/NewArrivals';
 import Features from '@/components/home/Features';
 
@@ -28,7 +27,6 @@ export default async function HomePage() {
       <PromotionalBanners />
       <CategoryGrid />
       <FeaturedProducts products={featuredProducts} />
-      <TrendingSection />
       <NewArrivals products={newArrivals} />
       <Features />
     </div>

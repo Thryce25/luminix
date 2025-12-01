@@ -16,11 +16,6 @@ const footerLinks = {
     { name: 'Size Guide', href: '/size-guide' },
     { name: 'Contact Us', href: '/contact' },
   ],
-  company: [
-    { name: 'About Us', href: '/about' },
-    { name: 'Careers', href: '/careers' },
-    { name: 'Store Locator', href: '/stores' },
-  ],
   legal: [
     { name: 'Privacy Policy', href: '/privacy' },
     { name: 'Terms of Service', href: '/terms' },
@@ -31,38 +26,9 @@ const footerLinks = {
 export default function Footer() {
   return (
     <footer className="bg-black border-t border-deep-purple/30">
-      {/* Newsletter Section */}
-      <div className="bg-linear-to-r from-deep-purple/20 via-burnt-lilac/10 to-deep-purple/20 py-8 sm:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-4 sm:gap-6">
-            <div className="text-center lg:text-left">
-              <h3 className="text-xl sm:text-2xl font-serif text-mist-lilac mb-1 sm:mb-2">
-                Join the Dark Side
-              </h3>
-              <p className="text-mist-lilac/60 text-sm sm:text-base">
-                Subscribe for exclusive offers, new arrivals & gothic inspiration.
-              </p>
-            </div>
-            <form className="flex w-full lg:w-auto max-w-md">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 sm:px-5 py-3 sm:py-3.5 bg-black/50 border border-deep-purple/50 rounded-l-lg text-mist-lilac placeholder-mist-lilac/40 focus:outline-none focus:border-burnt-lilac transition-colors text-sm sm:text-base"
-              />
-              <button
-                type="submit"
-                className="btn-gothic rounded-l-none rounded-r-lg whitespace-nowrap px-4 sm:px-6 text-sm sm:text-base touch-manipulation"
-              >
-                Subscribe
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-
       {/* Main Footer */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 lg:gap-12">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand Column - Full width on mobile */}
           <div className="col-span-2 sm:col-span-2 md:col-span-4 lg:col-span-2 mb-4 lg:mb-0">
             <Link href="/" className="inline-block mb-4 sm:mb-6">
@@ -87,14 +53,9 @@ export default function Footer() {
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                 </svg>
               </SocialLink>
-              <SocialLink href="#" label="Twitter">
+              <SocialLink href="#" label="WhatsApp">
                 <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                </svg>
-              </SocialLink>
-              <SocialLink href="#" label="YouTube">
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                 </svg>
               </SocialLink>
             </div>
@@ -119,20 +80,6 @@ export default function Footer() {
             <h3 className="text-mist-lilac font-semibold text-xs sm:text-sm uppercase tracking-wider mb-3 sm:mb-4">Help</h3>
             <ul className="space-y-2 sm:space-y-3">
               {footerLinks.help.map((link) => (
-                <li key={link.name}>
-                  <Link href={link.href} className="text-mist-lilac/60 hover:text-burnt-lilac transition-colors text-xs sm:text-sm touch-manipulation inline-block py-1">
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Company Links - Hidden on mobile, shown on larger screens */}
-          <div className="hidden md:block">
-            <h3 className="text-mist-lilac font-semibold text-xs sm:text-sm uppercase tracking-wider mb-3 sm:mb-4">Company</h3>
-            <ul className="space-y-2 sm:space-y-3">
-              {footerLinks.company.map((link) => (
                 <li key={link.name}>
                   <Link href={link.href} className="text-mist-lilac/60 hover:text-burnt-lilac transition-colors text-xs sm:text-sm touch-manipulation inline-block py-1">
                     {link.name}
