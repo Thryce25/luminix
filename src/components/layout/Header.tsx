@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import CartDrawer from '../cart/CartDrawer';
 import SearchModal from './SearchModal';
@@ -10,27 +10,20 @@ const categories = [
   {
     name: 'New Arrivals',
     href: '/products?sort=newest',
-    featured: true,
   },
   {
-    name: 'Clothing',
-    href: '/products?category=clothing',
-    subcategories: ['Dresses', 'Tops', 'Bottoms', 'Outerwear'],
+    name: 'Men',
+    href: '/products?category=men',
+    subcategories: ['Shirts', 'T-Shirts', 'Jeans', 'Trousers', 'Jackets', 'Hoodies'],
   },
   {
-    name: 'Accessories',
-    href: '/products?category=accessories',
-    subcategories: ['Jewelry', 'Bags', 'Belts', 'Scarves'],
+    name: 'Women',
+    href: '/products?category=women',
+    subcategories: ['Shirts', 'T-Shirts', 'Dresses', 'Jeans', 'Tops', 'Jackets'],
   },
   {
-    name: 'Footwear',
-    href: '/products?category=footwear',
-    subcategories: ['Boots', 'Heels', 'Flats', 'Platforms'],
-  },
-  {
-    name: 'Sale',
-    href: '/products?sale=true',
-    featured: true,
+    name: 'Store',
+    href: '/products',
   },
 ];
 
@@ -38,25 +31,49 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [expandedMobileCategory, setExpandedMobileCategory] = useState<string | null>(null);
   const { cart, setCartOpen } = useCart();
 
   const cartItemCount = cart?.totalQuantity || 0;
 
+  // Close mobile menu on resize to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
+
+  const toggleMobileCategory = (categoryName: string) => {
+    setExpandedMobileCategory(expandedMobileCategory === categoryName ? null : categoryName);
+  };
+
   return (
     <>
-      {/* Promo Banner */}
-      <div className="bg-linear-to-r from-deep-purple via-burnt-lilac to-deep-purple text-white text-center py-2 text-sm">
-        <p>✨ Free Shipping on Orders Over $100 | Use Code: <span className="font-semibold">DARK20</span> for 20% Off ✨</p>
-      </div>
-
       <header className="sticky top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-md border-b border-deep-purple/30">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
+          <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20">
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-mist-lilac hover:text-burnt-lilac transition-colors"
+              className="lg:hidden p-2 -ml-2 text-mist-lilac hover:text-burnt-lilac transition-colors touch-manipulation"
               aria-label="Toggle menu"
+              aria-expanded={mobileMenuOpen}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileMenuOpen ? (
@@ -69,14 +86,13 @@ export default function Header() {
 
             {/* Logo */}
             <Link href="/" className="flex items-center group">
-              <span className="text-2xl lg:text-3xl font-serif font-bold gradient-text tracking-wider">
+              <span className="text-xl sm:text-2xl lg:text-3xl font-serif font-bold gradient-text tracking-wider">
                 LUMINIX
               </span>
             </Link>
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-8">
-              <NavLink href="/">Home</NavLink>
               {categories.map((category) => (
                 <div
                   key={category.name}
@@ -84,7 +100,7 @@ export default function Header() {
                   onMouseEnter={() => setActiveCategory(category.name)}
                   onMouseLeave={() => setActiveCategory(null)}
                 >
-                  <NavLink href={category.href} featured={category.featured}>
+                  <NavLink href={category.href}>
                     {category.name}
                   </NavLink>
                   
@@ -104,56 +120,32 @@ export default function Header() {
                   )}
                 </div>
               ))}
-              <NavLink href="/about">About</NavLink>
-              <NavLink href="/contact">Contact</NavLink>
             </div>
 
             {/* Actions */}
-            <div className="flex items-center space-x-2 lg:space-x-4">
+            <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4">
               {/* Search Button */}
               <button
                 onClick={() => setSearchOpen(true)}
-                className="p-2 text-mist-lilac hover:text-burnt-lilac transition-colors"
+                className="p-2.5 sm:p-2 text-mist-lilac hover:text-burnt-lilac transition-colors touch-manipulation"
                 aria-label="Search"
               >
-                <svg className="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-5 sm:h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </button>
 
-              {/* Account Button */}
-              <Link
-                href="/account"
-                className="hidden sm:block p-2 text-mist-lilac hover:text-burnt-lilac transition-colors"
-                aria-label="Account"
-              >
-                <svg className="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </Link>
-
-              {/* Wishlist Button */}
-              <Link
-                href="/wishlist"
-                className="hidden sm:block p-2 text-mist-lilac hover:text-burnt-lilac transition-colors"
-                aria-label="Wishlist"
-              >
-                <svg className="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              </Link>
-
               {/* Cart Button */}
               <button
                 onClick={() => setCartOpen(true)}
-                className="relative p-2 text-mist-lilac hover:text-burnt-lilac transition-colors"
+                className="relative p-2.5 sm:p-2 text-mist-lilac hover:text-burnt-lilac transition-colors touch-manipulation"
                 aria-label="Shopping cart"
               >
-                <svg className="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-5 sm:h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
                 {cartItemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-burnt-lilac text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-medium animate-scale-in">
+                  <span className="absolute top-0.5 right-0.5 sm:-top-1 sm:-right-1 bg-burnt-lilac text-white text-[10px] sm:text-xs min-w-[18px] sm:min-w-[20px] h-[18px] sm:h-[20px] rounded-full flex items-center justify-center font-medium animate-scale-in">
                     {cartItemCount}
                   </span>
                 )}
@@ -161,34 +153,63 @@ export default function Header() {
             </div>
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu - Full Screen Overlay */}
           {mobileMenuOpen && (
-            <div className="lg:hidden py-4 border-t border-deep-purple/30 animate-fade-in">
-              <div className="flex flex-col space-y-1">
-                <MobileNavLink href="/" onClick={() => setMobileMenuOpen(false)}>
-                  Home
-                </MobileNavLink>
+            <div className="lg:hidden fixed inset-0 top-14 sm:top-16 bg-black z-40 animate-fade-in overflow-y-auto">
+              <div className="px-4 py-6 space-y-2 pb-24">
                 {categories.map((category) => (
-                  <div key={category.name}>
-                    <MobileNavLink href={category.href} onClick={() => setMobileMenuOpen(false)} featured={category.featured}>
-                      {category.name}
-                    </MobileNavLink>
+                  <div key={category.name} className="border-b border-deep-purple/20 last:border-0">
+                    {category.subcategories ? (
+                      <>
+                        <button
+                          onClick={() => toggleMobileCategory(category.name)}
+                          className="flex items-center justify-between w-full py-4 text-lg uppercase tracking-wider font-medium text-mist-lilac touch-manipulation"
+                        >
+                          {category.name}
+                          <svg
+                            className={`w-5 h-5 transition-transform duration-300 ${
+                              expandedMobileCategory === category.name ? 'rotate-180' : ''
+                            }`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                        {expandedMobileCategory === category.name && (
+                          <div className="pb-4 pl-4 space-y-1 animate-fade-in">
+                            <Link
+                              href={category.href}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="block py-3 text-base text-burnt-lilac touch-manipulation"
+                            >
+                              View All {category.name}
+                            </Link>
+                            {category.subcategories.map((sub) => (
+                              <Link
+                                key={sub}
+                                href={`${category.href}&sub=${sub.toLowerCase()}`}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="block py-3 text-base text-mist-lilac/70 hover:text-mist-lilac transition-colors touch-manipulation"
+                              >
+                                {sub}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <Link
+                        href={category.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block py-4 text-lg uppercase tracking-wider font-medium text-mist-lilac touch-manipulation"
+                      >
+                        {category.name}
+                      </Link>
+                    )}
                   </div>
                 ))}
-                <MobileNavLink href="/about" onClick={() => setMobileMenuOpen(false)}>
-                  About
-                </MobileNavLink>
-                <MobileNavLink href="/contact" onClick={() => setMobileMenuOpen(false)}>
-                  Contact
-                </MobileNavLink>
-                <div className="pt-4 border-t border-deep-purple/30 mt-4">
-                  <MobileNavLink href="/account" onClick={() => setMobileMenuOpen(false)}>
-                    My Account
-                  </MobileNavLink>
-                  <MobileNavLink href="/wishlist" onClick={() => setMobileMenuOpen(false)}>
-                    Wishlist
-                  </MobileNavLink>
-                </div>
               </div>
             </div>
           )}
@@ -201,40 +222,14 @@ export default function Header() {
   );
 }
 
-function NavLink({ href, children, featured }: { href: string; children: React.ReactNode; featured?: boolean }) {
+function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Link
       href={href}
-      className={`text-sm uppercase tracking-widest font-medium relative group transition-colors ${
-        featured ? 'text-burnt-lilac hover:text-mist-lilac' : 'text-mist-lilac hover:text-burnt-lilac'
-      }`}
+      className="text-sm uppercase tracking-widest font-medium relative group transition-colors text-mist-lilac hover:text-burnt-lilac"
     >
       {children}
       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-linear-to-r from-mist-lilac to-burnt-lilac transition-all group-hover:w-full" />
-    </Link>
-  );
-}
-
-function MobileNavLink({
-  href,
-  onClick,
-  children,
-  featured,
-}: {
-  href: string;
-  onClick: () => void;
-  children: React.ReactNode;
-  featured?: boolean;
-}) {
-  return (
-    <Link
-      href={href}
-      onClick={onClick}
-      className={`block py-3 px-2 text-base uppercase tracking-wider font-medium transition-colors rounded-lg hover:bg-deep-purple/20 ${
-        featured ? 'text-burnt-lilac' : 'text-mist-lilac'
-      }`}
-    >
-      {children}
     </Link>
   );
 }

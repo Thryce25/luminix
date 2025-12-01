@@ -15,7 +15,6 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
   const { addItem, loading } = useCart();
   const [isAdding, setIsAdding] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
-  const [showQuickView, setShowQuickView] = useState(false);
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -47,7 +46,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
   return (
     <Link
       href={`/products/${product.handle}`}
-      className="group block"
+      className="group block touch-manipulation"
     >
       <div className="card-gothic">
         {/* Image Container */}
@@ -57,45 +56,45 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
             src={imageUrl}
             alt={product.featuredImage?.altText || product.title}
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             className={`object-cover transition-all duration-500 ${
               secondImage ? 'group-hover:opacity-0' : 'group-hover:scale-110'
             }`}
             priority={priority}
           />
           
-          {/* Secondary Image (hover) */}
+          {/* Secondary Image (hover - desktop only) */}
           {secondImage && (
             <Image
               src={secondImage}
               alt={`${product.title} - alternate view`}
               fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-              className="object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className="object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500 hidden sm:block"
             />
           )}
 
           {/* Badges */}
-          <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
+          <div className="absolute top-2 sm:top-3 left-2 sm:left-3 flex flex-col gap-1.5 sm:gap-2 z-10">
             {isOnSale && (
-              <span className="bg-burnt-lilac text-white text-xs font-bold px-2.5 py-1 rounded">
+              <span className="bg-burnt-lilac text-white text-[10px] sm:text-xs font-bold px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded">
                 -{discount}%
               </span>
             )}
             {!product.availableForSale && (
-              <span className="bg-black/80 text-mist-lilac text-xs font-medium px-2.5 py-1 rounded">
+              <span className="bg-black/80 text-mist-lilac text-[10px] sm:text-xs font-medium px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded">
                 Sold Out
               </span>
             )}
           </div>
 
-          {/* Wishlist Button */}
+          {/* Wishlist Button - Always visible on mobile */}
           <button
             onClick={handleWishlist}
-            className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-mist-lilac hover:bg-burnt-lilac hover:text-white transition-all opacity-0 group-hover:opacity-100"
+            className="absolute top-2 sm:top-3 right-2 sm:right-3 z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-mist-lilac hover:bg-burnt-lilac hover:text-white transition-all sm:opacity-0 sm:group-hover:opacity-100 touch-manipulation"
           >
             <svg
-              className="w-5 h-5"
+              className="w-4 h-4 sm:w-5 sm:h-5"
               fill={isWishlisted ? 'currentColor' : 'none'}
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -109,13 +108,13 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
             </svg>
           </button>
 
-          {/* Quick Actions */}
-          <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-10">
+          {/* Quick Actions - Desktop only */}
+          <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-10 hidden sm:block">
             <div className="flex gap-2">
               <button
                 onClick={handleAddToCart}
                 disabled={isAdding || loading || !product.availableForSale}
-                className="flex-1 btn-gothic text-sm py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 btn-gothic text-xs sm:text-sm py-2.5 sm:py-3 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {!product.availableForSale ? (
                   'Sold Out'
@@ -146,36 +145,45 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
         </div>
 
         {/* Product Info */}
-        <div className="p-4">
+        <div className="p-3 sm:p-4">
           {/* Brand/Vendor */}
           {product.vendor && (
-            <p className="text-burnt-lilac/70 text-xs uppercase tracking-wider mb-1">
+            <p className="text-burnt-lilac/70 text-[10px] sm:text-xs uppercase tracking-wider mb-0.5 sm:mb-1">
               {product.vendor}
             </p>
           )}
           
-          <h3 className="text-mist-lilac font-medium text-sm group-hover:text-burnt-lilac transition-colors line-clamp-2 min-h-10">
+          <h3 className="text-mist-lilac font-medium text-xs sm:text-sm group-hover:text-burnt-lilac transition-colors line-clamp-2 min-h-8 sm:min-h-10">
             {product.title}
           </h3>
           
-          <div className="mt-2 flex items-center gap-2">
-            <span className="text-mist-lilac font-semibold">
+          <div className="mt-1.5 sm:mt-2 flex items-center gap-1.5 sm:gap-2 flex-wrap">
+            <span className="text-mist-lilac font-semibold text-sm sm:text-base">
               {formatPrice(price)}
             </span>
             {isOnSale && compareAtPrice && (
-              <span className="text-mist-lilac/40 text-sm line-through">
+              <span className="text-mist-lilac/40 text-xs sm:text-sm line-through">
                 {formatPrice(compareAtPrice)}
               </span>
             )}
           </div>
 
-          {/* Color variants indicator */}
+          {/* Mobile Add to Cart Button */}
+          <button
+            onClick={handleAddToCart}
+            disabled={isAdding || loading || !product.availableForSale}
+            className="sm:hidden w-full mt-3 btn-gothic text-xs py-2.5 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+          >
+            {!product.availableForSale ? 'Sold Out' : isAdding ? 'Adding...' : 'Add to Bag'}
+          </button>
+
+          {/* Color variants indicator - Hidden on mobile */}
           {product.options.find(opt => opt.name.toLowerCase() === 'color') && (
-            <div className="mt-3 flex items-center gap-1">
-              <div className="w-4 h-4 rounded-full bg-black border border-deep-purple/50" />
-              <div className="w-4 h-4 rounded-full bg-deep-purple border border-deep-purple/50" />
-              <div className="w-4 h-4 rounded-full bg-burnt-lilac border border-deep-purple/50" />
-              <span className="text-mist-lilac/50 text-xs ml-1">+3</span>
+            <div className="mt-2 sm:mt-3 hidden sm:flex items-center gap-1">
+              <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-black border border-deep-purple/50" />
+              <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-deep-purple border border-deep-purple/50" />
+              <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-burnt-lilac border border-deep-purple/50" />
+              <span className="text-mist-lilac/50 text-[10px] sm:text-xs ml-1">+3</span>
             </div>
           )}
         </div>

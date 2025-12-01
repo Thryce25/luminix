@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const promotions = [
   {
@@ -36,6 +36,11 @@ const promotions = [
 export default function PromotionalBanners() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  // Minimum swipe distance
+  const minSwipeDistance = 50;
 
   useEffect(() => {
     if (!isAutoPlaying) return;
@@ -50,26 +55,53 @@ export default function PromotionalBanners() {
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
     setIsAutoPlaying(false);
-    // Resume autoplay after 10 seconds of inactivity
     setTimeout(() => setIsAutoPlaying(true), 10000);
   };
 
-  const nextSlide = () => {
+  const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % promotions.length);
     setIsAutoPlaying(false);
     setTimeout(() => setIsAutoPlaying(true), 10000);
-  };
+  }, []);
 
-  const prevSlide = () => {
+  const prevSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev - 1 + promotions.length) % promotions.length);
     setIsAutoPlaying(false);
     setTimeout(() => setIsAutoPlaying(true), 10000);
+  }, []);
+
+  // Touch handlers for swipe
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe) {
+      nextSlide();
+    } else if (isRightSwipe) {
+      prevSlide();
+    }
   };
 
   return (
-    <section className="py-8 lg:py-12">
+    <section className="py-4 sm:py-8 lg:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-2xl">
+        <div 
+          className="relative overflow-hidden rounded-xl sm:rounded-2xl"
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
           {/* Slides */}
           <div 
             className="flex transition-transform duration-500 ease-out"
@@ -80,34 +112,34 @@ export default function PromotionalBanners() {
                 key={promo.id}
                 className={`w-full shrink-0 bg-linear-to-r ${promo.bgGradient}`}
               >
-                <div className="flex flex-col md:flex-row items-center justify-between p-8 md:p-12 lg:p-16 min-h-[280px] md:min-h-[320px]">
-                  <div className="text-center md:text-left mb-6 md:mb-0 md:max-w-xl">
-                    <span className="inline-block text-burnt-lilac text-sm uppercase tracking-wider mb-2">
+                <div className="flex flex-col md:flex-row items-center justify-between p-5 sm:p-8 md:p-12 lg:p-16 min-h-[200px] sm:min-h-[250px] md:min-h-[320px]">
+                  <div className="text-center md:text-left mb-4 sm:mb-6 md:mb-0 md:max-w-xl">
+                    <span className="inline-block text-burnt-lilac text-[10px] sm:text-xs md:text-sm uppercase tracking-wider mb-1 sm:mb-2">
                       {promo.subtitle}
                     </span>
-                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif text-mist-lilac mb-4">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif text-mist-lilac mb-2 sm:mb-4">
                       {promo.title}
                     </h2>
-                    <p className="text-mist-lilac/70 text-base md:text-lg mb-6">
+                    <p className="text-mist-lilac/70 text-xs sm:text-sm md:text-base lg:text-lg mb-4 sm:mb-6">
                       {promo.description}
                     </p>
                     <Link
                       href={promo.href}
-                      className="inline-flex items-center gap-2 btn-gothic px-6 py-3"
+                      className="inline-flex items-center gap-1.5 sm:gap-2 btn-gothic px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm md:text-base touch-manipulation"
                     >
                       {promo.cta}
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </Link>
                   </div>
 
-                  {/* Decorative Element */}
+                  {/* Decorative Element - Hidden on mobile */}
                   <div className="hidden lg:block">
-                    <div className="w-48 h-48 border-2 border-burnt-lilac/30 rounded-full flex items-center justify-center">
-                      <div className="w-36 h-36 border-2 border-burnt-lilac/50 rounded-full flex items-center justify-center">
-                        <span className="text-4xl font-serif text-burnt-lilac">
-                          {promo.id === 1 ? '60%' : promo.id === 2 ? '✦' : '🚚'}
+                    <div className="w-36 h-36 xl:w-48 xl:h-48 border-2 border-burnt-lilac/30 rounded-full flex items-center justify-center">
+                      <div className="w-28 h-28 xl:w-36 xl:h-36 border-2 border-burnt-lilac/50 rounded-full flex items-center justify-center">
+                        <span className="text-2xl xl:text-4xl font-serif text-burnt-lilac">
+                          {promo.id === 1 ? '60%' : promo.id === 2 ? 'NEW' : 'FREE'}
                         </span>
                       </div>
                     </div>
@@ -117,36 +149,36 @@ export default function PromotionalBanners() {
             ))}
           </div>
 
-          {/* Navigation Arrows */}
+          {/* Navigation Arrows - Larger touch targets on mobile */}
           <button
             onClick={prevSlide}
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-mist-lilac transition-colors"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 bg-black/50 hover:bg-black/70 active:bg-black/80 rounded-full flex items-center justify-center text-mist-lilac transition-colors touch-manipulation"
             aria-label="Previous slide"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
           <button
             onClick={nextSlide}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-mist-lilac transition-colors"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 bg-black/50 hover:bg-black/70 active:bg-black/80 rounded-full flex items-center justify-center text-mist-lilac transition-colors touch-manipulation"
             aria-label="Next slide"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
 
           {/* Dots */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+          <div className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 sm:gap-2">
             {promotions.map((_, index) => (
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 touch-manipulation ${
                   currentSlide === index 
-                    ? 'w-8 bg-burnt-lilac' 
-                    : 'bg-mist-lilac/30 hover:bg-mist-lilac/50'
+                    ? 'w-6 sm:w-8 bg-burnt-lilac' 
+                    : 'w-1.5 sm:w-2 bg-mist-lilac/30 hover:bg-mist-lilac/50'
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
               />

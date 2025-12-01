@@ -60,11 +60,11 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 xl:gap-16">
       {/* Image Gallery */}
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {/* Main Image */}
-        <div className="relative aspect-square bg-deep-purple/10 rounded-lg overflow-hidden">
+        <div className="relative aspect-square sm:aspect-square bg-deep-purple/10 rounded-lg overflow-hidden">
           {currentImage && (
             <Image
               src={currentImage.url}
@@ -76,14 +76,14 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
           )}
         </div>
 
-        {/* Thumbnail Gallery */}
+        {/* Thumbnail Gallery - Horizontal scroll on mobile */}
         {images.length > 1 && (
-          <div className="flex gap-3 overflow-x-auto pb-2">
+          <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
             {images.map((image, index) => (
               <button
                 key={image.url}
                 onClick={() => setSelectedImageIndex(index)}
-                className={`relative w-20 h-20 shrink-0 rounded-md overflow-hidden border-2 transition-all ${
+                className={`relative w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-md overflow-hidden border-2 transition-all touch-manipulation ${
                   selectedImageIndex === index
                     ? 'border-burnt-lilac'
                     : 'border-deep-purple/30 hover:border-burnt-lilac/50'
@@ -103,41 +103,41 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
 
       {/* Product Info */}
       <div className="lg:py-4">
-        {/* Breadcrumb */}
-        <nav className="text-sm text-mist-lilac/60 mb-4">
+        {/* Breadcrumb - Hidden on mobile */}
+        <nav className="hidden sm:block text-sm text-mist-lilac/60 mb-4">
           <span className="hover:text-mist-lilac cursor-pointer">Shop</span>
           <span className="mx-2">/</span>
           <span className="text-mist-lilac">{product.title}</span>
         </nav>
 
         {/* Title & Price */}
-        <h1 className="text-3xl md:text-4xl font-serif text-mist-lilac mb-4">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif text-mist-lilac mb-3 sm:mb-4">
           {product.title}
         </h1>
 
-        <div className="flex items-center gap-3 mb-6">
-          <span className="text-2xl text-burnt-lilac font-medium">
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+          <span className="text-xl sm:text-2xl text-burnt-lilac font-medium">
             {formatPrice(selectedVariant?.price || product.priceRange.minVariantPrice)}
           </span>
           {selectedVariant?.compareAtPrice &&
             parseFloat(selectedVariant.compareAtPrice.amount) >
               parseFloat(selectedVariant.price.amount) && (
-              <span className="text-lg text-mist-lilac/50 line-through">
+              <span className="text-base sm:text-lg text-mist-lilac/50 line-through">
                 {formatPrice(selectedVariant.compareAtPrice)}
               </span>
             )}
         </div>
 
-        {/* Description */}
+        {/* Description - Collapsible on mobile */}
         <div
-          className="prose prose-invert prose-sm max-w-none mb-8 text-mist-lilac/80"
+          className="prose prose-invert prose-sm max-w-none mb-6 sm:mb-8 text-mist-lilac/80 text-sm sm:text-base"
           dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
         />
 
         {/* Options */}
         {product.options.map((option) => (
-          <div key={option.id} className="mb-6">
-            <label className="block text-sm font-medium text-mist-lilac mb-3">
+          <div key={option.id} className="mb-4 sm:mb-6">
+            <label className="block text-sm font-medium text-mist-lilac mb-2 sm:mb-3">
               {option.name}
             </label>
             <div className="flex flex-wrap gap-2">
@@ -155,11 +155,11 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                     key={value}
                     onClick={() => handleOptionChange(option.name, value)}
                     disabled={!isAvailable}
-                    className={`px-4 py-2 rounded border text-sm transition-all ${
+                    className={`px-3 sm:px-4 py-2 rounded border text-xs sm:text-sm transition-all touch-manipulation min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 ${
                       isSelected
                         ? 'bg-burnt-lilac border-burnt-lilac text-white'
                         : isAvailable
-                        ? 'border-deep-purple/50 text-mist-lilac hover:border-burnt-lilac'
+                        ? 'border-deep-purple/50 text-mist-lilac hover:border-burnt-lilac active:bg-burnt-lilac/20'
                         : 'border-deep-purple/20 text-mist-lilac/30 cursor-not-allowed line-through'
                     }`}
                   >
@@ -172,23 +172,23 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
         ))}
 
         {/* Quantity */}
-        <div className="mb-8">
-          <label className="block text-sm font-medium text-mist-lilac mb-3">
+        <div className="mb-6 sm:mb-8">
+          <label className="block text-sm font-medium text-mist-lilac mb-2 sm:mb-3">
             Quantity
           </label>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="w-10 h-10 rounded border border-deep-purple/50 flex items-center justify-center text-mist-lilac hover:border-burnt-lilac transition-colors"
+              className="w-11 h-11 sm:w-10 sm:h-10 rounded border border-deep-purple/50 flex items-center justify-center text-mist-lilac hover:border-burnt-lilac transition-colors touch-manipulation"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
               </svg>
             </button>
-            <span className="w-12 text-center text-mist-lilac">{quantity}</span>
+            <span className="w-12 text-center text-mist-lilac text-base sm:text-lg">{quantity}</span>
             <button
               onClick={() => setQuantity(quantity + 1)}
-              className="w-10 h-10 rounded border border-deep-purple/50 flex items-center justify-center text-mist-lilac hover:border-burnt-lilac transition-colors"
+              className="w-11 h-11 sm:w-10 sm:h-10 rounded border border-deep-purple/50 flex items-center justify-center text-mist-lilac hover:border-burnt-lilac transition-colors touch-manipulation"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -197,60 +197,65 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
           </div>
         </div>
 
-        {/* Add to Cart Button */}
-        <button
-          onClick={handleAddToCart}
-          disabled={isAdding || loading || !selectedVariant?.availableForSale}
-          className="w-full btn-gothic py-4 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {!selectedVariant?.availableForSale ? (
-            'Sold Out'
-          ) : isAdding ? (
-            <span className="flex items-center justify-center gap-2">
-              <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                />
-              </svg>
-              Adding to Cart...
-            </span>
-          ) : (
-            'Add to Cart'
-          )}
-        </button>
+        {/* Add to Cart Button - Sticky on mobile */}
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-black border-t border-deep-purple/30 sm:relative sm:p-0 sm:border-0 sm:bg-transparent z-40">
+          <button
+            onClick={handleAddToCart}
+            disabled={isAdding || loading || !selectedVariant?.availableForSale}
+            className="w-full btn-gothic py-4 text-base sm:text-lg disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+          >
+            {!selectedVariant?.availableForSale ? (
+              'Sold Out'
+            ) : isAdding ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
+                </svg>
+                Adding to Cart...
+              </span>
+            ) : (
+              'Add to Cart'
+            )}
+          </button>
+        </div>
+
+        {/* Spacer for fixed button on mobile */}
+        <div className="h-20 sm:hidden" />
 
         {/* Product Details */}
-        <div className="mt-8 pt-8 border-t border-deep-purple/20 space-y-4">
+        <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-deep-purple/20 space-y-3 sm:space-y-4">
           {product.vendor && (
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between text-xs sm:text-sm">
               <span className="text-mist-lilac/60">Vendor</span>
               <span className="text-mist-lilac">{product.vendor}</span>
             </div>
           )}
           {product.productType && (
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between text-xs sm:text-sm">
               <span className="text-mist-lilac/60">Type</span>
               <span className="text-mist-lilac">{product.productType}</span>
             </div>
           )}
           {product.tags.length > 0 && (
-            <div className="flex items-start justify-between text-sm">
+            <div className="flex items-start justify-between text-xs sm:text-sm">
               <span className="text-mist-lilac/60">Tags</span>
-              <div className="flex flex-wrap gap-2 justify-end max-w-[200px]">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-end max-w-[180px] sm:max-w-[200px]">
                 {product.tags.slice(0, 5).map((tag) => (
                   <span
                     key={tag}
-                    className="px-2 py-0.5 bg-deep-purple/30 rounded text-xs text-mist-lilac"
+                    className="px-2 py-0.5 bg-deep-purple/30 rounded text-[10px] sm:text-xs text-mist-lilac"
                   >
                     {tag}
                   </span>
