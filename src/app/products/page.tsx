@@ -7,7 +7,8 @@ export const metadata: Metadata = {
   description: 'Browse our curated collection of gothic-inspired fashion and accessories.',
 };
 
-export const revalidate = 60;
+export const revalidate = 0; // Always fetch fresh data
+export const dynamic = 'force-dynamic';
 
 export default async function ProductsPage() {
   let products: ShopifyProduct[] = [];

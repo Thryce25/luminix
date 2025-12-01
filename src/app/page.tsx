@@ -6,7 +6,8 @@ import FeaturedProducts from '@/components/home/FeaturedProducts';
 import NewArrivals from '@/components/home/NewArrivals';
 import Features from '@/components/home/Features';
 
-export const revalidate = 60; // Revalidate every 60 seconds
+export const revalidate = 0; // Always fetch fresh data from Shopify
+export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
   let featuredProducts: ShopifyProduct[] = [];
