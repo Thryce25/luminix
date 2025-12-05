@@ -145,7 +145,7 @@ export default function Header() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
                 {cartItemCount > 0 && (
-                  <span className="absolute top-0.5 right-0.5 sm:-top-1 sm:-right-1 bg-burnt-lilac text-white text-[10px] sm:text-xs min-w-[18px] sm:min-w-[20px] h-[18px] sm:h-[20px] rounded-full flex items-center justify-center font-medium animate-scale-in">
+                  <span className="absolute top-0.5 right-0.5 sm:-top-1 sm:-right-1 bg-burnt-lilac text-white text-[10px] sm:text-xs min-w-4.5 sm:min-w-5 h-4.5 sm:h-5 rounded-full flex items-center justify-center font-medium animate-scale-in">
                     {cartItemCount}
                   </span>
                 )}

@@ -1,8 +1,11 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getProduct, getProducts, ShopifyProduct } from '@/lib/shopify';
+import { getProduct, getRelatedProducts, ShopifyProduct } from '@/lib/shopify';
+import { generateProductJsonLd, generateBreadcrumbJsonLd, JsonLd } from '@/lib/structured-data';
 import ProductDetails from '@/components/products/ProductDetails';
 import ProductGrid from '@/components/products/ProductGrid';
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://luminixclothing.com';
 
 interface Props {
   params: Promise<{ handle: string }>;
@@ -39,31 +42,45 @@ export default async function ProductPage({ params }: Props) {
     notFound();
   }
 
-  // Get related products
+  // Get related products based on product type/tags/vendor
   let relatedProducts: ShopifyProduct[] = [];
   try {
-    const allProducts = await getProducts(12);
-    relatedProducts = allProducts.filter((p) => p.handle !== handle).slice(0, 4);
+    relatedProducts = await getRelatedProducts(product, 4);
   } catch (error) {
     console.error('Error fetching related products:', error);
   }
 
-  return (
-    <div className="min-h-screen bg-black gothic-texture">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <ProductDetails product={product} />
+  // Generate structured data
+  const productUrl = `${BASE_URL}/products/${handle}`;
+  const productJsonLd = generateProductJsonLd(product, productUrl);
+  const breadcrumbJsonLd = generateBreadcrumbJsonLd([
+    { name: 'Home', url: BASE_URL },
+    { name: 'Shop', url: `${BASE_URL}/products` },
+    { name: product.title, url: productUrl },
+  ]);
 
-        {/* Related Products */}
-        {relatedProducts.length > 0 && (
-          <section className="mt-20 pt-12 border-t border-deep-purple/20">
-            <ProductGrid
-              products={relatedProducts}
-              title="You May Also Like"
-              subtitle="Explore similar pieces from our collection"
-            />
-          </section>
-        )}
+  return (
+    <>
+      {/* Structured Data */}
+      <JsonLd data={productJsonLd} />
+      <JsonLd data={breadcrumbJsonLd} />
+      
+      <div className="min-h-screen bg-black gothic-texture">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <ProductDetails product={product} />
+
+          {/* Related Products */}
+          {relatedProducts.length > 0 && (
+            <section className="mt-20 pt-12 border-t border-deep-purple/20">
+              <ProductGrid
+                products={relatedProducts}
+                title="You May Also Like"
+                subtitle="Explore similar pieces from our collection"
+              />
+            </section>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

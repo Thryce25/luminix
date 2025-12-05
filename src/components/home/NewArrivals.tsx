@@ -108,7 +108,7 @@ export default function NewArrivals({ products }: NewArrivalsProps) {
             {products.slice(0, 10).map((product, index) => (
               <div
                 key={product.id}
-                className="shrink-0 w-[160px] sm:w-[220px] md:w-[260px] lg:w-[300px] snap-start"
+                className="shrink-0 w-40 sm:w-56 md:w-64 lg:w-72 snap-start"
               >
                 <ProductCard product={product} />
               </div>
@@ -117,7 +117,7 @@ export default function NewArrivals({ products }: NewArrivalsProps) {
             {/* View More Card */}
             <Link
               href="/products?sort=newest"
-              className="shrink-0 w-[160px] sm:w-[220px] md:w-[260px] lg:w-[300px] snap-start flex flex-col items-center justify-center bg-deep-purple/10 rounded-lg border border-mist-lilac/10 hover:border-burnt-lilac/30 active:bg-deep-purple/20 transition-colors group aspect-3/4 touch-manipulation"
+              className="shrink-0 w-40 sm:w-56 md:w-64 lg:w-72 snap-start flex flex-col items-center justify-center bg-deep-purple/10 rounded-lg border border-mist-lilac/10 hover:border-burnt-lilac/30 active:bg-deep-purple/20 transition-colors group aspect-3/4 touch-manipulation"
             >
               <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 rounded-full bg-burnt-lilac/20 flex items-center justify-center mb-2 sm:mb-4 group-hover:bg-burnt-lilac/30 transition-colors">
                 <svg className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-burnt-lilac" fill="none" stroke="currentColor" viewBox="0 0 24 24">

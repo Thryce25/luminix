@@ -112,7 +112,7 @@ export default function PromotionalBanners() {
                 key={promo.id}
                 className={`w-full shrink-0 bg-linear-to-r ${promo.bgGradient}`}
               >
-                <div className="flex flex-col md:flex-row items-center justify-between p-5 sm:p-8 md:p-12 lg:p-16 min-h-[200px] sm:min-h-[250px] md:min-h-[320px]">
+                <div className="flex flex-col md:flex-row items-center justify-between p-5 sm:p-8 md:p-12 lg:p-16 min-h-52 sm:min-h-64 md:min-h-80">
                   <div className="text-center md:text-left mb-4 sm:mb-6 md:mb-0 md:max-w-xl">
                     <span className="inline-block text-burnt-lilac text-[10px] sm:text-xs md:text-sm uppercase tracking-wider mb-1 sm:mb-2">
                       {promo.subtitle}

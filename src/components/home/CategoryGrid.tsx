@@ -1,53 +1,57 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 
 const categories = [
   {
     id: 1,
-    name: 'Women',
-    description: 'Gothic elegance redefined',
-    image: '/images/category-women.jpg',
-    href: '/products?category=women',
+    name: 'Anime Collection',
+    description: 'One Piece, Dragon Ball & More',
+    href: '/products?collection=anime-collection',
+    gradient: 'from-purple-900 via-indigo-900 to-black',
+    icon: '🔥',
     featured: true,
   },
   {
     id: 2,
-    name: 'Men',
-    description: 'Dark sophistication',
-    image: '/images/category-men.jpg',
-    href: '/products?category=men',
+    name: 'Hoodies',
+    description: 'Premium Streetwear',
+    href: '/products?type=Hoodie',
+    gradient: 'from-slate-800 via-gray-900 to-black',
+    icon: '🧥',
     featured: true,
   },
   {
     id: 3,
-    name: 'Accessories',
-    description: 'Complete your look',
-    image: '/images/category-accessories.jpg',
-    href: '/products?category=accessories',
+    name: 'Sweatshirts',
+    description: 'Cozy & Stylish',
+    href: '/products?type=Sweatshirt',
+    gradient: 'from-rose-900 via-pink-900 to-black',
+    icon: '👕',
   },
   {
     id: 4,
-    name: 'Jewelry',
-    description: 'Mystical adornments',
-    image: '/images/category-jewelry.jpg',
-    href: '/products?category=jewelry',
+    name: 'T-Shirts',
+    description: 'Everyday Essentials',
+    href: '/products?type=T-Shirt',
+    gradient: 'from-emerald-900 via-teal-900 to-black',
+    icon: '👚',
   },
   {
     id: 5,
-    name: 'Home',
-    description: 'Dark decor',
-    image: '/images/category-home.jpg',
-    href: '/products?category=home',
+    name: "Women's",
+    description: 'Boyfriend Tees & More',
+    href: '/products?collection=womens-essentials',
+    gradient: 'from-fuchsia-900 via-purple-900 to-black',
+    icon: '👗',
   },
   {
     id: 6,
-    name: 'Sale',
-    description: 'Up to 60% off',
-    image: '/images/category-sale.jpg',
-    href: '/products?sale=true',
-    badge: 'HOT',
+    name: 'Pajamas',
+    description: 'Comfort Collection',
+    href: '/products?type=Pajama',
+    gradient: 'from-blue-900 via-cyan-900 to-black',
+    icon: '🌙',
   },
 ];
 
@@ -60,7 +64,7 @@ export default function CategoryGrid() {
             Shop by Category
           </h2>
           <p className="text-mist-lilac/60 max-w-2xl mx-auto text-sm sm:text-base px-4">
-            Explore our dark collections curated for the modern gothic soul
+            Explore our premium streetwear collections
           </p>
         </div>
 
@@ -76,19 +80,25 @@ export default function CategoryGrid() {
                   : 'aspect-square sm:aspect-3/4'
               }`}
             >
-              {/* Background Placeholder */}
-              <div className="absolute inset-0 bg-linear-to-br from-deep-purple/40 to-black/60" />
+              {/* Gradient Background */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient}`} />
+              
+              {/* Animated Background Pattern */}
+              <div className="absolute inset-0 opacity-20">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1)_0%,transparent_50%)]" />
+              </div>
               
               {/* Hover Overlay */}
               <div className="absolute inset-0 bg-burnt-lilac/20 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-300" />
 
               {/* Content */}
               <div className="absolute inset-0 flex flex-col items-center justify-center p-3 sm:p-4 text-center">
-                {category.badge && (
-                  <span className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-red-600 text-white text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded">
-                    {category.badge}
-                  </span>
-                )}
+                {/* Icon */}
+                <span className={`mb-2 sm:mb-3 transform group-hover:scale-125 transition-transform duration-300 ${
+                  category.featured ? 'text-3xl sm:text-4xl lg:text-5xl' : 'text-2xl sm:text-3xl'
+                }`}>
+                  {category.icon}
+                </span>
                 
                 <div className="transform group-hover:scale-110 group-active:scale-105 transition-transform duration-300">
                   <h3 className={`font-serif text-mist-lilac mb-1 sm:mb-2 ${

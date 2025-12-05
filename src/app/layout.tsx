@@ -4,6 +4,10 @@ import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { CartProvider } from "@/context/CartContext";
+import { WishlistProvider } from "@/context/WishlistContext";
+import NewsletterPopup from "@/components/common/NewsletterPopup";
+import FloatingBackground from "@/components/common/FloatingBackground";
+import { generateOrganizationJsonLd, generateWebsiteJsonLd, JsonLd } from "@/lib/structured-data";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -16,6 +20,8 @@ const inter = Inter({
   subsets: ["latin"],
   display: "swap",
 });
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://luminixclothing.com";
 
 export const metadata: Metadata = {
   title: {
@@ -36,7 +42,25 @@ export const metadata: Metadata = {
     description:
       "Discover our curated collection of gothic-inspired fashion and accessories.",
     type: "website",
+    siteName: "Luminix",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Luminix | Gothic Fashion & Accessories",
+    description: "Discover our curated collection of gothic-inspired fashion and accessories.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  metadataBase: new URL(BASE_URL),
 };
 
 export default function RootLayout({
@@ -44,15 +68,26 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const organizationJsonLd = generateOrganizationJsonLd();
+  const websiteJsonLd = generateWebsiteJsonLd(BASE_URL);
+
   return (
     <html lang="en" className="dark">
+      <head>
+        <JsonLd data={organizationJsonLd} />
+        <JsonLd data={websiteJsonLd} />
+      </head>
       <body
         className={`${playfair.variable} ${inter.variable} antialiased bg-black text-mist-lilac`}
       >
+        <FloatingBackground />
         <CartProvider>
-          <Header />
-          <main className="min-h-screen pt-20">{children}</main>
-          <Footer />
+          <WishlistProvider>
+            <Header />
+            <main className="min-h-screen pt-20 relative" style={{ zIndex: 10 }}>{children}</main>
+            <Footer />
+            <NewsletterPopup />
+          </WishlistProvider>
         </CartProvider>
       </body>
     </html>

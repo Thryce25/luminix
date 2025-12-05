@@ -155,7 +155,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                     key={value}
                     onClick={() => handleOptionChange(option.name, value)}
                     disabled={!isAvailable}
-                    className={`px-3 sm:px-4 py-2 rounded border text-xs sm:text-sm transition-all touch-manipulation min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 ${
+                    className={`px-3 sm:px-4 py-2 rounded border text-xs sm:text-sm transition-all touch-manipulation min-w-11 min-h-11 sm:min-w-0 sm:min-h-0 ${
                       isSelected
                         ? 'bg-burnt-lilac border-burnt-lilac text-white'
                         : isAvailable

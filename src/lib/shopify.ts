@@ -309,15 +309,126 @@ const CART_FRAGMENT = `
   }
 `;
 
-// Product Queries
-export async function getProducts(first: number = 20): Promise<ShopifyProduct[]> {
+// Sort key mapping
+type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'best-selling' | 'title-asc';
+
+function getSortKey(sort: SortOption): { sortKey: string; reverse: boolean } {
+  switch (sort) {
+    case 'newest':
+      return { sortKey: 'CREATED_AT', reverse: true };
+    case 'price-asc':
+      return { sortKey: 'PRICE', reverse: false };
+    case 'price-desc':
+      return { sortKey: 'PRICE', reverse: true };
+    case 'best-selling':
+      return { sortKey: 'BEST_SELLING', reverse: false };
+    case 'title-asc':
+      return { sortKey: 'TITLE', reverse: false };
+    default:
+      return { sortKey: 'CREATED_AT', reverse: true };
+  }
+}
+
+// Product Queries with filtering and sorting
+export interface ProductQueryOptions {
+  first?: number;
+  sort?: SortOption;
+  collection?: string;
+  productType?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  query?: string;
+}
+
+export async function getProducts(
+  firstOrOptions: number | ProductQueryOptions = 20
+): Promise<ShopifyProduct[]> {
+  // Support both old signature (just number) and new options object
+  const options: ProductQueryOptions = typeof firstOrOptions === 'number' 
+    ? { first: firstOrOptions }
+    : firstOrOptions;
+    
+  const { first = 20, sort = 'newest', collection, productType, minPrice, maxPrice, query: searchQuery } = options;
+  const { sortKey, reverse } = getSortKey(sort);
+
+  // If collection is specified, fetch from collection
+  if (collection) {
+    return getProductsByCollection(collection, first, sort);
+  }
+
+  // Build search query for filtering
+  let queryString = searchQuery || '';
+  if (productType) {
+    queryString += queryString ? ` AND product_type:${productType}` : `product_type:${productType}`;
+  }
+  if (minPrice !== undefined || maxPrice !== undefined) {
+    const min = minPrice || 0;
+    const max = maxPrice || 999999;
+    queryString += queryString ? ` AND variants.price:>=${min} AND variants.price:<=${max}` : `variants.price:>=${min} AND variants.price:<=${max}`;
+  }
+
+  const query = queryString
+    ? `
+      ${PRODUCT_FRAGMENT}
+      query GetProductsFiltered($first: Int!, $query: String!, $sortKey: ProductSortKeys!, $reverse: Boolean!) {
+        products(first: $first, query: $query, sortKey: $sortKey, reverse: $reverse) {
+          edges {
+            node {
+              ...ProductFragment
+            }
+          }
+        }
+      }
+    `
+    : `
+      ${PRODUCT_FRAGMENT}
+      query GetProducts($first: Int!, $sortKey: ProductSortKeys!, $reverse: Boolean!) {
+        products(first: $first, sortKey: $sortKey, reverse: $reverse) {
+          edges {
+            node {
+              ...ProductFragment
+            }
+          }
+        }
+      }
+    `;
+
+  const data = await shopifyFetch<{
+    products: { edges: Array<{ node: ShopifyProduct }> };
+  }>({
+    query,
+    variables: queryString 
+      ? { first, query: queryString, sortKey, reverse }
+      : { first, sortKey, reverse },
+    cache: 'no-store',
+  });
+
+  return data.products.edges.map((edge) => edge.node);
+}
+
+// Get products by collection handle with sorting
+export async function getProductsByCollection(
+  collectionHandle: string,
+  first: number = 20,
+  sort: SortOption = 'newest'
+): Promise<ShopifyProduct[]> {
+  const { sortKey, reverse } = getSortKey(sort);
+  
+  // Map product sort keys to collection product sort keys
+  const collectionSortKey = sortKey === 'CREATED_AT' ? 'CREATED' : 
+                           sortKey === 'BEST_SELLING' ? 'BEST_SELLING' :
+                           sortKey === 'PRICE' ? 'PRICE' :
+                           sortKey === 'TITLE' ? 'TITLE' : 'CREATED';
+
   const query = `
     ${PRODUCT_FRAGMENT}
-    query GetProducts($first: Int!) {
-      products(first: $first, sortKey: CREATED_AT, reverse: true) {
-        edges {
-          node {
-            ...ProductFragment
+    query GetCollectionProducts($handle: String!, $first: Int!, $sortKey: ProductCollectionSortKeys!, $reverse: Boolean!) {
+      collection(handle: $handle) {
+        products(first: $first, sortKey: $sortKey, reverse: $reverse) {
+          edges {
+            node {
+              ...ProductFragment
+            }
           }
         }
       }
@@ -325,14 +436,44 @@ export async function getProducts(first: number = 20): Promise<ShopifyProduct[]>
   `;
 
   const data = await shopifyFetch<{
-    products: { edges: Array<{ node: ShopifyProduct }> };
+    collection: { products: { edges: Array<{ node: ShopifyProduct }> } } | null;
   }>({
     query,
-    variables: { first },
+    variables: { handle: collectionHandle, first, sortKey: collectionSortKey, reverse },
     cache: 'no-store',
   });
 
-  return data.products.edges.map((edge) => edge.node);
+  return data.collection?.products.edges.map((edge) => edge.node) || [];
+}
+
+// Get all unique product types
+export async function getProductTypes(): Promise<string[]> {
+  const query = `
+    query GetProductTypes {
+      products(first: 100) {
+        edges {
+          node {
+            productType
+          }
+        }
+      }
+    }
+  `;
+
+  const data = await shopifyFetch<{
+    products: { edges: Array<{ node: { productType: string } }> };
+  }>({
+    query,
+    cache: 'no-store',
+  });
+
+  const types = new Set(
+    data.products.edges
+      .map((edge) => edge.node.productType)
+      .filter((type) => type && type.trim() !== '')
+  );
+
+  return Array.from(types).sort();
 }
 
 export async function getProduct(handle: string): Promise<ShopifyProduct | null> {
@@ -352,6 +493,99 @@ export async function getProduct(handle: string): Promise<ShopifyProduct | null>
   });
 
   return data.product;
+}
+
+// Get related products based on product type, tags, or vendor
+export async function getRelatedProducts(
+  product: ShopifyProduct,
+  first: number = 4
+): Promise<ShopifyProduct[]> {
+  // Build a query that finds similar products
+  const searchTerms: string[] = [];
+  
+  // Add product type if available
+  if (product.productType) {
+    searchTerms.push(`product_type:${product.productType}`);
+  }
+  
+  // Add vendor/brand
+  if (product.vendor) {
+    searchTerms.push(`vendor:${product.vendor}`);
+  }
+  
+  // Use tags if no product type
+  if (!product.productType && product.tags.length > 0) {
+    const tagQuery = product.tags.slice(0, 3).map(tag => `tag:${tag}`).join(' OR ');
+    searchTerms.push(`(${tagQuery})`);
+  }
+
+  // If we have search terms, use them
+  if (searchTerms.length > 0) {
+    const query = `
+      ${PRODUCT_FRAGMENT}
+      query GetRelatedProducts($query: String!, $first: Int!) {
+        products(first: $first, query: $query) {
+          edges {
+            node {
+              ...ProductFragment
+            }
+          }
+        }
+      }
+    `;
+
+    try {
+      const data = await shopifyFetch<{
+        products: { edges: Array<{ node: ShopifyProduct }> };
+      }>({
+        query,
+        variables: { 
+          query: searchTerms.join(' OR '), 
+          first: first + 1 // Fetch one extra in case current product is included
+        },
+        cache: 'no-store',
+      });
+
+      // Filter out the current product
+      const related = data.products.edges
+        .map((edge) => edge.node)
+        .filter((p) => p.handle !== product.handle)
+        .slice(0, first);
+
+      if (related.length >= first) {
+        return related;
+      }
+    } catch (error) {
+      console.error('Error fetching related products:', error);
+    }
+  }
+
+  // Fallback: get random products excluding current
+  const fallbackQuery = `
+    ${PRODUCT_FRAGMENT}
+    query GetFallbackRelated($first: Int!) {
+      products(first: $first, sortKey: BEST_SELLING) {
+        edges {
+          node {
+            ...ProductFragment
+          }
+        }
+      }
+    }
+  `;
+
+  const fallbackData = await shopifyFetch<{
+    products: { edges: Array<{ node: ShopifyProduct }> };
+  }>({
+    query: fallbackQuery,
+    variables: { first: first + 1 },
+    cache: 'no-store',
+  });
+
+  return fallbackData.products.edges
+    .map((edge) => edge.node)
+    .filter((p) => p.handle !== product.handle)
+    .slice(0, first);
 }
 
 export async function getFeaturedProducts(first: number = 8): Promise<ShopifyProduct[]> {
