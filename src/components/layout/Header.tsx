@@ -6,23 +6,37 @@ import { useCart } from '@/context/CartContext';
 import CartDrawer from '../cart/CartDrawer';
 import SearchModal from './SearchModal';
 
-const categories = [
+const collections = [
+  {
+    name: "Men's Fashion",
+    href: '/collections/mens-essentials',
+    subcategories: [
+      { name: 'All', href: '/collections/mens-essentials' },
+      { name: 'Hoodies', href: '/collections/mens-essentials?type=Hoodie' },
+      { name: 'Sweatshirts', href: '/collections/mens-essentials?type=Sweatshirt' },
+      { name: 'T-Shirts', href: '/collections/mens-essentials?type=T-Shirt' },
+    ],
+  },
   {
     name: 'New Arrivals',
-    href: '/products?sort=newest',
+    href: '/collections/new-arrivals',
+    subcategories: [
+      { name: 'All New', href: '/collections/new-arrivals' },
+      { name: 'Hoodies', href: '/collections/new-arrivals?type=Hoodie' },
+      { name: 'T-Shirts', href: '/collections/new-arrivals?type=T-Shirt' },
+    ],
   },
   {
-    name: 'Men',
-    href: '/products?category=men',
-    subcategories: ['Shirts', 'T-Shirts', 'Jeans', 'Trousers', 'Jackets', 'Hoodies'],
+    name: "Women's Fashion",
+    href: '/collections/womens-essentials',
+    subcategories: [
+      { name: 'All', href: '/collections/womens-essentials' },
+      { name: 'Boyfriend Tees', href: '/collections/womens-essentials?type=T-Shirt' },
+      { name: 'Tops', href: '/collections/womens-essentials?type=Top' },
+    ],
   },
   {
-    name: 'Women',
-    href: '/products?category=women',
-    subcategories: ['Shirts', 'T-Shirts', 'Dresses', 'Jeans', 'Tops', 'Jackets'],
-  },
-  {
-    name: 'Store',
+    name: 'All Products',
     href: '/products',
   },
 ];
@@ -30,11 +44,20 @@ const categories = [
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [expandedMobileCategory, setExpandedMobileCategory] = useState<string | null>(null);
   const { cart, setCartOpen } = useCart();
 
   const cartItemCount = cart?.totalQuantity || 0;
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => setActiveDropdown(null);
+    if (activeDropdown) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [activeDropdown]);
 
   // Close mobile menu on resize to desktop
   useEffect(() => {
@@ -61,6 +84,11 @@ export default function Header() {
 
   const toggleMobileCategory = (categoryName: string) => {
     setExpandedMobileCategory(expandedMobileCategory === categoryName ? null : categoryName);
+  };
+
+  const handleDropdownToggle = (e: React.MouseEvent, name: string) => {
+    e.stopPropagation();
+    setActiveDropdown(activeDropdown === name ? null : name);
   };
 
   return (
@@ -93,29 +121,52 @@ export default function Header() {
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-8">
-              {categories.map((category) => (
+              {collections.map((collection) => (
                 <div
-                  key={category.name}
+                  key={collection.name}
                   className="relative"
-                  onMouseEnter={() => setActiveCategory(category.name)}
-                  onMouseLeave={() => setActiveCategory(null)}
+                  onMouseEnter={() => collection.subcategories && setActiveDropdown(collection.name)}
+                  onMouseLeave={() => setActiveDropdown(null)}
                 >
-                  <NavLink href={category.href}>
-                    {category.name}
-                  </NavLink>
+                  <Link
+                    href={collection.href}
+                    className="text-sm uppercase tracking-widest font-medium relative group transition-colors text-mist-lilac hover:text-burnt-lilac flex items-center gap-1"
+                  >
+                    {collection.name}
+                    {collection.subcategories && (
+                      <svg 
+                        className={`w-3 h-3 transition-transform duration-200 ${activeDropdown === collection.name ? 'rotate-180' : ''}`} 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    )}
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-mist-lilac to-burnt-lilac transition-all group-hover:w-full" />
+                  </Link>
                   
                   {/* Dropdown Menu */}
-                  {category.subcategories && activeCategory === category.name && (
-                    <div className="absolute top-full left-0 mt-2 w-48 bg-black/95 border border-deep-purple/30 rounded-lg shadow-xl py-2 animate-fade-in">
-                      {category.subcategories.map((sub) => (
-                        <Link
-                          key={sub}
-                          href={`${category.href}&sub=${sub.toLowerCase()}`}
-                          className="block px-4 py-2 text-sm text-mist-lilac/80 hover:text-mist-lilac hover:bg-deep-purple/20 transition-colors"
-                        >
-                          {sub}
-                        </Link>
-                      ))}
+                  {collection.subcategories && activeDropdown === collection.name && (
+                    <div 
+                      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-black border border-deep-purple/30 rounded-lg shadow-2xl py-2 z-50"
+                      style={{ animation: 'fadeIn 0.15s ease-out' }}
+                    >
+                      {/* Arrow */}
+                      <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-black border-l border-t border-deep-purple/30 rotate-45" />
+                      
+                      <div className="relative bg-black rounded-lg">
+                        {collection.subcategories.map((sub) => (
+                          <Link
+                            key={sub.name}
+                            href={sub.href}
+                            className="block px-4 py-2.5 text-sm text-mist-lilac/80 hover:text-mist-lilac hover:bg-deep-purple/30 transition-colors"
+                            onClick={() => setActiveDropdown(null)}
+                          >
+                            {sub.name}
+                          </Link>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -155,20 +206,20 @@ export default function Header() {
 
           {/* Mobile Menu - Full Screen Overlay */}
           {mobileMenuOpen && (
-            <div className="lg:hidden fixed inset-0 top-14 sm:top-16 bg-black z-40 animate-fade-in overflow-y-auto">
-              <div className="px-4 py-6 space-y-2 pb-24">
-                {categories.map((category) => (
-                  <div key={category.name} className="border-b border-deep-purple/20 last:border-0">
-                    {category.subcategories ? (
+            <div className="lg:hidden fixed inset-0 top-14 sm:top-16 bg-black z-40 overflow-y-auto">
+              <div className="px-4 py-6 space-y-1 pb-24">
+                {collections.map((collection) => (
+                  <div key={collection.name} className="border-b border-deep-purple/20 last:border-0">
+                    {collection.subcategories ? (
                       <>
                         <button
-                          onClick={() => toggleMobileCategory(category.name)}
+                          onClick={() => toggleMobileCategory(collection.name)}
                           className="flex items-center justify-between w-full py-4 text-lg uppercase tracking-wider font-medium text-mist-lilac touch-manipulation"
                         >
-                          {category.name}
+                          {collection.name}
                           <svg
                             className={`w-5 h-5 transition-transform duration-300 ${
-                              expandedMobileCategory === category.name ? 'rotate-180' : ''
+                              expandedMobileCategory === collection.name ? 'rotate-180' : ''
                             }`}
                             fill="none"
                             stroke="currentColor"
@@ -177,35 +228,34 @@ export default function Header() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                           </svg>
                         </button>
-                        {expandedMobileCategory === category.name && (
-                          <div className="pb-4 pl-4 space-y-1 animate-fade-in">
-                            <Link
-                              href={category.href}
-                              onClick={() => setMobileMenuOpen(false)}
-                              className="block py-3 text-base text-burnt-lilac touch-manipulation"
-                            >
-                              View All {category.name}
-                            </Link>
-                            {category.subcategories.map((sub) => (
+                        
+                        {/* Expanded subcategories */}
+                        <div 
+                          className={`overflow-hidden transition-all duration-300 ${
+                            expandedMobileCategory === collection.name ? 'max-h-96 pb-4' : 'max-h-0'
+                          }`}
+                        >
+                          <div className="pl-4 space-y-1">
+                            {collection.subcategories.map((sub) => (
                               <Link
-                                key={sub}
-                                href={`${category.href}&sub=${sub.toLowerCase()}`}
+                                key={sub.name}
+                                href={sub.href}
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="block py-3 text-base text-mist-lilac/70 hover:text-mist-lilac transition-colors touch-manipulation"
+                                className="block py-3 text-base text-mist-lilac/70 hover:text-burnt-lilac transition-colors touch-manipulation"
                               >
-                                {sub}
+                                {sub.name}
                               </Link>
                             ))}
                           </div>
-                        )}
+                        </div>
                       </>
                     ) : (
                       <Link
-                        href={category.href}
+                        href={collection.href}
                         onClick={() => setMobileMenuOpen(false)}
                         className="block py-4 text-lg uppercase tracking-wider font-medium text-mist-lilac touch-manipulation"
                       >
-                        {category.name}
+                        {collection.name}
                       </Link>
                     )}
                   </div>
@@ -219,17 +269,5 @@ export default function Header() {
       <CartDrawer />
       <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
-  );
-}
-
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <Link
-      href={href}
-      className="text-sm uppercase tracking-widest font-medium relative group transition-colors text-mist-lilac hover:text-burnt-lilac"
-    >
-      {children}
-      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-linear-to-r from-mist-lilac to-burnt-lilac transition-all group-hover:w-full" />
-    </Link>
   );
 }

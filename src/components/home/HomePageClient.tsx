@@ -1,0 +1,609 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { ShopifyProduct } from '@/lib/shopify';
+import { useCart } from '@/context/CartContext';
+
+interface HomePageClientProps {
+  featuredProducts: ShopifyProduct[];
+  newArrivals: ShopifyProduct[];
+}
+
+export default function HomePageClient({ featuredProducts, newArrivals }: HomePageClientProps) {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [scrollY, setScrollY] = useState(0);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [activeCollection, setActiveCollection] = useState(0);
+  const heroRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  // Auto-rotate collections
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveCollection((prev) => (prev + 1) % 3);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const collections = [
+    { name: "Men's Essentials", href: '/collections/mens-essentials', color: 'from-slate-900 via-gray-800 to-burnt-lilac/30' },
+    { name: 'New Arrivals', href: '/collections/new-arrivals', color: 'from-purple-900 via-indigo-800 to-burnt-lilac/30' },
+    { name: "Women's Fashion", href: '/collections/womens-essentials', color: 'from-rose-900 via-pink-800 to-burnt-lilac/30' },
+  ];
+
+  return (
+    <div className="min-h-screen bg-black overflow-hidden -mt-20">
+      {/* ===== ANIMATED BACKGROUND LAYER ===== */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {/* Mouse-following gradient orb */}
+        <div
+          className="absolute w-[800px] h-[800px] rounded-full blur-[120px] transition-all duration-1000 ease-out"
+          style={{
+            background: 'radial-gradient(circle, rgba(111,78,124,0.2) 0%, transparent 70%)',
+            left: mousePosition.x - 400,
+            top: mousePosition.y - 400,
+            opacity: isLoaded ? 1 : 0,
+          }}
+        />
+        
+        {/* Static ambient orbs */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full blur-[100px] bg-gradient-to-br from-burnt-lilac/10 to-transparent" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full blur-[80px] bg-gradient-to-tr from-deep-purple/20 to-transparent" />
+        <div className="absolute top-1/2 left-1/2 w-[400px] h-[400px] rounded-full blur-[100px] bg-gradient-to-br from-mist-lilac/5 to-transparent animate-pulse" />
+        
+        {/* Grid pattern overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `linear-gradient(rgba(214,197,220,0.3) 1px, transparent 1px),
+                             linear-gradient(90deg, rgba(214,197,220,0.3) 1px, transparent 1px)`,
+            backgroundSize: '60px 60px',
+          }}
+        />
+      </div>
+
+      {/* ===== HERO SECTION ===== */}
+      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Parallax floating shapes */}
+        <div className="absolute inset-0 z-0" style={{ transform: `translateY(${scrollY * 0.3}px)` }}>
+          {/* Gothic cross shape */}
+          <div className="absolute top-[15%] left-[8%] w-1 h-20 bg-gradient-to-b from-burnt-lilac/30 to-transparent animate-float" />
+          <div className="absolute top-[15%] left-[8%] translate-y-6 w-10 h-1 -translate-x-4 bg-gradient-to-r from-transparent via-burnt-lilac/30 to-transparent animate-float" />
+          
+          {/* Floating circles */}
+          <div className="absolute top-[20%] right-[15%] w-32 h-32 border border-mist-lilac/10 rounded-full animate-float" style={{ animationDelay: '0.5s' }} />
+          <div className="absolute top-[60%] left-[10%] w-48 h-48 border border-burnt-lilac/10 rounded-full animate-float" style={{ animationDelay: '1s' }} />
+          <div className="absolute bottom-[20%] right-[20%] w-24 h-24 border-2 border-deep-purple/20 rounded-full animate-float" style={{ animationDelay: '1.5s' }} />
+          
+          {/* Diamond shapes */}
+          <div className="absolute top-[35%] right-[8%] w-16 h-16 border border-burnt-lilac/20 rotate-45 animate-float" style={{ animationDelay: '2s' }} />
+          <div className="absolute bottom-[35%] left-[5%] w-12 h-12 bg-burnt-lilac/5 rotate-45 animate-float" style={{ animationDelay: '0.8s' }} />
+          
+          {/* Glowing dots */}
+          {[...Array(12)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-1 h-1 bg-burnt-lilac/40 rounded-full animate-pulse"
+              style={{
+                top: `${15 + (i * 7)}%`,
+                left: `${10 + (i * 8) % 80}%`,
+                animationDelay: `${i * 0.3}s`,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Hero Content */}
+        <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto pt-32 sm:pt-40">
+          {/* Tagline */}
+          <p className={`text-burnt-lilac uppercase tracking-[0.3em] text-xs sm:text-sm mb-6 transition-all duration-700 delay-200 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            Gothic Fashion Reimagined
+          </p>
+
+          {/* Main Heading with Gradient */}
+          <h1 className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-serif leading-tight mb-6 transition-all duration-700 delay-300 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <span className="block text-mist-lilac">Embrace the</span>
+            <span className="block bg-gradient-to-r from-burnt-lilac via-mist-lilac to-burnt-lilac bg-clip-text text-transparent animate-gradient">
+              Extraordinary
+            </span>
+          </h1>
+
+          {/* Subtitle */}
+          <p className={`text-mist-lilac/60 text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-10 transition-all duration-700 delay-400 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            Where darkness meets elegance. Premium streetwear crafted for those who dare to stand out.
+          </p>
+
+          {/* CTA Buttons */}
+          <div className={`flex flex-col sm:flex-row gap-4 justify-center mb-16 transition-all duration-700 delay-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <Link
+              href="/products"
+              className="group relative px-10 py-4 bg-gradient-to-r from-burnt-lilac to-purple-600 rounded-xl text-white font-medium overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-burnt-lilac/30 hover:scale-105"
+            >
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                Shop Collection
+                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-burnt-lilac opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </Link>
+            <Link
+              href="/collections/new-arrivals"
+              className="px-10 py-4 bg-white/5 backdrop-blur-sm rounded-xl text-mist-lilac font-medium border border-white/10 hover:bg-white/10 hover:border-burnt-lilac/30 transition-all duration-300"
+            >
+              New Arrivals
+            </Link>
+          </div>
+
+          {/* Animated Stats */}
+          <div className={`grid grid-cols-3 gap-8 max-w-lg mx-auto transition-all duration-700 delay-600 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            {[
+              { value: '500+', label: 'Products' },
+              { value: '10K+', label: 'Customers' },
+              { value: '4.9★', label: 'Rating' },
+            ].map((stat, i) => (
+              <div key={i} className="text-center">
+                <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-burnt-lilac to-mist-lilac bg-clip-text text-transparent">
+                  {stat.value}
+                </div>
+                <div className="text-mist-lilac/50 text-xs sm:text-sm">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className={`absolute bottom-8 left-1/2 -translate-x-1/2 transition-all duration-700 delay-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+          <div className="flex flex-col items-center gap-2 text-mist-lilac/40">
+            <span className="text-xs uppercase tracking-widest">Scroll</span>
+            <div className="w-6 h-10 border border-mist-lilac/30 rounded-full flex justify-center pt-2">
+              <div className="w-1.5 h-3 bg-burnt-lilac/50 rounded-full animate-bounce" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== COLLECTIONS SHOWCASE ===== */}
+      <section className="relative py-24 sm:py-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Section Header */}
+          <div className="text-center mb-16">
+            <p className="text-burnt-lilac uppercase tracking-[0.2em] text-xs sm:text-sm mb-4">
+              Curated Collections
+            </p>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif">
+              <span className="bg-gradient-to-r from-white via-mist-lilac to-burnt-lilac bg-clip-text text-transparent">
+                Shop by Style
+              </span>
+            </h2>
+          </div>
+
+          {/* Collection Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {collections.map((collection, index) => (
+              <Link
+                key={collection.name}
+                href={collection.href}
+                className={`group relative overflow-hidden rounded-2xl aspect-[3/4] transition-all duration-500 ${
+                  activeCollection === index ? 'scale-105 z-10' : 'scale-100'
+                }`}
+                onMouseEnter={() => setActiveCollection(index)}
+              >
+                {/* Background Gradient */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${collection.color} transition-all duration-500`} />
+                
+                {/* Animated Pattern */}
+                <div className="absolute inset-0 opacity-20">
+                  <div className="absolute inset-0" style={{
+                    backgroundImage: `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
+                  }} />
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="absolute w-32 h-32 border border-white/10 rounded-full animate-float"
+                      style={{
+                        top: `${20 + i * 15}%`,
+                        left: `${10 + i * 20}%`,
+                        animationDelay: `${i * 0.5}s`,
+                      }}
+                    />
+                  ))}
+                </div>
+
+                {/* Content */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
+                  <div className={`w-20 h-20 mb-6 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-white/20`}>
+                    <span className="text-3xl font-serif text-white">{index + 1}</span>
+                  </div>
+                  <h3 className="text-2xl sm:text-3xl font-serif text-white mb-3 group-hover:scale-105 transition-transform">
+                    {collection.name}
+                  </h3>
+                  <p className="text-white/60 text-sm mb-6">
+                    Explore the collection
+                  </p>
+                  <div className="px-6 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white text-sm border border-white/20 group-hover:bg-white/20 group-hover:scale-105 transition-all">
+                    View All →
+                  </div>
+                </div>
+
+                {/* Hover border effect */}
+                <div className={`absolute inset-0 border-2 rounded-2xl transition-all duration-300 ${
+                  activeCollection === index ? 'border-white/30' : 'border-transparent'
+                }`} />
+              </Link>
+            ))}
+          </div>
+
+          {/* Collection Indicators */}
+          <div className="flex justify-center gap-3 mt-8">
+            {collections.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setActiveCollection(i)}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  activeCollection === i ? 'w-8 bg-burnt-lilac' : 'bg-mist-lilac/30'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FEATURED PRODUCTS ===== */}
+      <section className="relative py-24 sm:py-32">
+        {/* Background decoration */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-burnt-lilac/30 to-transparent" />
+          <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-burnt-lilac/30 to-transparent" />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Section Header */}
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-12 gap-6">
+            <div>
+              <p className="text-burnt-lilac uppercase tracking-[0.2em] text-xs sm:text-sm mb-4">
+                Handpicked Selection
+              </p>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif">
+                <span className="bg-gradient-to-r from-white via-mist-lilac to-burnt-lilac bg-clip-text text-transparent">
+                  Featured Products
+                </span>
+              </h2>
+            </div>
+            <Link
+              href="/products"
+              className="inline-flex items-center gap-2 text-burnt-lilac hover:text-mist-lilac transition-colors group"
+            >
+              View All
+              <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
+          </div>
+
+          {/* Products Grid */}
+          {featuredProducts.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+              {featuredProducts.slice(0, 8).map((product, index) => (
+                <ProductCardEnhanced key={product.id} product={product} index={index} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20">
+              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-burnt-lilac/10 flex items-center justify-center">
+                <svg className="w-10 h-10 text-mist-lilac/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+              <p className="text-mist-lilac/50">Products loading...</p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ===== PROMOTIONAL BANNER ===== */}
+      <section className="relative py-24 sm:py-32 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-deep-purple/30 via-burnt-lilac/10 to-black" />
+        
+        {/* Animated background shapes */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/4 -left-20 w-96 h-96 border border-burnt-lilac/10 rounded-full animate-spin-slow" />
+          <div className="absolute bottom-1/4 -right-20 w-80 h-80 border-2 border-mist-lilac/10 rounded-full animate-spin-slow" style={{ animationDirection: 'reverse' }} />
+        </div>
+
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="inline-block px-4 py-1 bg-burnt-lilac/20 rounded-full text-burnt-lilac text-sm mb-6">
+            Limited Time Offer
+          </div>
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-serif mb-6">
+            <span className="bg-gradient-to-r from-white via-mist-lilac to-burnt-lilac bg-clip-text text-transparent">
+              Up to 60% Off
+            </span>
+          </h2>
+          <p className="text-mist-lilac/70 text-lg sm:text-xl max-w-xl mx-auto mb-10">
+            Exclusive deals on premium gothic fashion. Don't miss out on our biggest sale of the season.
+          </p>
+          <Link
+            href="/products?sale=true"
+            className="inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-burnt-lilac to-purple-600 rounded-xl text-white font-medium hover:shadow-2xl hover:shadow-burnt-lilac/30 hover:scale-105 transition-all duration-300"
+          >
+            Shop Sale
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </Link>
+        </div>
+      </section>
+
+      {/* ===== NEW ARRIVALS ===== */}
+      <section className="relative py-24 sm:py-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Section Header */}
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-12 gap-6">
+            <div>
+              <p className="text-burnt-lilac uppercase tracking-[0.2em] text-xs sm:text-sm mb-4">
+                Fresh Drops
+              </p>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif">
+                <span className="bg-gradient-to-r from-white via-mist-lilac to-burnt-lilac bg-clip-text text-transparent">
+                  New Arrivals
+                </span>
+              </h2>
+            </div>
+            <Link
+              href="/collections/new-arrivals"
+              className="inline-flex items-center gap-2 text-burnt-lilac hover:text-mist-lilac transition-colors group"
+            >
+              View All
+              <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
+          </div>
+
+          {/* Horizontal Scroll */}
+          {newArrivals.length > 0 ? (
+            <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
+              {newArrivals.map((product, index) => (
+                <div key={product.id} className="shrink-0 w-64 sm:w-72">
+                  <ProductCardEnhanced product={product} index={index} />
+                </div>
+              ))}
+              
+              {/* View More Card */}
+              <Link
+                href="/collections/new-arrivals"
+                className="shrink-0 w-64 sm:w-72 flex flex-col items-center justify-center bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:border-burnt-lilac/30 hover:bg-white/10 transition-all group aspect-[3/4]"
+              >
+                <div className="w-16 h-16 rounded-full bg-burnt-lilac/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <svg className="w-8 h-8 text-burnt-lilac" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </div>
+                <span className="text-mist-lilac font-medium">View All</span>
+                <span className="text-mist-lilac/50 text-sm">New Arrivals</span>
+              </Link>
+            </div>
+          ) : (
+            <div className="text-center py-20">
+              <p className="text-mist-lilac/50">New arrivals coming soon...</p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ===== NEWSLETTER SECTION ===== */}
+      <section className="relative py-24 sm:py-32">
+        <div className="absolute inset-0 bg-gradient-to-t from-deep-purple/20 to-transparent" />
+        
+        <div className="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="w-20 h-20 mx-auto mb-8 rounded-full bg-gradient-to-br from-burnt-lilac/30 to-mist-lilac/10 flex items-center justify-center">
+            <svg className="w-10 h-10 text-burnt-lilac" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-serif mb-4">
+            <span className="bg-gradient-to-r from-white via-mist-lilac to-burnt-lilac bg-clip-text text-transparent">
+              Join the Dark Side
+            </span>
+          </h2>
+          <p className="text-mist-lilac/60 mb-8">
+            Subscribe for exclusive offers, early access to new collections, and 10% off your first order.
+          </p>
+          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <input
+              type="email"
+              placeholder="Enter your email"
+              className="flex-1 px-5 py-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl text-mist-lilac placeholder-mist-lilac/40 focus:outline-none focus:border-burnt-lilac/50 transition-colors"
+            />
+            <button
+              type="submit"
+              className="px-8 py-4 bg-gradient-to-r from-burnt-lilac to-purple-600 rounded-xl text-white font-medium hover:shadow-lg hover:shadow-burnt-lilac/30 transition-all"
+            >
+              Subscribe
+            </button>
+          </form>
+        </div>
+      </section>
+
+      {/* Decorative bottom gradient */}
+      <div className="fixed bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent pointer-events-none z-0" />
+
+      {/* Custom styles */}
+      <style jsx global>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(2deg); }
+        }
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes gradient {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+        .animate-spin-slow {
+          animation: spin-slow 30s linear infinite;
+        }
+        .animate-gradient {
+          background-size: 200% auto;
+          animation: gradient 4s ease infinite;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// Enhanced Product Card Component
+function ProductCardEnhanced({ product, index }: { product: ShopifyProduct; index: number }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const { addItem, setCartOpen } = useCart();
+
+  const image = product.images?.edges?.[0]?.node;
+  const secondImage = product.images?.edges?.[1]?.node;
+  const price = product.priceRange?.minVariantPrice;
+  const comparePrice = product.compareAtPriceRange?.minVariantPrice;
+  const hasDiscount = comparePrice && parseFloat(comparePrice.amount) > parseFloat(price?.amount || '0');
+
+  const handleQuickAdd = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const variant = product.variants?.edges?.[0]?.node;
+    if (variant) {
+      await addItem(variant.id, 1);
+      setCartOpen(true);
+    }
+  };
+
+  return (
+    <Link
+      href={`/products/${product.handle}`}
+      className="group relative block"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{
+        animation: 'fadeInUp 0.6s ease-out forwards',
+        animationDelay: `${index * 100}ms`,
+        opacity: 0,
+      }}
+    >
+      {/* Image Container */}
+      <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-deep-purple/20">
+        {/* Skeleton */}
+        {!imageLoaded && (
+          <div className="absolute inset-0 bg-gradient-to-br from-deep-purple/30 to-burnt-lilac/10 animate-pulse" />
+        )}
+
+        {/* Primary Image */}
+        {image && (
+          <Image
+            src={image.url}
+            alt={image.altText || product.title}
+            fill
+            className={`object-cover transition-all duration-700 ${
+              imageLoaded ? 'opacity-100' : 'opacity-0'
+            } ${isHovered && secondImage ? 'opacity-0 scale-110' : 'opacity-100 scale-100'}`}
+            onLoad={() => setImageLoaded(true)}
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          />
+        )}
+
+        {/* Secondary Image */}
+        {secondImage && (
+          <Image
+            src={secondImage.url}
+            alt={secondImage.altText || product.title}
+            fill
+            className={`object-cover transition-all duration-700 absolute inset-0 ${
+              isHovered ? 'opacity-100 scale-100' : 'opacity-0 scale-110'
+            }`}
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          />
+        )}
+
+        {/* Sale Badge */}
+        {hasDiscount && (
+          <div className="absolute top-3 left-3 px-2 py-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-lg shadow-lg">
+            SALE
+          </div>
+        )}
+
+        {/* Quick Add Overlay */}
+        <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end justify-center pb-4 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
+          <button
+            onClick={handleQuickAdd}
+            className="px-6 py-2.5 bg-burnt-lilac hover:bg-burnt-lilac/80 text-white text-sm font-medium rounded-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg"
+          >
+            Quick Add
+          </button>
+        </div>
+
+        {/* Hover Border */}
+        <div className={`absolute inset-0 border-2 rounded-xl transition-colors duration-300 ${isHovered ? 'border-burnt-lilac' : 'border-transparent'}`} />
+      </div>
+
+      {/* Product Info */}
+      <div className="mt-4 space-y-1">
+        <h3 className="text-mist-lilac font-medium text-sm sm:text-base line-clamp-2 group-hover:text-burnt-lilac transition-colors">
+          {product.title}
+        </h3>
+        <p className="text-mist-lilac/50 text-xs">{product.productType}</p>
+        <div className="flex items-center gap-2">
+          <span className="text-burnt-lilac font-semibold text-sm sm:text-base">
+            ₹{parseFloat(price?.amount || '0').toFixed(0)}
+          </span>
+          {hasDiscount && (
+            <span className="text-mist-lilac/40 line-through text-xs sm:text-sm">
+              ₹{parseFloat(comparePrice.amount).toFixed(0)}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+    </Link>
+  );
+}

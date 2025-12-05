@@ -2,56 +2,42 @@
 
 import Link from 'next/link';
 
-const categories = [
+const collections = [
   {
     id: 1,
-    name: 'Anime Collection',
-    description: 'One Piece, Dragon Ball & More',
-    href: '/products?collection=anime-collection',
-    gradient: 'from-purple-900 via-indigo-900 to-black',
-    icon: '🔥',
-    featured: true,
+    name: "Men's Fashion",
+    description: 'Hoodies, Sweatshirts & T-Shirts',
+    href: '/collections/mens-essentials',
+    gradient: 'from-slate-800 via-gray-900 to-black',
+    categories: [
+      { name: 'Hoodies', href: '/collections/mens-essentials?type=Hoodie' },
+      { name: 'Sweatshirts', href: '/collections/mens-essentials?type=Sweatshirt' },
+      { name: 'T-Shirts', href: '/collections/mens-essentials?type=T-Shirt' },
+    ],
   },
   {
     id: 2,
-    name: 'Hoodies',
-    description: 'Premium Streetwear',
-    href: '/products?type=Hoodie',
-    gradient: 'from-slate-800 via-gray-900 to-black',
-    icon: '🧥',
-    featured: true,
+    name: 'New Arrivals',
+    description: 'Latest Drops',
+    href: '/collections/new-arrivals',
+    gradient: 'from-purple-900 via-indigo-900 to-black',
+    categories: [
+      { name: 'All New', href: '/collections/new-arrivals' },
+      { name: 'Hoodies', href: '/collections/new-arrivals?type=Hoodie' },
+      { name: 'T-Shirts', href: '/collections/new-arrivals?type=T-Shirt' },
+    ],
   },
   {
     id: 3,
-    name: 'Sweatshirts',
-    description: 'Cozy & Stylish',
-    href: '/products?type=Sweatshirt',
-    gradient: 'from-rose-900 via-pink-900 to-black',
-    icon: '👕',
-  },
-  {
-    id: 4,
-    name: 'T-Shirts',
-    description: 'Everyday Essentials',
-    href: '/products?type=T-Shirt',
-    gradient: 'from-emerald-900 via-teal-900 to-black',
-    icon: '👚',
-  },
-  {
-    id: 5,
-    name: "Women's",
+    name: "Women's Fashion",
     description: 'Boyfriend Tees & More',
-    href: '/products?collection=womens-essentials',
-    gradient: 'from-fuchsia-900 via-purple-900 to-black',
-    icon: '👗',
-  },
-  {
-    id: 6,
-    name: 'Pajamas',
-    description: 'Comfort Collection',
-    href: '/products?type=Pajama',
-    gradient: 'from-blue-900 via-cyan-900 to-black',
-    icon: '🌙',
+    href: '/collections/womens-essentials',
+    gradient: 'from-rose-900 via-pink-900 to-black',
+    categories: [
+      { name: 'Boyfriend Tees', href: '/collections/womens-essentials?type=T-Shirt' },
+      { name: 'Tops', href: '/collections/womens-essentials?type=Top' },
+      { name: 'All', href: '/collections/womens-essentials' },
+    ],
   },
 ];
 
@@ -61,69 +47,71 @@ export default function CategoryGrid() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif text-mist-lilac mb-3 sm:mb-4">
-            Shop by Category
+            Shop by Collection
           </h2>
           <p className="text-mist-lilac/60 max-w-2xl mx-auto text-sm sm:text-base px-4">
             Explore our premium streetwear collections
           </p>
         </div>
 
-        {/* Mobile: 2 columns, Tablet: 3 columns, Desktop: 6 columns */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
-          {categories.map((category) => (
-            <Link
-              key={category.id}
-              href={category.href}
-              className={`group relative overflow-hidden rounded-lg touch-manipulation ${
-                category.featured 
-                  ? 'aspect-square sm:aspect-3/4 sm:col-span-1 lg:col-span-2 lg:row-span-2' 
-                  : 'aspect-square sm:aspect-3/4'
-              }`}
+        {/* 3 Column Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+          {collections.map((collection) => (
+            <div
+              key={collection.id}
+              className="group relative overflow-hidden rounded-lg aspect-4/3 sm:aspect-square lg:aspect-3/4"
             >
               {/* Gradient Background */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient}`} />
+              <div className={`absolute inset-0 bg-gradient-to-br ${collection.gradient}`} />
               
               {/* Animated Background Pattern */}
               <div className="absolute inset-0 opacity-20">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1)_0%,transparent_50%)]" />
               </div>
-              
-              {/* Hover Overlay */}
-              <div className="absolute inset-0 bg-burnt-lilac/20 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-300" />
 
               {/* Content */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-3 sm:p-4 text-center">
-                {/* Icon */}
-                <span className={`mb-2 sm:mb-3 transform group-hover:scale-125 transition-transform duration-300 ${
-                  category.featured ? 'text-3xl sm:text-4xl lg:text-5xl' : 'text-2xl sm:text-3xl'
-                }`}>
-                  {category.icon}
-                </span>
-                
-                <div className="transform group-hover:scale-110 group-active:scale-105 transition-transform duration-300">
-                  <h3 className={`font-serif text-mist-lilac mb-1 sm:mb-2 ${
-                    category.featured ? 'text-lg sm:text-xl lg:text-2xl xl:text-3xl' : 'text-base sm:text-lg lg:text-xl'
-                  }`}>
-                    {category.name}
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-4 sm:p-6 text-center">
+                {/* Collection Title */}
+                <Link 
+                  href={collection.href}
+                  className="hover:text-burnt-lilac transition-colors"
+                >
+                  <h3 className="font-serif text-mist-lilac text-xl sm:text-2xl lg:text-3xl mb-2">
+                    {collection.name}
                   </h3>
-                  <p className={`text-mist-lilac/60 ${
-                    category.featured ? 'text-xs sm:text-sm' : 'text-[10px] sm:text-xs hidden sm:block'
-                  }`}>
-                    {category.description}
-                  </p>
+                </Link>
+                <p className="text-mist-lilac/60 text-xs sm:text-sm mb-4 sm:mb-6">
+                  {collection.description}
+                </p>
+
+                {/* Category Links */}
+                <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+                  {collection.categories.map((category) => (
+                    <Link
+                      key={category.name}
+                      href={category.href}
+                      className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm bg-white/10 hover:bg-burnt-lilac/80 text-mist-lilac hover:text-white rounded-full border border-mist-lilac/20 hover:border-burnt-lilac transition-all duration-300 touch-manipulation"
+                    >
+                      {category.name}
+                    </Link>
+                  ))}
                 </div>
 
-                <span className="mt-2 sm:mt-4 inline-flex items-center text-burnt-lilac text-xs sm:text-sm opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-300">
-                  Shop Now
-                  <svg className="w-3 h-3 sm:w-4 sm:h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {/* View All Link */}
+                <Link
+                  href={collection.href}
+                  className="mt-4 sm:mt-6 inline-flex items-center text-burnt-lilac hover:text-mist-lilac text-xs sm:text-sm transition-colors"
+                >
+                  View All
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
-                </span>
+                </Link>
               </div>
 
               {/* Border Effect */}
-              <div className="absolute inset-0 border border-mist-lilac/20 rounded-lg group-hover:border-burnt-lilac/50 group-active:border-burnt-lilac/50 transition-colors duration-300" />
-            </Link>
+              <div className="absolute inset-0 border border-mist-lilac/20 rounded-lg" />
+            </div>
           ))}
         </div>
       </div>
