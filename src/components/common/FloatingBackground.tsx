@@ -83,7 +83,7 @@ export default function FloatingBackground({ variant = 'default' }: FloatingBack
     <>
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         {/* Deep Dark Base Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-[#0a0612] to-[#050208]" />
+        <div className="absolute inset-0 bg-linear-to-b from-black via-[#0a0612] to-[#050208]" />
         
         {/* Subtle Aurora Effect - Much darker */}
         <div className="absolute inset-0 opacity-40">
@@ -99,8 +99,8 @@ export default function FloatingBackground({ variant = 'default' }: FloatingBack
         </div>
 
         {/* Dark Floating Orbs - Very subtle */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-burnt-lilac/[0.08] blur-[100px] animate-float-slow" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-purple-900/[0.1] blur-[80px] animate-float-slower" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-burnt-lilac/8 blur-[100px] animate-float-slow" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-purple-900/10 blur-[80px] animate-float-slower" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[#0f051a]/50 blur-[100px] animate-pulse-slow" />
 
         {/* Subtle Shooting Stars - Dimmer */}
@@ -155,7 +155,7 @@ export default function FloatingBackground({ variant = 'default' }: FloatingBack
         {variant !== 'minimal' && shapes.map((shape) => (
           <div
             key={shape.id}
-            className="absolute border border-burnt-lilac/[0.06] animate-float-rotate"
+            className="absolute border border-burnt-lilac/6 animate-float-rotate"
             style={{
               width: shape.width,
               height: shape.height,

@@ -24,7 +24,7 @@ export default function AnimeCollection({ products }: AnimeCollectionProps) {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 sm:mb-12 gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-2xl">🔥</span>
+              <span className="text-2xl text-orange-500">*</span>
               <span className="text-burnt-lilac text-xs sm:text-sm uppercase tracking-wider font-medium">
                 Trending
               </span>

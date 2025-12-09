@@ -129,7 +129,7 @@ export default function HomePageClient({ featuredProducts, newArrivals }: HomePa
             {[
               { value: '500+', label: 'Products' },
               { value: '10K+', label: 'Customers' },
-              { value: '4.9★', label: 'Rating' },
+              { value: '4.9', label: 'Rating' },
             ].map((stat, i) => (
               <div key={i} className="text-center">
                 <div className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-burnt-lilac to-mist-lilac bg-clip-text text-transparent">
@@ -483,11 +483,11 @@ function ProductCardEnhanced({ product, index }: { product: ShopifyProduct; inde
         <p className="text-mist-lilac/50 text-xs">{product.productType}</p>
         <div className="flex items-center gap-2">
           <span className="text-burnt-lilac font-semibold text-sm sm:text-base">
-            ₹{parseFloat(price?.amount || '0').toFixed(0)}
+            Rs.{parseFloat(price?.amount || '0').toFixed(0)}
           </span>
           {hasDiscount && (
             <span className="text-mist-lilac/40 line-through text-xs sm:text-sm">
-              ₹{parseFloat(comparePrice.amount).toFixed(0)}
+              Rs.{parseFloat(comparePrice.amount).toFixed(0)}
             </span>
           )}
         </div>

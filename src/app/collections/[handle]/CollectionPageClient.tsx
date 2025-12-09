@@ -23,6 +23,13 @@ interface CollectionPageClientProps {
   currentSort: string;
 }
 
+const sortOptions = [
+  { value: 'newest', label: 'Newest' },
+  { value: 'price-asc', label: 'Price: Low to High' },
+  { value: 'price-desc', label: 'Price: High to Low' },
+  { value: 'best-selling', label: 'Best Selling' },
+];
+
 export default function CollectionPageClient({
   handle,
   info,
@@ -38,6 +45,8 @@ export default function CollectionPageClient({
   const [activeFilter, setActiveFilter] = useState(currentType || 'all');
   const [sortBy, setSortBy] = useState(currentSort);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
+  const sortDropdownRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
 
   // Initial animation
@@ -87,6 +96,24 @@ export default function CollectionPageClient({
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Close sort dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target as Node)) {
+        setSortDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSortSelect = (value: string) => {
+    updateSort(value);
+    setSortDropdownOpen(false);
+  };
+
+  const currentSortOption = sortOptions.find(opt => opt.value === sortBy) || sortOptions[0];
 
   return (
     <div className="min-h-screen bg-black overflow-hidden">
@@ -188,17 +215,44 @@ export default function CollectionPageClient({
 
             {/* Sort & View Options */}
             <div className="flex items-center gap-3">
-              {/* Sort Dropdown */}
-              <select
-                value={sortBy}
-                onChange={(e) => updateSort(e.target.value)}
-                className="px-4 py-2 bg-deep-purple/30 border border-mist-lilac/20 rounded-lg text-mist-lilac text-sm focus:outline-none focus:border-burnt-lilac cursor-pointer"
-              >
-                <option value="newest">Newest</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="best-selling">Best Selling</option>
-              </select>
+              {/* Modern Sort Dropdown */}
+              <div className="relative" ref={sortDropdownRef}>
+                <button
+                  onClick={() => setSortDropdownOpen(!sortDropdownOpen)}
+                  className="group flex items-center gap-2 px-4 py-2.5 bg-linear-to-r from-deep-purple/40 to-deep-purple/20 border border-mist-lilac/20 hover:border-burnt-lilac/50 rounded-xl text-mist-lilac text-sm transition-all duration-300 hover:shadow-lg hover:shadow-burnt-lilac/10"
+                >
+                  <span className="hidden sm:inline">{currentSortOption.label}</span>
+                  <span className="sm:hidden">Sort</span>
+                  <svg 
+                    className={`w-4 h-4 transition-transform duration-300 ${sortDropdownOpen ? 'rotate-180' : ''}`} 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Dropdown Menu */}
+                <div 
+                  className={`absolute right-0 mt-2 w-56 py-2 bg-linear-to-b from-deep-purple to-[#0f0512] border border-mist-lilac/20 rounded-xl shadow-2xl shadow-black/50 backdrop-blur-xl z-50 transition-all duration-300 origin-top ${sortDropdownOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'}`}
+                >
+                  {sortOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => handleSortSelect(option.value)}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-all duration-200 ${sortBy === option.value ? 'bg-burnt-lilac/20 text-burnt-lilac' : 'text-mist-lilac/70 hover:bg-mist-lilac/5 hover:text-mist-lilac'}`}
+                    >
+                      <span>{option.label}</span>
+                      {sortBy === option.value && (
+                        <svg className="w-4 h-4 ml-auto text-burnt-lilac" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               {/* View Toggle */}
               <div className="hidden sm:flex items-center gap-1 bg-deep-purple/30 rounded-lg p-1">
@@ -228,12 +282,7 @@ export default function CollectionPageClient({
       <section className="py-8 sm:py-12 lg:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {filteredProducts.length > 0 ? (
-            <div className={`
-              ${viewMode === 'grid' 
-                ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6' 
-                : 'flex flex-col gap-4'
-              }
-            `}>
+            <div className={viewMode === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6' : 'flex flex-col gap-4'}>
               {filteredProducts.map((product, index) => (
                 <ProductCard 
                   key={product.id} 
@@ -334,11 +383,11 @@ function ProductCard({
           <p className="text-mist-lilac/50 text-xs sm:text-sm mt-1">{product.productType}</p>
           <div className="flex items-center gap-2 mt-2">
             <span className="text-burnt-lilac font-semibold">
-              ₹{parseFloat(price?.amount || '0').toFixed(0)}
+              Rs.{parseFloat(price?.amount || '0').toFixed(0)}
             </span>
             {hasDiscount && (
               <span className="text-mist-lilac/40 line-through text-sm">
-                ₹{parseFloat(comparePrice.amount).toFixed(0)}
+                Rs.{parseFloat(comparePrice.amount).toFixed(0)}
               </span>
             )}
           </div>
@@ -434,11 +483,11 @@ function ProductCard({
         <p className="text-mist-lilac/50 text-xs">{product.productType}</p>
         <div className="flex items-center gap-2">
           <span className="text-burnt-lilac font-semibold text-sm sm:text-base">
-            ₹{parseFloat(price?.amount || '0').toFixed(0)}
+            Rs.{parseFloat(price?.amount || '0').toFixed(0)}
           </span>
           {hasDiscount && (
             <span className="text-mist-lilac/40 line-through text-xs sm:text-sm">
-              ₹{parseFloat(comparePrice.amount).toFixed(0)}
+              Rs.{parseFloat(comparePrice.amount).toFixed(0)}
             </span>
           )}
         </div>

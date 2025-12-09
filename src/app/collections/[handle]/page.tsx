@@ -39,7 +39,7 @@ export async function generateMetadata({
   const info = collectionData[handle] || { title: 'Collection', description: 'Browse our collection' };
   
   return {
-    title: `${info.title} | LUMINIX`,
+    title: info.title,
     description: info.description,
   };
 }

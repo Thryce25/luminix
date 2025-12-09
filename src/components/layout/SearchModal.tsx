@@ -215,6 +215,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
                               src={product.featuredImage.url}
                               alt={product.featuredImage.altText || product.title}
                               fill
+                              sizes="(max-width: 640px) 50vw, 200px"
                               className="object-cover group-hover:scale-105 transition-transform duration-500"
                             />
                           )}

@@ -70,6 +70,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
               src={currentImage.url}
               alt={currentImage.altText || product.title}
               fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"
               priority
             />
@@ -93,6 +94,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                   src={image.url}
                   alt={image.altText || `${product.title} - Image ${index + 1}`}
                   fill
+                  sizes="80px"
                   className="object-cover"
                 />
               </button>

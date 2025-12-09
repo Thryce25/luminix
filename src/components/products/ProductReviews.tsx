@@ -116,7 +116,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
                                 onClick={() => setFilterRating(filterRating === rating ? null : rating)}
                                 className="w-full flex items-center gap-3 group"
                             >
-                                <span className="text-sm text-mist-lilac w-8">{rating}★</span>
+                                <span className="text-sm text-mist-lilac w-8">{rating}</span>
                                 <div className="flex-1 h-2 bg-deep-purple/30 rounded-full overflow-hidden">
                                     <div
                                         className={`h-full transition-all ${filterRating === rating ? 'bg-burnt-lilac' : 'bg-burnt-lilac/70 group-hover:bg-burnt-lilac'

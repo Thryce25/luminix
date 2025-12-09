@@ -69,6 +69,7 @@ export default function CartPageContent() {
                       line.merchandise.product.title
                     }
                     fill
+                    sizes="112px"
                     className="object-cover"
                   />
                 ) : (

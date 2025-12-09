@@ -3,7 +3,7 @@ import { getProducts, getCollections, getProductTypes, ShopifyProduct } from '@/
 import ProductsPageClient from './ProductsPageClient';
 
 export const metadata: Metadata = {
-  title: 'Shop All Products | Luminix',
+  title: 'All Products',
   description: 'Discover our curated collection of premium streetwear. Shop hoodies, tees, and fashion essentials.',
 };
 

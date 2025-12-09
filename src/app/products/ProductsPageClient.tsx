@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -20,18 +20,18 @@ interface ProductsPageClientProps {
 }
 
 const sortOptions = [
-  { label: 'Latest', value: 'newest', icon: '✦' },
-  { label: 'Price ↑', value: 'price-asc', icon: '↑' },
-  { label: 'Price ↓', value: 'price-desc', icon: '↓' },
-  { label: 'Popular', value: 'best-selling', icon: '★' },
-  { label: 'A-Z', value: 'title-asc', icon: 'Aa' },
+  { label: 'Latest', value: 'newest' },
+  { label: 'Price: Low', value: 'price-asc' },
+  { label: 'Price: High', value: 'price-desc' },
+  { label: 'Popular', value: 'best-selling' },
+  { label: 'A-Z', value: 'title-asc' },
 ];
 
 const priceRanges = [
-  { label: 'Under ₹500', value: '0-500' },
-  { label: '₹500 - ₹800', value: '500-800' },
-  { label: '₹800 - ₹1,000', value: '800-1000' },
-  { label: 'Over ₹1,000', value: '1000-above' },
+  { label: 'Under Rs.500', value: '0-500' },
+  { label: 'Rs.500 - Rs.800', value: '500-800' },
+  { label: 'Rs.800 - Rs.1,000', value: '800-1000' },
+  { label: 'Over Rs.1,000', value: '1000-above' },
 ];
 
 const sizeOptions = [
@@ -54,12 +54,15 @@ export default function ProductsPageClient({
   const [viewMode, setViewMode] = useState<'grid' | 'masonry' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
+  const [mobileSortOpen, setMobileSortOpen] = useState(false);
+  const mobileSortRef = useRef<HTMLDivElement>(null);
 
   const currentSort = searchParams.get('sort') || 'newest';
   const currentCategory = searchParams.get('category') || searchParams.get('collection') || '';
   const currentType = searchParams.get('type') || '';
   const currentPrice = searchParams.get('price') || '';
   const currentSize = searchParams.get('size') || '';
+  const currentInStock = searchParams.get('instock') === 'true';
 
   // Client-side filtering of products
   const filteredProducts = useMemo(() => {
@@ -109,6 +112,11 @@ export default function ProductsPageClient({
       });
     }
 
+    // Filter by availability (in stock)
+    if (currentInStock) {
+      result = result.filter(product => product.availableForSale);
+    }
+
     // Sort products
     switch (currentSort) {
       case 'price-asc':
@@ -131,7 +139,7 @@ export default function ProductsPageClient({
     }
 
     return result;
-  }, [initialProducts, currentType, currentPrice, currentSize, currentSort]);
+  }, [initialProducts, currentType, currentPrice, currentSize, currentInStock, currentSort]);
 
   const updateFilters = useCallback((key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -148,8 +156,26 @@ export default function ProductsPageClient({
     router.push('/products', { scroll: false });
   };
 
-  const hasActiveFilters = currentCategory || currentType || currentPrice || currentSize;
-  const activeFilterCount = [currentCategory, currentType, currentPrice, currentSize].filter(Boolean).length;
+  // Close mobile sort dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (mobileSortRef.current && !mobileSortRef.current.contains(event.target as Node)) {
+        setMobileSortOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleMobileSortSelect = (value: string) => {
+    updateFilters('sort', value);
+    setMobileSortOpen(false);
+  };
+
+  const currentSortOption = sortOptions.find(opt => opt.value === currentSort) || sortOptions[0];
+
+  const hasActiveFilters = currentCategory || currentType || currentPrice || currentSize || currentInStock;
+  const activeFilterCount = [currentCategory, currentType, currentPrice, currentSize, currentInStock].filter(Boolean).length;
 
   return (
     <div className="min-h-screen bg-black overflow-hidden">
@@ -162,10 +188,14 @@ export default function ProductsPageClient({
       >
         {/* Hero Content */}
         <div className="relative z-10 text-center px-4">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-burnt-lilac/10 border border-burnt-lilac/20 mb-6">
-            <span className="w-2 h-2 bg-burnt-lilac rounded-full animate-pulse" />
-            <span className="text-burnt-lilac text-sm font-medium tracking-wider uppercase">
-              {filteredProducts.length} Products Available
+          <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-linear-to-r from-burnt-lilac/20 via-deep-purple/20 to-burnt-lilac/20 border border-burnt-lilac/30 mb-6 backdrop-blur-sm">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 bg-burnt-lilac rounded-full animate-pulse" />
+              <span className="w-1.5 h-1.5 bg-burnt-lilac/60 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
+              <span className="w-1 h-1 bg-burnt-lilac/40 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+            </div>
+            <span className="text-mist-lilac text-sm font-medium tracking-wide">
+              <span className="text-burnt-lilac font-bold text-base">{filteredProducts.length}</span> Styles to Explore
             </span>
           </div>
           
@@ -262,18 +292,43 @@ export default function ProductsPageClient({
                 ))}
               </div>
 
-              {/* Mobile Sort */}
-              <select
-                value={currentSort}
-                onChange={(e) => updateFilters('sort', e.target.value)}
-                className="md:hidden appearance-none px-4 py-2.5 bg-deep-purple/20 border border-mist-lilac/20 rounded-full text-mist-lilac text-sm"
-              >
-                {sortOptions.map((option) => (
-                  <option key={option.value} value={option.value} className="bg-black">
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              {/* Mobile Sort - Modern Dropdown */}
+              <div className="md:hidden relative" ref={mobileSortRef}>
+                <button
+                  onClick={() => setMobileSortOpen(!mobileSortOpen)}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-linear-to-r from-deep-purple/40 to-deep-purple/20 border border-mist-lilac/20 hover:border-burnt-lilac/50 rounded-xl text-mist-lilac text-sm transition-all duration-300"
+                >
+                  <span>{currentSortOption.label}</span>
+                  <svg 
+                    className={`w-4 h-4 transition-transform duration-300 ${mobileSortOpen ? 'rotate-180' : ''}`} 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Dropdown Menu */}
+                <div 
+                  className={`absolute right-0 mt-2 w-48 py-2 bg-linear-to-b from-deep-purple to-[#0f0512] border border-mist-lilac/20 rounded-xl shadow-2xl shadow-black/50 backdrop-blur-xl z-50 transition-all duration-300 origin-top ${mobileSortOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'}`}
+                >
+                  {sortOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => handleMobileSortSelect(option.value)}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-all duration-200 ${currentSort === option.value ? 'bg-burnt-lilac/20 text-burnt-lilac' : 'text-mist-lilac/70 hover:bg-mist-lilac/5 hover:text-mist-lilac'}`}
+                    >
+                      <span>{option.label}</span>
+                      {currentSort === option.value && (
+                        <svg className="w-4 h-4 ml-auto text-burnt-lilac" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               {/* View Toggle */}
               <div className="hidden sm:flex items-center gap-1 p-1 rounded-full bg-deep-purple/20 border border-mist-lilac/10">
@@ -405,6 +460,31 @@ export default function ProductsPageClient({
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Availability */}
+            <div>
+              <h3 className="text-mist-lilac font-semibold mb-4 flex items-center gap-2">
+                <span className="w-1 h-4 bg-burnt-lilac rounded-full" />
+                Availability
+              </h3>
+              <button
+                onClick={() => updateFilters('instock', currentInStock ? '' : 'true')}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 w-full ${
+                  currentInStock
+                    ? 'bg-burnt-lilac text-white'
+                    : 'bg-deep-purple/30 text-mist-lilac/70 hover:bg-deep-purple/50 hover:text-mist-lilac'
+                }`}
+              >
+                <span className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${currentInStock ? 'border-white bg-white/20' : 'border-mist-lilac/40'}`}>
+                  {currentInStock && (
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </span>
+                In Stock Only
+              </button>
             </div>
           </div>
         </div>

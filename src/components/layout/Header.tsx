@@ -1,17 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useCart } from '@/context/CartContext';
 import CartDrawer from '../cart/CartDrawer';
 import SearchModal from './SearchModal';
 
 const collections = [
   {
-    name: "Men's Fashion",
+    name: "Men's Collection",
     href: '/collections/mens-essentials',
+    description: 'Refined essentials',
     subcategories: [
-      { name: 'All', href: '/collections/mens-essentials' },
+      { name: 'View All', href: '/collections/mens-essentials' },
       { name: 'Hoodies', href: '/collections/mens-essentials?type=Hoodie' },
       { name: 'Sweatshirts', href: '/collections/mens-essentials?type=Sweatshirt' },
       { name: 'T-Shirts', href: '/collections/mens-essentials?type=T-Shirt' },
@@ -20,24 +21,27 @@ const collections = [
   {
     name: 'New Arrivals',
     href: '/collections/new-arrivals',
+    description: 'Latest drops',
     subcategories: [
-      { name: 'All New', href: '/collections/new-arrivals' },
+      { name: 'View All', href: '/collections/new-arrivals' },
       { name: 'Hoodies', href: '/collections/new-arrivals?type=Hoodie' },
       { name: 'T-Shirts', href: '/collections/new-arrivals?type=T-Shirt' },
     ],
   },
   {
-    name: "Women's Fashion",
+    name: "Women's Collection",
     href: '/collections/womens-essentials',
+    description: 'Curated pieces',
     subcategories: [
-      { name: 'All', href: '/collections/womens-essentials' },
+      { name: 'View All', href: '/collections/womens-essentials' },
       { name: 'Boyfriend Tees', href: '/collections/womens-essentials?type=T-Shirt' },
       { name: 'Tops', href: '/collections/womens-essentials?type=Top' },
     ],
   },
   {
-    name: 'All Products',
+    name: 'Shop All',
     href: '/products',
+    description: 'Full catalog',
   },
 ];
 
@@ -45,9 +49,36 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [expandedMobileCategory, setExpandedMobileCategory] = useState<string | null>(null);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const menuRef = useRef<HTMLDivElement>(null);
   const { cart, setCartOpen } = useCart();
 
   const cartItemCount = cart?.totalQuantity || 0;
+
+  // Track touch/mouse position for glow effect
+  useEffect(() => {
+    if (!mobileMenuOpen || !menuRef.current) return;
+    
+    const handleMove = (e: TouchEvent | MouseEvent) => {
+      const rect = menuRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+      setMousePosition({
+        x: clientX - rect.left,
+        y: clientY - rect.top,
+      });
+    };
+
+    const el = menuRef.current;
+    el.addEventListener('touchmove', handleMove);
+    el.addEventListener('mousemove', handleMove);
+    return () => {
+      el.removeEventListener('touchmove', handleMove);
+      el.removeEventListener('mousemove', handleMove);
+    };
+  }, [mobileMenuOpen]);
 
   // Close mobile menu on resize to desktop
   useEffect(() => {
@@ -186,68 +217,189 @@ export default function Header() {
               </button>
             </div>
           </div>
-
-          {/* Mobile Menu - Full Screen Overlay */}
-          {mobileMenuOpen && (
-            <div className="lg:hidden fixed inset-0 top-14 sm:top-16 bg-black z-40 overflow-y-auto">
-              <div className="px-4 py-6 space-y-1 pb-24">
-                {collections.map((collection) => (
-                  <div key={collection.name} className="border-b border-deep-purple/20 last:border-0">
-                    {collection.subcategories ? (
-                      <>
-                        <button
-                          onClick={() => toggleMobileCategory(collection.name)}
-                          className="flex items-center justify-between w-full py-4 text-lg uppercase tracking-wider font-medium text-mist-lilac touch-manipulation"
-                        >
-                          {collection.name}
-                          <svg
-                            className={`w-5 h-5 transition-transform duration-300 ${
-                              expandedMobileCategory === collection.name ? 'rotate-180' : ''
-                            }`}
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </button>
-                        
-                        {/* Expanded subcategories */}
-                        <div 
-                          className={`overflow-hidden transition-all duration-300 ${
-                            expandedMobileCategory === collection.name ? 'max-h-96 pb-4' : 'max-h-0'
-                          }`}
-                        >
-                          <div className="pl-4 space-y-1">
-                            {collection.subcategories.map((sub) => (
-                              <Link
-                                key={sub.name}
-                                href={sub.href}
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="block py-3 text-base text-mist-lilac/70 hover:text-burnt-lilac transition-colors touch-manipulation"
-                              >
-                                {sub.name}
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <Link
-                        href={collection.href}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="block py-4 text-lg uppercase tracking-wider font-medium text-mist-lilac touch-manipulation"
-                      >
-                        {collection.name}
-                      </Link>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </nav>
       </header>
+
+      {/* Mobile Menu - Premium Full Screen Experience */}
+      <div 
+        className={`lg:hidden fixed inset-0 z-100 transition-all duration-700 ease-out ${mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+      >
+        {/* Sophisticated Dark Backdrop */}
+        <div 
+          className="absolute inset-0"
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          {/* Deep black with subtle gradient */}
+          <div className="absolute inset-0 bg-[#0a0a0a]" />
+          
+          {/* Subtle ambient glow - very muted */}
+          <div className={`absolute inset-0 transition-opacity duration-1000 ${mobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}>
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-burnt-lilac/8 rounded-full blur-[120px]" />
+          </div>
+          
+          {/* Elegant noise texture overlay */}
+          <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")' }} />
+        </div>
+        
+        {/* Menu Container */}
+        <div 
+          ref={menuRef}
+          className="absolute inset-0 flex flex-col"
+        >
+          {/* Subtle cursor glow */}
+          <div 
+            className="pointer-events-none absolute w-96 h-96 rounded-full transition-all duration-500 ease-out opacity-30"
+            style={{ 
+              left: mousePosition.x - 192, 
+              top: mousePosition.y - 192,
+              background: 'radial-gradient(circle, rgba(111, 78, 124, 0.12) 0%, transparent 60%)',
+            }}
+          />
+          
+          {/* Header */}
+          <div className={`relative flex items-center justify-between px-6 py-5 transition-all duration-700 ${mobileMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}>
+            <span className="text-2xl font-serif font-light tracking-[0.2em] text-white/90">LUMINIX</span>
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="relative w-10 h-10 flex items-center justify-center touch-manipulation group"
+              aria-label="Close menu"
+            >
+              <div className="absolute inset-0 rounded-full border border-white/10 group-active:border-white/20 group-active:bg-white/5 transition-all" />
+              <svg className="w-5 h-5 text-white/60 group-active:text-white/80 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          {/* Divider line with fade */}
+          <div className={`mx-6 h-px bg-linear-to-r from-transparent via-white/10 to-transparent transition-all duration-700 delay-100 ${mobileMenuOpen ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'}`} />
+          
+          {/* Main Navigation */}
+          <nav className="flex-1 overflow-y-auto px-6 py-10">
+            <div className="space-y-2">
+              {collections.map((collection, index) => (
+                <div 
+                  key={collection.name}
+                  className={`transition-all duration-700 ease-out ${mobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
+                  style={{ transitionDelay: `${200 + index * 100}ms` }}
+                >
+                  {collection.subcategories ? (
+                    <div>
+                      <button
+                        onClick={() => toggleMobileCategory(collection.name)}
+                        className="w-full group py-4 touch-manipulation"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <h2 className="text-xl font-light tracking-wide text-white/90 group-active:text-white transition-colors text-left">
+                              {collection.name}
+                            </h2>
+                            <p className="text-xs tracking-widest uppercase text-white/30 mt-1 text-left">
+                              {collection.description}
+                            </p>
+                          </div>
+                          <div className={`w-8 h-8 rounded-full border border-white/10 flex items-center justify-center transition-all duration-500 ${expandedMobileCategory === collection.name ? 'rotate-180 border-white/20 bg-white/5' : ''}`}>
+                            <svg className="w-3.5 h-3.5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </div>
+                        
+                        {/* Underline animation */}
+                        <div className="mt-4 h-px w-full bg-white/5 relative overflow-hidden">
+                          <div className={`absolute inset-y-0 left-0 bg-linear-to-r from-burnt-lilac/50 to-transparent transition-all duration-500 ${expandedMobileCategory === collection.name ? 'w-full' : 'w-0'}`} />
+                        </div>
+                      </button>
+                      
+                      {/* Subcategories */}
+                      <div className={`overflow-hidden transition-all duration-500 ease-out ${expandedMobileCategory === collection.name ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'}`}>
+                        <div className="py-4 pl-4 space-y-1">
+                          {collection.subcategories.map((sub, subIndex) => (
+                            <Link
+                              key={sub.name}
+                              href={sub.href}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className={`block py-3 text-white/50 hover:text-white/90 active:text-white transition-all duration-300 touch-manipulation ${expandedMobileCategory === collection.name ? 'translate-x-0 opacity-100' : '-translate-x-4 opacity-0'}`}
+                              style={{ transitionDelay: `${subIndex * 50}ms` }}
+                            >
+                              <span className="text-sm tracking-wide">{sub.name}</span>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <Link
+                      href={collection.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block py-4 group touch-manipulation"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h2 className="text-xl font-light tracking-wide text-white/90 group-active:text-white transition-colors">
+                            {collection.name}
+                          </h2>
+                          <p className="text-xs tracking-widest uppercase text-white/30 mt-1">
+                            {collection.description}
+                          </p>
+                        </div>
+                        <svg className="w-5 h-5 text-white/20 group-active:text-white/40 group-active:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                      </div>
+                      <div className="mt-4 h-px w-full bg-white/5" />
+                    </Link>
+                  )}
+                </div>
+              ))}
+            </div>
+          </nav>
+          
+          {/* Footer Actions */}
+          <div className={`px-6 py-8 border-t border-white/5 transition-all duration-700 ${mobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`} style={{ transitionDelay: '600ms' }}>
+            <div className="flex items-center justify-between">
+              {/* Quick Actions */}
+              <div className="flex items-center gap-6">
+                <button
+                  onClick={() => { setMobileMenuOpen(false); setSearchOpen(true); }}
+                  className="flex items-center gap-3 text-white/40 active:text-white/70 transition-colors touch-manipulation"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <span className="text-xs tracking-widest uppercase">Search</span>
+                </button>
+              </div>
+              
+              {/* Cart & Wishlist */}
+              <div className="flex items-center gap-4">
+                <Link
+                  href="/wishlist"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/40 active:text-white/70 active:border-white/20 transition-all touch-manipulation"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                </Link>
+                <button
+                  onClick={() => { setMobileMenuOpen(false); setCartOpen(true); }}
+                  className="relative w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/40 active:text-white/70 active:border-white/20 transition-all touch-manipulation"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  </svg>
+                  {cartItemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-white text-black text-[9px] font-medium rounded-full flex items-center justify-center">
+                      {cartItemCount}
+                    </span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <CartDrawer />
       <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />

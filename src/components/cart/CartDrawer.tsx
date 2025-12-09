@@ -124,6 +124,7 @@ export default function CartDrawer() {
                           src={line.merchandise.product.featuredImage.url}
                           alt={line.merchandise.product.featuredImage.altText || line.merchandise.product.title}
                           fill
+                          sizes="96px"
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       ) : (

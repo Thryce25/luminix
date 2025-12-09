@@ -9,8 +9,8 @@ export default function ShippingPage() {
     {
       name: 'Standard Shipping',
       time: '5-7 business days',
-      price: '₹99',
-      freeAbove: '₹999',
+      price: 'Rs.99',
+      freeAbove: 'Rs.999',
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -20,7 +20,7 @@ export default function ShippingPage() {
     {
       name: 'Express Shipping',
       time: '2-3 business days',
-      price: '₹199',
+      price: 'Rs.199',
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -30,7 +30,7 @@ export default function ShippingPage() {
     {
       name: 'Next Day Delivery',
       time: '1 business day',
-      price: '₹349',
+      price: 'Rs.349',
       note: 'Order before 2 PM',
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">

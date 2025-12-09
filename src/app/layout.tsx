@@ -24,8 +24,8 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://luminixclothing.co
 
 export const metadata: Metadata = {
   title: {
-    default: "Luminix | Gothic Fashion & Accessories",
-    template: "%s | Luminix",
+    default: "Luminix",
+    template: "%s",
   },
   description:
     "Discover our curated collection of gothic-inspired fashion and accessories. Where elegance meets the extraordinary.",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     "dark clothing",
   ],
   openGraph: {
-    title: "Luminix | Gothic Fashion & Accessories",
+    title: "Luminix",
     description:
       "Discover our curated collection of gothic-inspired fashion and accessories.",
     type: "website",
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Luminix | Gothic Fashion & Accessories",
+    title: "Luminix",
     description: "Discover our curated collection of gothic-inspired fashion and accessories.",
   },
   robots: {

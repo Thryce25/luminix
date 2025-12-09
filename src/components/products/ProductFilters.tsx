@@ -16,10 +16,10 @@ interface ProductFiltersProps {
 }
 
 const defaultPriceRanges: FilterOption[] = [
-  { label: 'Under ₹500', value: '0-500' },
-  { label: '₹500 - ₹800', value: '500-800' },
-  { label: '₹800 - ₹1,000', value: '800-1000' },
-  { label: 'Over ₹1,000', value: '1000-above' },
+  { label: 'Under Rs.500', value: '0-500' },
+  { label: 'Rs.500 - Rs.800', value: '500-800' },
+  { label: 'Rs.800 - Rs.1,000', value: '800-1000' },
+  { label: 'Over Rs.1,000', value: '1000-above' },
 ];
 
 const sortOptions = [
@@ -43,6 +43,7 @@ export default function ProductFilters({
   const currentCategory = searchParams.get('category') || searchParams.get('collection') || '';
   const currentType = searchParams.get('type') || '';
   const currentPrice = searchParams.get('price') || '';
+  const currentInStock = searchParams.get('instock') === 'true';
 
   // Update URL with filters
   const updateFilters = (key: string, value: string) => {
@@ -67,7 +68,7 @@ export default function ProductFilters({
     router.push('/products', { scroll: false });
   };
 
-  const hasActiveFilters = currentCategory || currentType || currentPrice;
+  const hasActiveFilters = currentCategory || currentType || currentPrice || currentInStock;
 
   // Prevent body scroll when mobile filters open
   useEffect(() => {
@@ -108,7 +109,7 @@ export default function ProductFilters({
             Filters
             {hasActiveFilters && (
               <span className="w-5 h-5 bg-burnt-lilac text-white text-xs rounded-full flex items-center justify-center">
-                {[currentCategory, currentType, currentPrice].filter(Boolean).length}
+                {[currentCategory, currentType, currentPrice, currentInStock].filter(Boolean).length}
               </span>
             )}
           </button>
@@ -173,6 +174,15 @@ export default function ProductFilters({
               onChange={() => updateFilters('price', currentPrice === range.value ? '' : range.value)}
             />
           ))}
+        </FilterSection>
+
+        {/* Availability */}
+        <FilterSection title="Availability">
+          <FilterCheckbox
+            label="In Stock Only"
+            checked={currentInStock}
+            onChange={() => updateFilters('instock', currentInStock ? '' : 'true')}
+          />
         </FilterSection>
       </aside>
 
@@ -240,6 +250,15 @@ export default function ProductFilters({
                     onChange={() => updateFilters('price', currentPrice === range.value ? '' : range.value)}
                   />
                 ))}
+              </FilterSection>
+
+              {/* Availability */}
+              <FilterSection title="Availability" mobile>
+                <FilterCheckbox
+                  label="In Stock Only"
+                  checked={currentInStock}
+                  onChange={() => updateFilters('instock', currentInStock ? '' : 'true')}
+                />
               </FilterSection>
             </div>
             
