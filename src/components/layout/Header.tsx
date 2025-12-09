@@ -50,35 +50,10 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [expandedMobileCategory, setExpandedMobileCategory] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const menuRef = useRef<HTMLDivElement>(null);
   const { cart, setCartOpen } = useCart();
 
   const cartItemCount = cart?.totalQuantity || 0;
-
-  // Track touch/mouse position for glow effect
-  useEffect(() => {
-    if (!mobileMenuOpen || !menuRef.current) return;
-    
-    const handleMove = (e: TouchEvent | MouseEvent) => {
-      const rect = menuRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-      setMousePosition({
-        x: clientX - rect.left,
-        y: clientY - rect.top,
-      });
-    };
-
-    const el = menuRef.current;
-    el.addEventListener('touchmove', handleMove);
-    el.addEventListener('mousemove', handleMove);
-    return () => {
-      el.removeEventListener('touchmove', handleMove);
-      el.removeEventListener('mousemove', handleMove);
-    };
-  }, [mobileMenuOpen]);
 
   // Close mobile menu on resize to desktop
   useEffect(() => {
@@ -222,23 +197,20 @@ export default function Header() {
 
       {/* Mobile Menu - Premium Full Screen Experience */}
       <div 
-        className={`lg:hidden fixed inset-0 z-100 transition-all duration-700 ease-out ${mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        className={`lg:hidden fixed inset-0 z-100 transition-opacity duration-500 ${mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
       >
         {/* Sophisticated Dark Backdrop */}
         <div 
           className="absolute inset-0"
           onClick={() => setMobileMenuOpen(false)}
         >
-          {/* Deep black with subtle gradient */}
+          {/* Deep black background */}
           <div className="absolute inset-0 bg-[#0a0a0a]" />
           
-          {/* Subtle ambient glow - very muted */}
-          <div className={`absolute inset-0 transition-opacity duration-1000 ${mobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-burnt-lilac/8 rounded-full blur-[120px]" />
+          {/* Subtle ambient glow - reduced blur for mobile performance */}
+          <div className={`absolute inset-0 transition-opacity duration-500 ${mobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}>
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-burnt-lilac/6 rounded-full blur-[80px]" />
           </div>
-          
-          {/* Elegant noise texture overlay */}
-          <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")' }} />
         </div>
         
         {/* Menu Container */}
@@ -246,18 +218,8 @@ export default function Header() {
           ref={menuRef}
           className="absolute inset-0 flex flex-col"
         >
-          {/* Subtle cursor glow */}
-          <div 
-            className="pointer-events-none absolute w-96 h-96 rounded-full transition-all duration-500 ease-out opacity-30"
-            style={{ 
-              left: mousePosition.x - 192, 
-              top: mousePosition.y - 192,
-              background: 'radial-gradient(circle, rgba(111, 78, 124, 0.12) 0%, transparent 60%)',
-            }}
-          />
-          
           {/* Header */}
-          <div className={`relative flex items-center justify-between px-6 py-5 transition-all duration-700 ${mobileMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}>
+          <div className={`relative flex items-center justify-between px-6 py-5 transition-all duration-500 ${mobileMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}>
             <span className="text-2xl font-serif font-light tracking-[0.2em] text-white/90">LUMINIX</span>
             <button
               onClick={() => setMobileMenuOpen(false)}

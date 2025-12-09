@@ -16,13 +16,24 @@ export default function HomePageClient({ featuredProducts, newArrivals }: HomePa
   const [scrollY, setScrollY] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
   const [activeCollection, setActiveCollection] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsLoaded(true);
+    // Check for mobile
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   useEffect(() => {
+    // Disable parallax on mobile for performance
+    if (isMobile) return;
+    
     const handleScroll = () => {
       setScrollY(window.scrollY);
     };
@@ -30,7 +41,7 @@ export default function HomePageClient({ featuredProducts, newArrivals }: HomePa
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [isMobile]);
 
   // Auto-rotate collections
   useEffect(() => {
@@ -48,39 +59,20 @@ export default function HomePageClient({ featuredProducts, newArrivals }: HomePa
 
   return (
     <div className="min-h-screen bg-black overflow-hidden -mt-20">
-      {/* ===== JAW-DROPPING ANIMATED BACKGROUND ===== */}
+      {/* ===== ANIMATED BACKGROUND ===== */}
       <FloatingBackground />
 
       {/* ===== HERO SECTION ===== */}
       <section ref={heroRef} className="relative min-h-screen flex items-start justify-center overflow-hidden pt-20">
-        {/* Parallax floating shapes */}
-        <div className="absolute inset-0 z-0" style={{ transform: `translateY(${scrollY * 0.3}px)` }}>
-          {/* Gothic cross shape */}
-          <div className="absolute top-[15%] left-[8%] w-1 h-20 bg-linear-to-b from-burnt-lilac/30 to-transparent animate-float" />
-          <div className="absolute top-[15%] left-[8%] translate-y-6 w-10 h-1 -translate-x-4 bg-linear-to-r from-transparent via-burnt-lilac/30 to-transparent animate-float" />
-          
-          {/* Floating circles */}
-          <div className="absolute top-[20%] right-[15%] w-32 h-32 border border-mist-lilac/10 rounded-full animate-float" style={{ animationDelay: '0.5s' }} />
-          <div className="absolute top-[60%] left-[10%] w-48 h-48 border border-burnt-lilac/10 rounded-full animate-float" style={{ animationDelay: '1s' }} />
-          <div className="absolute bottom-[20%] right-[20%] w-24 h-24 border-2 border-deep-purple/20 rounded-full animate-float" style={{ animationDelay: '1.5s' }} />
-          
-          {/* Diamond shapes */}
-          <div className="absolute top-[35%] right-[8%] w-16 h-16 border border-burnt-lilac/20 rotate-45 animate-float" style={{ animationDelay: '2s' }} />
-          <div className="absolute bottom-[35%] left-[5%] w-12 h-12 bg-burnt-lilac/5 rotate-45 animate-float" style={{ animationDelay: '0.8s' }} />
-          
-          {/* Glowing dots */}
-          {[...Array(12)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-1 h-1 bg-burnt-lilac/40 rounded-full animate-pulse"
-              style={{
-                top: `${15 + (i * 7)}%`,
-                left: `${10 + (i * 8) % 80}%`,
-                animationDelay: `${i * 0.3}s`,
-              }}
-            />
-          ))}
-        </div>
+        {/* Floating shapes - Desktop only for performance */}
+        {!isMobile && (
+          <div className="absolute inset-0 z-0" style={{ transform: `translateY(${scrollY * 0.2}px)` }}>
+            {/* Floating circles - reduced */}
+            <div className="absolute top-[20%] right-[15%] w-32 h-32 border border-mist-lilac/10 rounded-full" />
+            <div className="absolute top-[60%] left-[10%] w-48 h-48 border border-burnt-lilac/10 rounded-full" />
+            <div className="absolute bottom-[20%] right-[20%] w-24 h-24 border-2 border-deep-purple/20 rounded-full" />
+          </div>
+        )}
 
         {/* Hero Content */}
         <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto pt-8 sm:pt-12">
@@ -92,7 +84,7 @@ export default function HomePageClient({ featuredProducts, newArrivals }: HomePa
           {/* Main Heading with Gradient */}
           <h1 className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-serif leading-tight mb-6 transition-all duration-700 delay-300 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             <span className="block text-mist-lilac">Embrace the</span>
-            <span className="block bg-linear-to-r from-burnt-lilac via-mist-lilac to-burnt-lilac bg-clip-text text-transparent animate-gradient">
+            <span className="block bg-linear-to-r from-burnt-lilac via-mist-lilac to-burnt-lilac bg-clip-text text-transparent">
               Extraordinary
             </span>
           </h1>
