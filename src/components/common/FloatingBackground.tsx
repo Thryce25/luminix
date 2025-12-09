@@ -6,22 +6,22 @@ interface FloatingBackgroundProps {
   variant?: 'default' | 'minimal' | 'intense';
 }
 
-// Reduced particles for better performance (6 instead of 50)
-const desktopParticles = [
-  { id: 0, left: '15%', top: '20%', delay: '0s', duration: '5s' },
-  { id: 1, left: '85%', top: '15%', delay: '1s', duration: '6s' },
-  { id: 2, left: '25%', top: '80%', delay: '2s', duration: '5.5s' },
-  { id: 3, left: '70%', top: '60%', delay: '3s', duration: '4.5s' },
-  { id: 4, left: '45%', top: '40%', delay: '1.5s', duration: '5s' },
-  { id: 5, left: '55%', top: '75%', delay: '2.5s', duration: '6s' },
-];
+// Generate particles programmatically
+const generateParticles = (count: number) => {
+  return Array.from({ length: count }, (_, i) => ({
+    id: i,
+    left: `${5 + (i * 1.9) % 90}%`,
+    top: `${10 + (i * 1.7) % 80}%`,
+    delay: `${(i * 0.2) % 5}s`,
+    duration: `${4 + (i % 3)}s`,
+  }));
+};
 
-// Mobile-optimized minimal particles (3 only)
-const mobileParticles = [
-  { id: 0, left: '20%', top: '30%' },
-  { id: 1, left: '80%', top: '70%' },
-  { id: 2, left: '50%', top: '50%' },
-];
+// 50 particles for desktop
+const desktopParticles = generateParticles(50);
+
+// 10 particles for mobile (with animations)
+const mobileParticles = generateParticles(10);
 
 export default function FloatingBackground({ variant = 'default' }: FloatingBackgroundProps) {
   const [isMobile, setIsMobile] = useState(false);
@@ -48,8 +48,11 @@ export default function FloatingBackground({ variant = 'default' }: FloatingBack
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Minimal or no animations for mobile/reduced motion
-  const shouldReduceAnimations = isMobile || prefersReducedMotion;
+  // Only reduce animations if user prefers reduced motion
+  const shouldReduceAnimations = prefersReducedMotion;
+  
+  // Use appropriate particle count based on device
+  const particles = isMobile ? mobileParticles : desktopParticles;
 
   // Server-side render safe - return minimal version
   if (!mounted) {
@@ -79,7 +82,7 @@ export default function FloatingBackground({ variant = 'default' }: FloatingBack
         </div>
       )}
 
-      {/* Mobile: Static gradient only - no animations */}
+      {/* Static gradient for reduced motion users */}
       {shouldReduceAnimations && (
         <div className="absolute inset-0 opacity-20">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-burnt-lilac/15 blur-[60px]" />
@@ -87,31 +90,19 @@ export default function FloatingBackground({ variant = 'default' }: FloatingBack
         </div>
       )}
 
-      {/* Particles - Desktop animated, Mobile static */}
-      {shouldReduceAnimations ? (
-        // Mobile: Static particles, no animation
-        mobileParticles.map((particle) => (
-          <div
-            key={particle.id}
-            className="absolute w-1 h-1 bg-mist-lilac/40 rounded-full"
-            style={{ left: particle.left, top: particle.top }}
-          />
-        ))
-      ) : (
-        // Desktop: Animated particles
-        desktopParticles.map((particle) => (
-          <div
-            key={particle.id}
-            className="absolute w-1 h-1 bg-mist-lilac/30 rounded-full"
-            style={{
-              left: particle.left,
-              top: particle.top,
-              animation: `twinkle ${particle.duration} ease-in-out infinite`,
-              animationDelay: particle.delay,
-            }}
-          />
-        ))
-      )}
+      {/* Animated Particles - 50 on desktop, 10 on mobile */}
+      {!shouldReduceAnimations && particles.map((particle) => (
+        <div
+          key={particle.id}
+          className="absolute w-1 h-1 bg-mist-lilac/30 rounded-full"
+          style={{
+            left: particle.left,
+            top: particle.top,
+            animation: `twinkle ${particle.duration} ease-in-out infinite`,
+            animationDelay: particle.delay,
+          }}
+        />
+      ))}
 
       {/* Static mesh gradient - No animation */}
       <div 
