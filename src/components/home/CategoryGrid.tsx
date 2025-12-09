@@ -62,7 +62,7 @@ export default function CategoryGrid() {
               className="group relative overflow-hidden rounded-lg aspect-4/3 sm:aspect-square lg:aspect-3/4"
             >
               {/* Gradient Background */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${collection.gradient}`} />
+              <div className={`absolute inset-0 bg-linear-to-br ${collection.gradient}`} />
               
               {/* Animated Background Pattern */}
               <div className="absolute inset-0 opacity-20">

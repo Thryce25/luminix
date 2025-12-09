@@ -12,7 +12,7 @@ export default function AnimeCollection({ products }: AnimeCollectionProps) {
   if (products.length === 0) return null;
 
   return (
-    <section className="py-12 sm:py-16 lg:py-24 bg-gradient-to-b from-black via-purple-950/20 to-black relative overflow-hidden">
+    <section className="py-12 sm:py-16 lg:py-24 bg-linear-to-b from-black via-purple-950/20 to-black relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
@@ -63,7 +63,7 @@ export default function AnimeCollection({ products }: AnimeCollectionProps) {
         <div className="text-center mt-8 sm:mt-12">
           <Link
             href="/products?collection=anime-collection"
-            className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-medium transition-all transform hover:scale-105 shadow-lg shadow-purple-500/25"
+            className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-medium transition-all transform hover:scale-105 shadow-lg shadow-purple-500/25"
           >
             <span>Explore Full Anime Collection</span>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

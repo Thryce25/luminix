@@ -24,7 +24,7 @@ const footerLinks = {
 
 export default function Footer() {
   return (
-    <footer className="bg-black border-t border-deep-purple/30">
+    <footer className="relative z-10 bg-[#0d0815] border-t border-burnt-lilac/20">
       {/* Main Footer */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
@@ -35,7 +35,7 @@ export default function Footer() {
                 LUMINIX
               </span>
             </Link>
-            <p className="text-mist-lilac/60 mb-4 sm:mb-6 max-w-sm leading-relaxed text-sm sm:text-base">
+            <p className="text-mist-lilac/80 mb-4 sm:mb-6 max-w-sm leading-relaxed text-sm sm:text-base">
               Embrace the darkness with our curated collection of gothic-inspired 
               fashion. Where shadows meet elegance.
             </p>
@@ -66,7 +66,7 @@ export default function Footer() {
             <ul className="space-y-2 sm:space-y-3">
               {footerLinks.shop.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="text-mist-lilac/60 hover:text-burnt-lilac transition-colors text-xs sm:text-sm touch-manipulation inline-block py-1">
+                  <Link href={link.href} className="text-mist-lilac/80 hover:text-burnt-lilac transition-colors text-xs sm:text-sm touch-manipulation inline-block py-1">
                     {link.name}
                   </Link>
                 </li>
@@ -80,7 +80,7 @@ export default function Footer() {
             <ul className="space-y-2 sm:space-y-3">
               {footerLinks.help.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="text-mist-lilac/60 hover:text-burnt-lilac transition-colors text-xs sm:text-sm touch-manipulation inline-block py-1">
+                  <Link href={link.href} className="text-mist-lilac/80 hover:text-burnt-lilac transition-colors text-xs sm:text-sm touch-manipulation inline-block py-1">
                     {link.name}
                   </Link>
                 </li>
@@ -91,13 +91,13 @@ export default function Footer() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-deep-purple/30">
+      <div className="border-t border-burnt-lilac/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
-            <p className="text-mist-lilac/50 text-xs sm:text-sm text-center sm:text-left">
+            <p className="text-mist-lilac/70 text-xs sm:text-sm text-center sm:text-left">
               © {new Date().getFullYear()} Luminix. All rights reserved.
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-mist-lilac/50 text-xs sm:text-sm">
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-mist-lilac/70 text-xs sm:text-sm">
               {footerLinks.legal.map((link) => (
                 <Link key={link.name} href={link.href} className="hover:text-mist-lilac transition-colors touch-manipulation">
                   {link.name}
@@ -124,7 +124,7 @@ function SocialLink({
     <a
       href={href}
       aria-label={label}
-      className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-deep-purple/30 border border-deep-purple/50 flex items-center justify-center text-mist-lilac/70 hover:text-mist-lilac hover:border-burnt-lilac hover:bg-burnt-lilac/20 transition-all touch-manipulation"
+      className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-burnt-lilac/10 border border-burnt-lilac/30 flex items-center justify-center text-mist-lilac hover:text-white hover:border-burnt-lilac hover:bg-burnt-lilac/30 transition-all touch-manipulation"
     >
       {children}
     </a>

@@ -1,24 +1,18 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import FloatingBackground from '@/components/common/FloatingBackground';
 
 export default function AboutPage() {
   const [scrollY, setScrollY] = useState(0);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const heroRef = useRef<HTMLDivElement>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
+    setIsLoaded(true);
     const handleScroll = () => setScrollY(window.scrollY);
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
     window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const values = [
@@ -60,62 +54,11 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-black overflow-hidden">
-      {/* Animated Background */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div 
-          className="absolute w-[800px] h-[800px] rounded-full opacity-20 blur-3xl transition-transform duration-1000"
-          style={{
-            background: 'radial-gradient(circle, rgba(111,78,124,0.4) 0%, transparent 70%)',
-            left: `${mousePosition.x * 0.02}px`,
-            top: `${mousePosition.y * 0.02 - scrollY * 0.1}px`,
-          }}
-        />
-        <div 
-          className="absolute w-[600px] h-[600px] rounded-full opacity-15 blur-3xl"
-          style={{
-            background: 'radial-gradient(circle, rgba(214,197,220,0.3) 0%, transparent 70%)',
-            right: '10%',
-            bottom: '20%',
-            transform: `translateY(${scrollY * 0.05}px)`,
-          }}
-        />
-        <div 
-          className="absolute inset-0 opacity-5"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(214,197,220,0.1) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(214,197,220,0.1) 1px, transparent 1px)
-            `,
-            backgroundSize: '50px 50px',
-            transform: `translateY(${scrollY * 0.1}px)`,
-          }}
-        />
-      </div>
+      {/* Dark Gen Z Animated Background */}
+      <FloatingBackground />
 
       {/* Hero Section */}
-      <section ref={heroRef} className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
-        {/* Floating Elements */}
-        <div className="absolute inset-0">
-          {[...Array(15)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full mix-blend-overlay"
-              style={{
-                width: `${Math.random() * 100 + 30}px`,
-                height: `${Math.random() * 100 + 30}px`,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                background: i % 2 === 0 
-                  ? 'linear-gradient(135deg, rgba(111,78,124,0.3), transparent)'
-                  : 'linear-gradient(135deg, rgba(214,197,220,0.2), transparent)',
-                animation: `float ${10 + Math.random() * 10}s ease-in-out infinite`,
-                animationDelay: `${i * 0.5}s`,
-                transform: `translateY(${scrollY * (0.1 + Math.random() * 0.2)}px)`,
-              }}
-            />
-          ))}
-        </div>
-
+      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
         <div 
           className="relative z-10 text-center px-4 max-w-4xl mx-auto"
           style={{ transform: `translateY(${scrollY * 0.3}px)` }}
@@ -125,7 +68,7 @@ export default function AboutPage() {
             <span className="text-burnt-lilac text-sm font-medium tracking-wider uppercase">Our Story</span>
           </div>
 
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif text-transparent bg-clip-text bg-gradient-to-b from-white via-mist-lilac to-burnt-lilac/50 mb-6 leading-tight">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif text-transparent bg-clip-text bg-linear-to-b from-white via-mist-lilac to-burnt-lilac/50 mb-6 leading-tight">
             About
             <br />
             <span className="italic">Luminix</span>
@@ -138,7 +81,7 @@ export default function AboutPage() {
           {/* Scroll Indicator */}
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
             <span className="text-mist-lilac/40 text-xs uppercase tracking-widest">Discover</span>
-            <div className="w-px h-16 bg-gradient-to-b from-burnt-lilac/50 to-transparent relative overflow-hidden">
+            <div className="w-px h-16 bg-linear-to-b from-burnt-lilac/50 to-transparent relative overflow-hidden">
               <div className="absolute top-0 w-full h-1/2 bg-burnt-lilac animate-pulse" style={{ animation: 'scrollDown 1.5s ease-in-out infinite' }} />
             </div>
           </div>
@@ -155,7 +98,7 @@ export default function AboutPage() {
                 className="text-center"
                 style={{ animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both` }}
               >
-                <div className="text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-burnt-lilac to-mist-lilac mb-2">
+                <div className="text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-linear-to-r from-burnt-lilac to-mist-lilac mb-2">
                   {stat.number}
                 </div>
                 <div className="text-mist-lilac/50 text-sm uppercase tracking-wider">{stat.label}</div>
@@ -171,14 +114,14 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Visual Element */}
             <div className="relative aspect-square max-w-md mx-auto lg:mx-0">
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-burnt-lilac/20 to-deep-purple/40 border border-mist-lilac/10" />
-              <div className="absolute inset-4 rounded-2xl bg-gradient-to-br from-deep-purple/30 to-black border border-mist-lilac/10" />
+              <div className="absolute inset-0 rounded-3xl bg-linear-to-br from-burnt-lilac/20 to-deep-purple/40 border border-mist-lilac/10" />
+              <div className="absolute inset-4 rounded-2xl bg-linear-to-br from-deep-purple/30 to-black border border-mist-lilac/10" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-[200px] font-serif text-mist-lilac/10">L</span>
               </div>
               {/* Decorative rings */}
               <div className="absolute inset-0 border-2 border-burnt-lilac/20 rounded-3xl animate-pulse" style={{ animationDuration: '3s' }} />
-              <div className="absolute -inset-4 border border-mist-lilac/10 rounded-[2rem]" />
+              <div className="absolute -inset-4 border border-mist-lilac/10 rounded-4xl" />
             </div>
 
             {/* Content */}
@@ -220,7 +163,7 @@ export default function AboutPage() {
       </section>
 
       {/* Values Section */}
-      <section className="relative z-10 py-24 bg-gradient-to-b from-deep-purple/10 via-transparent to-transparent">
+      <section className="relative z-10 py-24 bg-linear-to-b from-deep-purple/10 via-transparent to-transparent">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <span className="text-burnt-lilac text-sm font-medium tracking-wider uppercase">What Drives Us</span>
@@ -231,7 +174,7 @@ export default function AboutPage() {
             {values.map((value, index) => (
               <div
                 key={index}
-                className="group relative p-8 rounded-2xl bg-gradient-to-br from-deep-purple/20 to-transparent border border-mist-lilac/10 hover:border-burnt-lilac/30 transition-all duration-500"
+                className="group relative p-8 rounded-2xl bg-linear-to-br from-deep-purple/20 to-transparent border border-mist-lilac/10 hover:border-burnt-lilac/30 transition-all duration-500"
                 style={{ animation: `fadeInUp 0.6s ease-out ${index * 0.15}s both` }}
               >
                 {/* Glow Effect */}
@@ -253,7 +196,7 @@ export default function AboutPage() {
       {/* CTA Section */}
       <section className="relative z-10 py-24">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <div className="relative p-12 rounded-3xl bg-gradient-to-br from-burnt-lilac/20 to-deep-purple/30 border border-mist-lilac/10 overflow-hidden">
+          <div className="relative p-12 rounded-3xl bg-linear-to-br from-burnt-lilac/20 to-deep-purple/30 border border-mist-lilac/10 overflow-hidden">
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-10">
               <div className="absolute inset-0" style={{
@@ -302,6 +245,200 @@ export default function AboutPage() {
         @keyframes fadeInUp {
           from { opacity: 0; transform: translateY(30px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Aurora Borealis Animations */
+        @keyframes aurora-1 {
+          0%, 100% { 
+            transform: translate(-50%, -25%) rotate(0deg) scale(1);
+            opacity: 0.4;
+          }
+          25% { 
+            transform: translate(-45%, -30%) rotate(90deg) scale(1.1);
+            opacity: 0.6;
+          }
+          50% { 
+            transform: translate(-55%, -20%) rotate(180deg) scale(0.9);
+            opacity: 0.3;
+          }
+          75% { 
+            transform: translate(-50%, -35%) rotate(270deg) scale(1.05);
+            opacity: 0.5;
+          }
+        }
+        
+        @keyframes aurora-2 {
+          0%, 100% { 
+            transform: rotate(0deg) scale(1);
+            opacity: 0.3;
+          }
+          33% { 
+            transform: rotate(-120deg) scale(1.2);
+            opacity: 0.5;
+          }
+          66% { 
+            transform: rotate(-240deg) scale(0.8);
+            opacity: 0.2;
+          }
+        }
+        
+        @keyframes aurora-3 {
+          0%, 100% { 
+            transform: translateX(0) rotate(0deg);
+            opacity: 0.25;
+          }
+          50% { 
+            transform: translateX(10%) rotate(180deg);
+            opacity: 0.4;
+          }
+        }
+        
+        .animate-aurora-1 {
+          animation: aurora-1 25s ease-in-out infinite;
+        }
+        
+        .animate-aurora-2 {
+          animation: aurora-2 30s ease-in-out infinite;
+        }
+        
+        .animate-aurora-3 {
+          animation: aurora-3 20s ease-in-out infinite;
+        }
+        
+        /* Floating Animations */
+        @keyframes float-slow {
+          0%, 100% { 
+            transform: translateY(0) translateX(0);
+          }
+          25% { 
+            transform: translateY(-30px) translateX(20px);
+          }
+          50% { 
+            transform: translateY(-15px) translateX(-15px);
+          }
+          75% { 
+            transform: translateY(-40px) translateX(10px);
+          }
+        }
+        
+        @keyframes float-slower {
+          0%, 100% { 
+            transform: translateY(0) translateX(0) scale(1);
+          }
+          33% { 
+            transform: translateY(-40px) translateX(-30px) scale(1.1);
+          }
+          66% { 
+            transform: translateY(-20px) translateX(20px) scale(0.95);
+          }
+        }
+        
+        @keyframes pulse-slow {
+          0%, 100% { 
+            opacity: 0.2;
+            transform: translate(-50%, -50%) scale(1);
+          }
+          50% { 
+            opacity: 0.35;
+            transform: translate(-50%, -50%) scale(1.15);
+          }
+        }
+        
+        .animate-float-slow {
+          animation: float-slow 12s ease-in-out infinite;
+        }
+        
+        .animate-float-slower {
+          animation: float-slower 18s ease-in-out infinite;
+        }
+        
+        .animate-pulse-slow {
+          animation: pulse-slow 8s ease-in-out infinite;
+        }
+        
+        /* Shooting Stars */
+        @keyframes shooting-star {
+          0% {
+            transform: translateX(0) translateY(0) rotate(45deg);
+            opacity: 1;
+            width: 4px;
+            height: 4px;
+            box-shadow: 0 0 10px 2px white, -100px 0 50px 10px rgba(255,255,255,0.3);
+          }
+          70% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateX(500px) translateY(500px) rotate(45deg);
+            opacity: 0;
+            width: 2px;
+            height: 2px;
+            box-shadow: 0 0 5px 1px white, -200px 0 100px 20px transparent;
+          }
+        }
+        
+        .animate-shooting-star {
+          animation: shooting-star 3s ease-out infinite;
+        }
+        
+        /* Twinkle Stars */
+        @keyframes twinkle {
+          0%, 100% { 
+            opacity: 0.2;
+            transform: scale(1);
+          }
+          50% { 
+            opacity: 0.8;
+            transform: scale(1.5);
+            box-shadow: 0 0 10px 2px rgba(214,197,220,0.5);
+          }
+        }
+        
+        .animate-twinkle {
+          animation: twinkle 3s ease-in-out infinite;
+        }
+        
+        /* Floating Rotate */
+        @keyframes float-rotate {
+          0% { 
+            transform: translateY(0) rotate(0deg);
+            opacity: 0.15;
+          }
+          25% { 
+            transform: translateY(-20px) rotate(90deg);
+            opacity: 0.25;
+          }
+          50% { 
+            transform: translateY(-10px) rotate(180deg);
+            opacity: 0.15;
+          }
+          75% { 
+            transform: translateY(-30px) rotate(270deg);
+            opacity: 0.2;
+          }
+          100% { 
+            transform: translateY(0) rotate(360deg);
+            opacity: 0.15;
+          }
+        }
+        
+        .animate-float-rotate {
+          animation: float-rotate 20s ease-in-out infinite;
+        }
+        
+        /* Grid Movement */
+        @keyframes grid-move {
+          0% {
+            transform: translateY(0);
+          }
+          100% {
+            transform: translateY(60px);
+          }
+        }
+        
+        /* Gradient Conic for Aurora */
+        .bg-gradient-conic {
+          background: conic-gradient(var(--tw-gradient-stops));
         }
       `}</style>
     </div>

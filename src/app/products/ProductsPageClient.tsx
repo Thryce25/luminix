@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ShopifyProduct, formatPrice, getProductImageUrl } from '@/lib/shopify';
 import { useCart } from '@/context/CartContext';
+import FloatingBackground from '@/components/common/FloatingBackground';
 
 interface FilterOption {
   label: string;
@@ -33,6 +34,16 @@ const priceRanges = [
   { label: 'Over ₹1,000', value: '1000-above' },
 ];
 
+const sizeOptions = [
+  { label: 'XS', value: 'xs' },
+  { label: 'S', value: 's' },
+  { label: 'M', value: 'm' },
+  { label: 'L', value: 'l' },
+  { label: 'XL', value: 'xl' },
+  { label: 'XXL', value: 'xxl' },
+  { label: '3XL', value: '3xl' },
+];
+
 export default function ProductsPageClient({
   initialProducts,
   collections,
@@ -40,34 +51,87 @@ export default function ProductsPageClient({
 }: ProductsPageClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [products] = useState(initialProducts);
   const [viewMode, setViewMode] = useState<'grid' | 'masonry' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [scrollY, setScrollY] = useState(0);
-  const heroRef = useRef<HTMLDivElement>(null);
 
   const currentSort = searchParams.get('sort') || 'newest';
   const currentCategory = searchParams.get('category') || searchParams.get('collection') || '';
   const currentType = searchParams.get('type') || '';
   const currentPrice = searchParams.get('price') || '';
+  const currentSize = searchParams.get('size') || '';
 
-  // Track scroll for parallax
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  // Client-side filtering of products
+  const filteredProducts = useMemo(() => {
+    let result = [...initialProducts];
 
-  // Track mouse for interactive effects
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+    // Filter by product type (search in title since productType might be empty)
+    if (currentType) {
+      const searchTerm = currentType.replace(/-/g, ' ').toLowerCase();
+      result = result.filter(product => 
+        product.title.toLowerCase().includes(searchTerm) ||
+        product.productType?.toLowerCase().includes(searchTerm) ||
+        product.tags?.some(tag => tag.toLowerCase().includes(searchTerm))
+      );
+    }
+
+    // Filter by price range
+    if (currentPrice) {
+      const [min, max] = currentPrice.split('-');
+      const minPrice = parseInt(min) || 0;
+      const maxPrice = max === 'above' ? Infinity : (parseInt(max) || Infinity);
+      
+      result = result.filter(product => {
+        const price = parseFloat(product.priceRange.minVariantPrice.amount);
+        return price >= minPrice && price <= maxPrice;
+      });
+    }
+
+    // Filter by size
+    if (currentSize) {
+      result = result.filter(product => {
+        // Check in product options for Size option
+        const sizeOption = product.options?.find(opt => 
+          opt.name.toLowerCase() === 'size'
+        );
+        if (sizeOption) {
+          return sizeOption.values.some(v => 
+            v.toLowerCase() === currentSize.toLowerCase()
+          );
+        }
+        // Also check variants
+        return product.variants?.edges?.some(edge => 
+          edge.node.selectedOptions?.some(opt => 
+            opt.name.toLowerCase() === 'size' && 
+            opt.value.toLowerCase() === currentSize.toLowerCase()
+          )
+        );
+      });
+    }
+
+    // Sort products
+    switch (currentSort) {
+      case 'price-asc':
+        result.sort((a, b) => 
+          parseFloat(a.priceRange.minVariantPrice.amount) - parseFloat(b.priceRange.minVariantPrice.amount)
+        );
+        break;
+      case 'price-desc':
+        result.sort((a, b) => 
+          parseFloat(b.priceRange.minVariantPrice.amount) - parseFloat(a.priceRange.minVariantPrice.amount)
+        );
+        break;
+      case 'title-asc':
+        result.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case 'newest':
+      default:
+        // Keep original order (newest first from API)
+        break;
+    }
+
+    return result;
+  }, [initialProducts, currentType, currentPrice, currentSize, currentSort]);
 
   const updateFilters = useCallback((key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -84,87 +148,28 @@ export default function ProductsPageClient({
     router.push('/products', { scroll: false });
   };
 
-  const hasActiveFilters = currentCategory || currentType || currentPrice;
-  const activeFilterCount = [currentCategory, currentType, currentPrice].filter(Boolean).length;
+  const hasActiveFilters = currentCategory || currentType || currentPrice || currentSize;
+  const activeFilterCount = [currentCategory, currentType, currentPrice, currentSize].filter(Boolean).length;
 
   return (
     <div className="min-h-screen bg-black overflow-hidden">
-      {/* Animated Background */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        {/* Gradient Orbs */}
-        <div 
-          className="absolute w-[800px] h-[800px] rounded-full opacity-20 blur-3xl transition-transform duration-1000"
-          style={{
-            background: 'radial-gradient(circle, rgba(111,78,124,0.4) 0%, transparent 70%)',
-            left: `${mousePosition.x * 0.02}px`,
-            top: `${mousePosition.y * 0.02 - scrollY * 0.1}px`,
-          }}
-        />
-        <div 
-          className="absolute w-[600px] h-[600px] rounded-full opacity-15 blur-3xl"
-          style={{
-            background: 'radial-gradient(circle, rgba(214,197,220,0.3) 0%, transparent 70%)',
-            right: '10%',
-            bottom: '20%',
-            transform: `translateY(${scrollY * 0.05}px)`,
-          }}
-        />
-        
-        {/* Grid Pattern */}
-        <div 
-          className="absolute inset-0 opacity-5"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(214,197,220,0.1) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(214,197,220,0.1) 1px, transparent 1px)
-            `,
-            backgroundSize: '50px 50px',
-            transform: `translateY(${scrollY * 0.1}px)`,
-          }}
-        />
-      </div>
+      {/* Jaw-dropping Animated Background */}
+      <FloatingBackground />
 
       {/* Hero Section */}
       <section 
-        ref={heroRef}
         className="relative min-h-[60vh] flex items-center justify-center overflow-hidden"
       >
-        {/* Parallax Background Elements */}
-        <div className="absolute inset-0">
-          {/* Floating Shapes */}
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full mix-blend-overlay animate-float"
-              style={{
-                width: `${Math.random() * 100 + 20}px`,
-                height: `${Math.random() * 100 + 20}px`,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                background: i % 2 === 0 
-                  ? 'linear-gradient(135deg, rgba(111,78,124,0.3), transparent)'
-                  : 'linear-gradient(135deg, rgba(214,197,220,0.2), transparent)',
-                animationDelay: `${i * 0.5}s`,
-                animationDuration: `${10 + Math.random() * 10}s`,
-                transform: `translateY(${scrollY * (0.1 + Math.random() * 0.2)}px)`,
-              }}
-            />
-          ))}
-        </div>
-
         {/* Hero Content */}
-        <div 
-          className="relative z-10 text-center px-4"
-          style={{ transform: `translateY(${scrollY * 0.3}px)` }}
-        >
+        <div className="relative z-10 text-center px-4">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-burnt-lilac/10 border border-burnt-lilac/20 mb-6">
             <span className="w-2 h-2 bg-burnt-lilac rounded-full animate-pulse" />
             <span className="text-burnt-lilac text-sm font-medium tracking-wider uppercase">
-              {products.length} Products Available
+              {filteredProducts.length} Products Available
             </span>
           </div>
           
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif text-transparent bg-clip-text bg-gradient-to-b from-white via-mist-lilac to-burnt-lilac/50 mb-6 leading-tight">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif text-transparent bg-clip-text bg-linear-to-b from-white via-mist-lilac to-burnt-lilac/50 mb-6 leading-tight">
             Discover
             <br />
             <span className="italic">Your Style</span>
@@ -177,7 +182,7 @@ export default function ProductsPageClient({
           {/* Scroll Indicator */}
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
             <span className="text-mist-lilac/40 text-xs uppercase tracking-widest">Scroll</span>
-            <div className="w-px h-16 bg-gradient-to-b from-burnt-lilac/50 to-transparent relative">
+            <div className="w-px h-16 bg-linear-to-b from-burnt-lilac/50 to-transparent relative">
               <div className="absolute top-0 w-full h-1/2 bg-burnt-lilac animate-scroll-down" />
             </div>
           </div>
@@ -185,7 +190,7 @@ export default function ProductsPageClient({
       </section>
 
       {/* Filter Bar - Sticky */}
-      <div className="sticky top-0 z-40 bg-black/80 backdrop-blur-xl border-b border-mist-lilac/10">
+      <div className="sticky top-20 z-40 bg-black/95 backdrop-blur-xl border-b border-mist-lilac/10">
         <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-4 gap-4">
             {/* Left Side - Filter Button & Active Filters */}
@@ -228,6 +233,12 @@ export default function ProductsPageClient({
                     <FilterPill 
                       label={priceRanges.find(p => p.value === currentPrice)?.label || currentPrice}
                       onRemove={() => updateFilters('price', '')}
+                    />
+                  )}
+                  {currentSize && (
+                    <FilterPill 
+                      label={`Size: ${sizeOptions.find(s => s.value === currentSize)?.label || currentSize.toUpperCase()}`}
+                      onRemove={() => updateFilters('size', '')}
                     />
                   )}
                   <button
@@ -306,12 +317,12 @@ export default function ProductsPageClient({
 
       {/* Filter Panel - Expandable */}
       <div 
-        className={`overflow-hidden transition-all duration-500 bg-gradient-to-b from-deep-purple/20 to-transparent border-b border-mist-lilac/10 ${
-          showFilters ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+        className={`relative z-30 overflow-hidden transition-all duration-500 bg-black/90 backdrop-blur-md border-b border-mist-lilac/10 ${
+          showFilters ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
         }`}
       >
         <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Collections */}
             <div>
               <h3 className="text-mist-lilac font-semibold mb-4 flex items-center gap-2">
@@ -380,6 +391,29 @@ export default function ProductsPageClient({
                 ))}
               </div>
             </div>
+
+            {/* Size */}
+            <div>
+              <h3 className="text-mist-lilac font-semibold mb-4 flex items-center gap-2">
+                <span className="w-1 h-4 bg-burnt-lilac rounded-full" />
+                Size
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {sizeOptions.map((size) => (
+                  <button
+                    key={size.value}
+                    onClick={() => updateFilters('size', currentSize === size.value ? '' : size.value)}
+                    className={`w-12 h-12 rounded-full text-sm font-medium transition-all duration-300 ${
+                      currentSize === size.value
+                        ? 'bg-burnt-lilac text-white scale-105'
+                        : 'bg-deep-purple/30 text-mist-lilac/70 hover:bg-deep-purple/50 hover:text-mist-lilac'
+                    }`}
+                  >
+                    {size.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -387,12 +421,12 @@ export default function ProductsPageClient({
       {/* Products Section */}
       <section className="relative z-10 py-12 sm:py-16">
         <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8">
-          {products.length > 0 ? (
+          {filteredProducts.length > 0 ? (
             <>
               {/* Grid View */}
               {viewMode === 'grid' && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
-                  {products.map((product, index) => (
+                  {filteredProducts.map((product, index) => (
                     <ProductCardAnimated
                       key={product.id}
                       product={product}
@@ -408,7 +442,7 @@ export default function ProductsPageClient({
               {/* Masonry View */}
               {viewMode === 'masonry' && (
                 <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-4 sm:gap-6">
-                  {products.map((product, index) => (
+                  {filteredProducts.map((product, index) => (
                     <div key={product.id} className="break-inside-avoid mb-4 sm:mb-6">
                       <ProductCardMasonry
                         product={product}
@@ -425,7 +459,7 @@ export default function ProductsPageClient({
               {/* List View */}
               {viewMode === 'list' && (
                 <div className="space-y-4">
-                  {products.map((product, index) => (
+                  {filteredProducts.map((product, index) => (
                     <ProductCardList
                       key={product.id}
                       product={product}
@@ -537,7 +571,7 @@ function ProductCardAnimated({
       }}
     >
       <div 
-        className={`relative rounded-2xl overflow-hidden bg-gradient-to-br from-deep-purple/30 to-black border border-mist-lilac/10 transition-all duration-500 ${
+        className={`relative rounded-2xl overflow-hidden bg-linear-to-br from-deep-purple/30 to-black border border-mist-lilac/10 transition-all duration-500 ${
           isHovered ? 'scale-[1.02] shadow-2xl shadow-burnt-lilac/20 border-burnt-lilac/30' : ''
         }`}
         style={{
@@ -545,7 +579,7 @@ function ProductCardAnimated({
         }}
       >
         {/* Image Container */}
-        <div className="relative aspect-[3/4] overflow-hidden">
+        <div className="relative aspect-3/4 overflow-hidden">
           <Image
             src={imageUrl}
             alt={product.title}
@@ -568,12 +602,12 @@ function ProductCardAnimated({
           )}
 
           {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
+          <div className="absolute inset-0 bg-linear-to-t from-black via-transparent to-transparent opacity-60" />
 
           {/* Badges */}
           <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
             {isOnSale && (
-              <span className="px-2.5 py-1 bg-gradient-to-r from-burnt-lilac to-pink-500 text-white text-xs font-bold rounded-full">
+              <span className="px-2.5 py-1 bg-linear-to-r from-burnt-lilac to-pink-500 text-white text-xs font-bold rounded-full">
                 -{discount}%
               </span>
             )}
@@ -645,7 +679,7 @@ function ProductCardMasonry({
 }) {
   const imageUrl = getProductImageUrl(product);
   const price = product.priceRange.minVariantPrice;
-  const aspectRatios = ['aspect-[3/4]', 'aspect-square', 'aspect-[4/5]', 'aspect-[3/5]'];
+  const aspectRatios = ['aspect-3/4', 'aspect-square', 'aspect-4/5', 'aspect-[3/5]'];
   const randomAspect = aspectRatios[index % aspectRatios.length];
 
   return (
@@ -656,7 +690,7 @@ function ProductCardMasonry({
       onMouseLeave={onLeave}
     >
       <div 
-        className={`relative rounded-2xl overflow-hidden bg-gradient-to-br from-deep-purple/30 to-black border border-mist-lilac/10 transition-all duration-500 ${
+        className={`relative rounded-2xl overflow-hidden bg-linear-to-br from-deep-purple/30 to-black border border-mist-lilac/10 transition-all duration-500 ${
           isHovered ? 'shadow-2xl shadow-burnt-lilac/20 border-burnt-lilac/30' : ''
         }`}
         style={{
@@ -671,7 +705,7 @@ function ProductCardMasonry({
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
             className={`object-cover transition-all duration-700 ${isHovered ? 'scale-110' : 'scale-100'}`}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-black via-black/20 to-transparent" />
           
           {/* Info Overlay */}
           <div className="absolute bottom-0 left-0 right-0 p-4">
@@ -720,9 +754,9 @@ function ProductCardList({
         animation: `fade-in-up 0.6s ease-out ${index * 0.05}s both`,
       }}
     >
-      <div className="flex gap-6 p-4 rounded-2xl bg-gradient-to-r from-deep-purple/20 to-transparent border border-mist-lilac/10 hover:border-burnt-lilac/30 transition-all duration-300">
+      <div className="flex gap-6 p-4 rounded-2xl bg-linear-to-r from-deep-purple/20 to-transparent border border-mist-lilac/10 hover:border-burnt-lilac/30 transition-all duration-300">
         {/* Image */}
-        <div className="relative w-32 h-40 sm:w-40 sm:h-52 flex-shrink-0 rounded-xl overflow-hidden">
+        <div className="relative w-32 h-40 sm:w-40 sm:h-52 shrink-0 rounded-xl overflow-hidden">
           <Image
             src={imageUrl}
             alt={product.title}

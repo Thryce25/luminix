@@ -356,16 +356,29 @@ export async function getProducts(
     return getProductsByCollection(collection, first, sort);
   }
 
-  // Build search query for filtering
-  let queryString = searchQuery || '';
+  // Build search query for filtering - Shopify Storefront API syntax
+  const queryParts: string[] = [];
+  
+  if (searchQuery) {
+    queryParts.push(searchQuery);
+  }
+  
+  // For product type filtering, search in title since productType field may be empty
   if (productType) {
-    queryString += queryString ? ` AND product_type:${productType}` : `product_type:${productType}`;
+    // Convert type value back to searchable term (e.g., "t-shirt" -> "t shirt" -> search term)
+    const searchTerm = productType.replace(/-/g, ' ');
+    queryParts.push(searchTerm);
   }
-  if (minPrice !== undefined || maxPrice !== undefined) {
-    const min = minPrice || 0;
-    const max = maxPrice || 999999;
-    queryString += queryString ? ` AND variants.price:>=${min} AND variants.price:<=${max}` : `variants.price:>=${min} AND variants.price:<=${max}`;
+  
+  // Price filtering
+  if (minPrice !== undefined) {
+    queryParts.push(`variants.price:>=${minPrice}`);
   }
+  if (maxPrice !== undefined) {
+    queryParts.push(`variants.price:<=${maxPrice}`);
+  }
+
+  const queryString = queryParts.join(' ');
 
   const query = queryString
     ? `
@@ -446,14 +459,16 @@ export async function getProductsByCollection(
   return data.collection?.products.edges.map((edge) => edge.node) || [];
 }
 
-// Get all unique product types
+// Get all unique product types (from productType field, tags, or title patterns)
 export async function getProductTypes(): Promise<string[]> {
   const query = `
     query GetProductTypes {
-      products(first: 100) {
+      products(first: 250) {
         edges {
           node {
             productType
+            tags
+            title
           }
         }
       }
@@ -461,17 +476,70 @@ export async function getProductTypes(): Promise<string[]> {
   `;
 
   const data = await shopifyFetch<{
-    products: { edges: Array<{ node: { productType: string } }> };
+    products: { edges: Array<{ node: { productType: string; tags: string[]; title: string } }> };
   }>({
     query,
     cache: 'no-store',
   });
 
-  const types = new Set(
-    data.products.edges
-      .map((edge) => edge.node.productType)
-      .filter((type) => type && type.trim() !== '')
-  );
+  const types = new Set<string>();
+  
+  // Known category keywords to look for in tags and titles
+  const categoryKeywords = [
+    'Hoodie', 'Hoodies',
+    'Sweatshirt', 'Sweatshirts',
+    'T-Shirt', 'T-Shirts', 'Tee', 'Tees',
+    'Jacket', 'Jackets',
+    'Pants', 'Trousers',
+    'Shorts',
+    'Dress', 'Dresses',
+    'Top', 'Tops',
+    'Shirt', 'Shirts',
+    'Accessories',
+    'Cap', 'Caps', 'Hat', 'Hats'
+  ];
+
+  data.products.edges.forEach((edge) => {
+    const { productType, tags, title } = edge.node;
+    
+    // First, try productType field
+    if (productType && productType.trim() !== '') {
+      types.add(productType.trim());
+    }
+    
+    // Then check tags for category-like values
+    if (tags && tags.length > 0) {
+      tags.forEach(tag => {
+        const normalizedTag = tag.trim();
+        // Check if tag matches known categories
+        categoryKeywords.forEach(keyword => {
+          if (normalizedTag.toLowerCase() === keyword.toLowerCase()) {
+            types.add(keyword);
+          }
+        });
+      });
+    }
+    
+    // Finally, check title for category keywords
+    if (title) {
+      categoryKeywords.forEach(keyword => {
+        if (title.toLowerCase().includes(keyword.toLowerCase())) {
+          // Normalize to singular/standard form
+          const normalized = keyword.replace(/s$/, '').replace(/ies$/, 'y');
+          if (normalized === 'Hoodie' || normalized === 'Hoody') types.add('Hoodie');
+          else if (normalized === 'Sweatshirt') types.add('Sweatshirt');
+          else if (normalized === 'T-Shirt' || normalized === 'Tee') types.add('T-Shirt');
+          else if (normalized === 'Jacket') types.add('Jacket');
+          else if (normalized === 'Pant' || normalized === 'Trouser') types.add('Pants');
+          else if (normalized === 'Short') types.add('Shorts');
+          else if (normalized === 'Dress') types.add('Dress');
+          else if (normalized === 'Top') types.add('Top');
+          else if (normalized === 'Shirt') types.add('Shirt');
+          else if (normalized === 'Cap' || normalized === 'Hat') types.add('Caps & Hats');
+        }
+      });
+    }
+  });
 
   return Array.from(types).sort();
 }

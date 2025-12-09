@@ -57,6 +57,7 @@ export default async function ProductsPage({
     value: c.handle,
   }));
 
+  // Use product types from Shopify (now extracted from productType, tags, and titles)
   const typeOptions = productTypes.map((t) => ({
     label: t,
     value: t.toLowerCase().replace(/\s+/g, '-'),

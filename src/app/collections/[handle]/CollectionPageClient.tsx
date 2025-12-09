@@ -95,7 +95,7 @@ export default function CollectionPageClient({
         {/* Parallax Background */}
         <div 
           ref={heroRef}
-          className={`absolute inset-0 bg-gradient-to-br ${info.gradient}`}
+          className={`absolute inset-0 bg-linear-to-br ${info.gradient}`}
         >
           {/* Animated Particles */}
           <div className="absolute inset-0 overflow-hidden">
@@ -315,7 +315,7 @@ function ProductCard({
         style={{ animationDelay: `${index * 50}ms` }}
       >
         {/* Image */}
-        <div className="relative w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 rounded-lg overflow-hidden bg-deep-purple/20">
+        <div className="relative w-24 h-24 sm:w-32 sm:h-32 shrink-0 rounded-lg overflow-hidden bg-deep-purple/20">
           {image && (
             <Image
               src={image.url}
@@ -409,7 +409,7 @@ function ProductCard({
         )}
 
         {/* Quick Actions Overlay */}
-        <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end justify-center pb-4 transition-opacity duration-300 ${
+        <div className={`absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent flex items-end justify-center pb-4 transition-opacity duration-300 ${
           isHovered ? 'opacity-100' : 'opacity-0'
         }`}>
           <button

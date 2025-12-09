@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import FloatingBackground from '@/components/common/FloatingBackground';
 
 const termsSections = [
   {
@@ -73,55 +74,20 @@ We will respond to your inquiry within 24-48 business hours.`,
 ];
 
 export default function TermsPage() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isLoaded, setIsLoaded] = useState(false);
-  const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsLoaded(true);
   }, []);
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (heroRef.current) {
-        const scrolled = window.scrollY;
-        heroRef.current.style.transform = `translateY(${scrolled * 0.3}px)`;
-      }
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   return (
     <div className="min-h-screen bg-black overflow-hidden">
-      {/* Animated Background Orbs */}
-      <div className="fixed inset-0 pointer-events-none z-0 transition-opacity duration-500" style={{ opacity: isLoaded ? 1 : 0 }}>
-        <div
-          className="absolute w-[600px] h-[600px] rounded-full blur-[100px] transition-transform duration-1000"
-          style={{
-            background: 'radial-gradient(circle, rgba(111,78,124,0.15) 0%, transparent 70%)',
-            left: mousePosition.x - 300,
-            top: mousePosition.y - 300,
-          }}
-        />
-        <div className="absolute w-[400px] h-[400px] rounded-full blur-[80px]" style={{ background: 'radial-gradient(circle, rgba(168,85,247,0.1) 0%, transparent 70%)', right: '10%', top: '20%' }} />
-        <div className="absolute w-[300px] h-[300px] rounded-full blur-[60px] animate-pulse" style={{ background: 'radial-gradient(circle, rgba(111,78,124,0.2) 0%, transparent 70%)', left: '5%', bottom: '30%' }} />
-      </div>
-
-      {/* Grid Pattern */}
-      <div className="fixed inset-0 pointer-events-none z-0 opacity-5" style={{ backgroundImage: `linear-gradient(rgba(214,197,220,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(214,197,220,0.1) 1px, transparent 1px)`, backgroundSize: '50px 50px' }} />
+      {/* Jaw-dropping Animated Background */}
+      <FloatingBackground />
 
       {/* Hero Section */}
       <section className="relative pt-24 pb-12 sm:pt-32 sm:pb-16 overflow-hidden">
-        <div ref={heroRef} className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0">
           <div className="absolute top-20 left-[10%] w-20 h-20 border border-purple-500/20 rounded-full animate-float" />
           <div className="absolute top-40 right-[15%] w-32 h-32 border border-mist-lilac/10 rounded-full animate-float" style={{ animationDelay: '1s' }} />
           <div className="absolute bottom-20 left-[20%] w-16 h-16 bg-purple-500/5 rounded-lg rotate-45 animate-float" style={{ animationDelay: '2s' }} />
@@ -136,8 +102,8 @@ export default function TermsPage() {
             </nav>
 
             <div className={`relative mx-auto w-24 h-24 mb-8 transition-all duration-700 delay-100 ${isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}>
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/30 to-burnt-lilac/20 rounded-2xl rotate-6 animate-pulse" />
-              <div className="absolute inset-0 bg-gradient-to-br from-deep-purple/80 to-purple-900/50 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/10">
+              <div className="absolute inset-0 bg-linear-to-br from-purple-500/30 to-burnt-lilac/20 rounded-2xl rotate-6 animate-pulse" />
+              <div className="absolute inset-0 bg-linear-to-br from-deep-purple/80 to-purple-900/50 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/10">
                 <svg className="w-12 h-12 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
@@ -145,7 +111,7 @@ export default function TermsPage() {
             </div>
 
             <h1 className={`text-4xl sm:text-5xl md:text-6xl font-serif mb-4 transition-all duration-700 delay-200 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <span className="bg-gradient-to-r from-white via-purple-200 to-burnt-lilac bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-white via-purple-200 to-burnt-lilac bg-clip-text text-transparent">
                 Terms of Service
               </span>
             </h1>
@@ -188,7 +154,7 @@ export default function TermsPage() {
                 style={{ transitionDelay: `${500 + index * 50}ms` }}
               >
                 <h2 className="text-xl sm:text-2xl font-serif text-mist-lilac mb-4 flex items-center gap-3">
-                  <span className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/20 to-burnt-lilac/20 flex items-center justify-center text-purple-400 text-sm font-bold">
+                  <span className="w-10 h-10 rounded-lg bg-linear-to-br from-purple-500/20 to-burnt-lilac/20 flex items-center justify-center text-purple-400 text-sm font-bold">
                     {index + 1}
                   </span>
                   {section.title.replace(/^\d+\.\s*/, '')}
@@ -205,8 +171,8 @@ export default function TermsPage() {
       {/* Agreement Section */}
       <section className="relative z-10 py-12 pb-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className={`bg-gradient-to-br from-purple-900/20 to-burnt-lilac/10 rounded-2xl border border-white/10 p-8 text-center transition-all duration-700 delay-700 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-purple-500/20 to-burnt-lilac/20 flex items-center justify-center">
+          <div className={`bg-linear-to-br from-purple-900/20 to-burnt-lilac/10 rounded-2xl border border-white/10 p-8 text-center transition-all duration-700 delay-700 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-linear-to-br from-purple-500/20 to-burnt-lilac/20 flex items-center justify-center">
               <svg className="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -216,7 +182,7 @@ export default function TermsPage() {
               You acknowledge that you have read, understood, and agree to be bound by these Terms of Service. If you have any questions, please contact us.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Link href="/contact" className="px-6 py-3 bg-gradient-to-r from-purple-500 to-burnt-lilac rounded-xl text-white font-medium hover:shadow-lg hover:shadow-purple-500/30 hover:scale-105 transition-all duration-300">
+              <Link href="/contact" className="px-6 py-3 bg-linear-to-r from-purple-500 to-burnt-lilac rounded-xl text-white font-medium hover:shadow-lg hover:shadow-purple-500/30 hover:scale-105 transition-all duration-300">
                 Contact Us
               </Link>
               <Link href="/privacy" className="px-6 py-3 bg-white/5 backdrop-blur-sm rounded-xl text-mist-lilac border border-white/10 hover:bg-white/10 hover:border-purple-500/30 transition-all duration-300">
@@ -227,7 +193,7 @@ export default function TermsPage() {
         </div>
       </section>
 
-      <div className="fixed bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent pointer-events-none z-0" />
+      <div className="fixed bottom-0 left-0 right-0 h-32 bg-linear-to-t from-black to-transparent pointer-events-none z-0" />
     </div>
   );
 }

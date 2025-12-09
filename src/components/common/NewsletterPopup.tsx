@@ -70,7 +70,7 @@ export default function NewsletterPopup() {
             />
 
             {/* Modal */}
-            <div className="relative bg-gradient-to-br from-black via-deep-purple/20 to-black border border-burnt-lilac/50 rounded-lg max-w-md w-full p-8 shadow-2xl animate-scale-in">
+            <div className="relative bg-linear-to-br from-black via-deep-purple/20 to-black border border-burnt-lilac/50 rounded-lg max-w-md w-full p-8 shadow-2xl animate-scale-in">
                 {/* Close Button */}
                 <button
                     onClick={handleClose}

@@ -1,23 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
+import FloatingBackground from '@/components/common/FloatingBackground';
 
 export default function SizeGuidePage() {
-  const [scrollY, setScrollY] = useState(0);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [activeTab, setActiveTab] = useState<'men' | 'women'>('men');
-
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    const handleMouseMove = (e: MouseEvent) => setMousePosition({ x: e.clientX, y: e.clientY });
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, []);
 
   const menSizes = [
     { size: 'S', chest: '34-36', waist: '28-30', sleeve: '32-33' },
@@ -44,33 +32,8 @@ export default function SizeGuidePage() {
 
   return (
     <div className="min-h-screen bg-black overflow-hidden">
-      {/* Animated Background */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div 
-          className="absolute w-[800px] h-[800px] rounded-full opacity-20 blur-3xl transition-transform duration-1000"
-          style={{
-            background: 'radial-gradient(circle, rgba(111,78,124,0.4) 0%, transparent 70%)',
-            left: `${mousePosition.x * 0.02}px`,
-            top: `${mousePosition.y * 0.02 - scrollY * 0.1}px`,
-          }}
-        />
-        <div 
-          className="absolute w-[600px] h-[600px] rounded-full opacity-15 blur-3xl"
-          style={{
-            background: 'radial-gradient(circle, rgba(214,197,220,0.3) 0%, transparent 70%)',
-            right: '10%',
-            bottom: '20%',
-            transform: `translateY(${scrollY * 0.05}px)`,
-          }}
-        />
-        <div 
-          className="absolute inset-0 opacity-5"
-          style={{
-            backgroundImage: `linear-gradient(rgba(214,197,220,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(214,197,220,0.1) 1px, transparent 1px)`,
-            backgroundSize: '50px 50px',
-          }}
-        />
-      </div>
+      {/* Jaw-dropping Animated Background */}
+      <FloatingBackground />
 
       {/* Hero Section */}
       <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
@@ -94,13 +57,13 @@ export default function SizeGuidePage() {
           ))}
         </div>
 
-        <div className="relative z-10 text-center px-4" style={{ transform: `translateY(${scrollY * 0.3}px)` }}>
+        <div className="relative z-10 text-center px-4">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-burnt-lilac/10 border border-burnt-lilac/20 mb-6">
             <span className="w-2 h-2 bg-burnt-lilac rounded-full animate-pulse" />
             <span className="text-burnt-lilac text-sm font-medium tracking-wider uppercase">Perfect Fit</span>
           </div>
 
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif text-transparent bg-clip-text bg-gradient-to-b from-white via-mist-lilac to-burnt-lilac/50 mb-6 leading-tight">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif text-transparent bg-clip-text bg-linear-to-b from-white via-mist-lilac to-burnt-lilac/50 mb-6 leading-tight">
             Size
             <br />
             <span className="italic">Guide</span>
@@ -140,8 +103,8 @@ export default function SizeGuidePage() {
           </div>
 
           {/* Size Table */}
-          <div className="relative rounded-2xl overflow-hidden border border-mist-lilac/10 bg-gradient-to-br from-deep-purple/20 to-black">
-            <div className="absolute inset-0 bg-gradient-to-br from-burnt-lilac/5 to-transparent" />
+          <div className="relative rounded-2xl overflow-hidden border border-mist-lilac/10 bg-linear-to-br from-deep-purple/20 to-black">
+            <div className="absolute inset-0 bg-linear-to-br from-burnt-lilac/5 to-transparent" />
             
             <div className="relative overflow-x-auto">
               {activeTab === 'men' ? (
@@ -208,7 +171,7 @@ export default function SizeGuidePage() {
 
           {/* Size Tip */}
           <div className="mt-6 p-4 rounded-xl bg-burnt-lilac/10 border border-burnt-lilac/20 flex items-center gap-3">
-            <svg className="w-5 h-5 text-burnt-lilac flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-burnt-lilac shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p className="text-mist-lilac/70 text-sm">
@@ -230,13 +193,13 @@ export default function SizeGuidePage() {
             {measurementTips.map((item, index) => (
               <div
                 key={index}
-                className="group relative p-6 rounded-2xl bg-gradient-to-br from-deep-purple/30 to-black border border-mist-lilac/10 hover:border-burnt-lilac/30 transition-all duration-500"
+                className="group relative p-6 rounded-2xl bg-linear-to-br from-deep-purple/30 to-black border border-mist-lilac/10 hover:border-burnt-lilac/30 transition-all duration-500"
                 style={{ animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both` }}
               >
                 <div className="absolute inset-0 rounded-2xl bg-burnt-lilac/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
                 
                 <div className="relative z-10 flex gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-burnt-lilac/10 border border-burnt-lilac/20 flex items-center justify-center text-burnt-lilac flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 rounded-xl bg-burnt-lilac/10 border border-burnt-lilac/20 flex items-center justify-center text-burnt-lilac shrink-0 group-hover:scale-110 transition-transform">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                     </svg>
@@ -255,7 +218,7 @@ export default function SizeGuidePage() {
       {/* CTA */}
       <section className="relative z-10 py-16 pb-24">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <div className="relative p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-deep-purple/30 to-black border border-mist-lilac/10 overflow-hidden">
+          <div className="relative p-8 sm:p-12 rounded-3xl bg-linear-to-br from-deep-purple/30 to-black border border-mist-lilac/10 overflow-hidden">
             <div className="absolute -top-20 -right-20 w-40 h-40 bg-burnt-lilac/20 rounded-full blur-3xl" />
             <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-deep-purple/40 rounded-full blur-3xl" />
             

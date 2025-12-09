@@ -5,7 +5,6 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
-import NewsletterPopup from "@/components/common/NewsletterPopup";
 import FloatingBackground from "@/components/common/FloatingBackground";
 import { generateOrganizationJsonLd, generateWebsiteJsonLd, JsonLd } from "@/lib/structured-data";
 
@@ -86,7 +85,6 @@ export default function RootLayout({
             <Header />
             <main className="min-h-screen pt-20 relative" style={{ zIndex: 10 }}>{children}</main>
             <Footer />
-            <NewsletterPopup />
           </WishlistProvider>
         </CartProvider>
       </body>

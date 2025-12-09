@@ -44,20 +44,10 @@ const collections = [
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [expandedMobileCategory, setExpandedMobileCategory] = useState<string | null>(null);
   const { cart, setCartOpen } = useCart();
 
   const cartItemCount = cart?.totalQuantity || 0;
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = () => setActiveDropdown(null);
-    if (activeDropdown) {
-      document.addEventListener('click', handleClickOutside);
-      return () => document.removeEventListener('click', handleClickOutside);
-    }
-  }, [activeDropdown]);
 
   // Close mobile menu on resize to desktop
   useEffect(() => {
@@ -84,11 +74,6 @@ export default function Header() {
 
   const toggleMobileCategory = (categoryName: string) => {
     setExpandedMobileCategory(expandedMobileCategory === categoryName ? null : categoryName);
-  };
-
-  const handleDropdownToggle = (e: React.MouseEvent, name: string) => {
-    e.stopPropagation();
-    setActiveDropdown(activeDropdown === name ? null : name);
   };
 
   return (
@@ -124,18 +109,16 @@ export default function Header() {
               {collections.map((collection) => (
                 <div
                   key={collection.name}
-                  className="relative"
-                  onMouseEnter={() => collection.subcategories && setActiveDropdown(collection.name)}
-                  onMouseLeave={() => setActiveDropdown(null)}
+                  className="relative group"
                 >
                   <Link
                     href={collection.href}
-                    className="text-sm uppercase tracking-widest font-medium relative group transition-colors text-mist-lilac hover:text-burnt-lilac flex items-center gap-1"
+                    className="text-sm uppercase tracking-widest font-medium relative transition-colors text-mist-lilac hover:text-burnt-lilac flex items-center gap-1 py-4"
                   >
                     {collection.name}
                     {collection.subcategories && (
                       <svg 
-                        className={`w-3 h-3 transition-transform duration-200 ${activeDropdown === collection.name ? 'rotate-180' : ''}`} 
+                        className="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" 
                         fill="none" 
                         stroke="currentColor" 
                         viewBox="0 0 24 24"
@@ -143,29 +126,29 @@ export default function Header() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     )}
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-mist-lilac to-burnt-lilac transition-all group-hover:w-full" />
+                    <span className="absolute bottom-3 left-0 w-0 h-0.5 bg-linear-to-r from-mist-lilac to-burnt-lilac transition-all group-hover:w-full" />
                   </Link>
                   
                   {/* Dropdown Menu */}
-                  {collection.subcategories && activeDropdown === collection.name && (
+                  {collection.subcategories && (
                     <div 
-                      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-black border border-deep-purple/30 rounded-lg shadow-2xl py-2 z-50"
-                      style={{ animation: 'fadeIn 0.15s ease-out' }}
+                      className="absolute top-full left-1/2 -translate-x-1/2 pt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50"
                     >
-                      {/* Arrow */}
-                      <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-black border-l border-t border-deep-purple/30 rotate-45" />
-                      
-                      <div className="relative bg-black rounded-lg">
-                        {collection.subcategories.map((sub) => (
-                          <Link
-                            key={sub.name}
-                            href={sub.href}
-                            className="block px-4 py-2.5 text-sm text-mist-lilac/80 hover:text-mist-lilac hover:bg-deep-purple/30 transition-colors"
-                            onClick={() => setActiveDropdown(null)}
-                          >
-                            {sub.name}
-                          </Link>
-                        ))}
+                      <div className="bg-black/95 backdrop-blur-md border border-deep-purple/30 rounded-lg shadow-2xl py-2">
+                        {/* Arrow */}
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-black/95 border-l border-t border-deep-purple/30 rotate-45" />
+                        
+                        <div className="relative">
+                          {collection.subcategories.map((sub) => (
+                            <Link
+                              key={sub.name}
+                              href={sub.href}
+                              className="block px-4 py-2.5 text-sm text-mist-lilac/80 hover:text-mist-lilac hover:bg-deep-purple/30 transition-colors"
+                            >
+                              {sub.name}
+                            </Link>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   )}

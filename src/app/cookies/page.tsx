@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import FloatingBackground from '@/components/common/FloatingBackground';
 
 const cookieTypes = [
   {
@@ -50,7 +51,6 @@ const colorClasses: Record<string, { bg: string; text: string; border: string; s
 };
 
 export default function CookiePolicyPage() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isLoaded, setIsLoaded] = useState(false);
   const [cookiePreferences, setCookiePreferences] = useState<Record<string, boolean>>({
     essential: true,
@@ -58,29 +58,9 @@ export default function CookiePolicyPage() {
     marketing: false,
     preferences: true,
   });
-  const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (heroRef.current) {
-        const scrolled = window.scrollY;
-        heroRef.current.style.transform = `translateY(${scrolled * 0.3}px)`;
-      }
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleToggle = (id: string) => {
@@ -96,26 +76,12 @@ export default function CookiePolicyPage() {
 
   return (
     <div className="min-h-screen bg-black overflow-hidden">
-      {/* Animated Background Orbs */}
-      <div className="fixed inset-0 pointer-events-none z-0 transition-opacity duration-500" style={{ opacity: isLoaded ? 1 : 0 }}>
-        <div
-          className="absolute w-[600px] h-[600px] rounded-full blur-[100px] transition-transform duration-1000"
-          style={{
-            background: 'radial-gradient(circle, rgba(111,78,124,0.15) 0%, transparent 70%)',
-            left: mousePosition.x - 300,
-            top: mousePosition.y - 300,
-          }}
-        />
-        <div className="absolute w-[400px] h-[400px] rounded-full blur-[80px]" style={{ background: 'radial-gradient(circle, rgba(251,191,36,0.1) 0%, transparent 70%)', right: '10%', top: '20%' }} />
-        <div className="absolute w-[300px] h-[300px] rounded-full blur-[60px] animate-pulse" style={{ background: 'radial-gradient(circle, rgba(111,78,124,0.2) 0%, transparent 70%)', left: '5%', bottom: '30%' }} />
-      </div>
-
-      {/* Grid Pattern */}
-      <div className="fixed inset-0 pointer-events-none z-0 opacity-5" style={{ backgroundImage: `linear-gradient(rgba(214,197,220,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(214,197,220,0.1) 1px, transparent 1px)`, backgroundSize: '50px 50px' }} />
+      {/* Jaw-dropping Animated Background */}
+      <FloatingBackground />
 
       {/* Hero Section */}
       <section className="relative pt-24 pb-12 sm:pt-32 sm:pb-16 overflow-hidden">
-        <div ref={heroRef} className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0">
           <div className="absolute top-20 left-[10%] w-20 h-20 border border-amber-500/20 rounded-full animate-float" />
           <div className="absolute top-40 right-[15%] w-32 h-32 border border-mist-lilac/10 rounded-full animate-float" style={{ animationDelay: '1s' }} />
           <div className="absolute bottom-20 left-[20%] w-16 h-16 bg-amber-500/5 rounded-lg rotate-45 animate-float" style={{ animationDelay: '2s' }} />
@@ -130,14 +96,14 @@ export default function CookiePolicyPage() {
             </nav>
 
             <div className={`relative mx-auto w-24 h-24 mb-8 transition-all duration-700 delay-100 ${isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}>
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-500/30 to-burnt-lilac/20 rounded-2xl rotate-6 animate-pulse" />
-              <div className="absolute inset-0 bg-gradient-to-br from-deep-purple/80 to-amber-900/50 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/10">
+              <div className="absolute inset-0 bg-linear-to-br from-amber-500/30 to-burnt-lilac/20 rounded-2xl rotate-6 animate-pulse" />
+              <div className="absolute inset-0 bg-linear-to-br from-deep-purple/80 to-amber-900/50 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/10">
                 <span className="text-5xl">🍪</span>
               </div>
             </div>
 
             <h1 className={`text-4xl sm:text-5xl md:text-6xl font-serif mb-4 transition-all duration-700 delay-200 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <span className="bg-gradient-to-r from-white via-amber-200 to-burnt-lilac bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-white via-amber-200 to-burnt-lilac bg-clip-text text-transparent">
                 Cookie Policy
               </span>
             </h1>
@@ -167,7 +133,7 @@ export default function CookiePolicyPage() {
       <section className="relative z-10 py-8 sm:py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className={`text-2xl sm:text-3xl font-serif text-center mb-8 transition-all duration-700 delay-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <span className="bg-gradient-to-r from-mist-lilac to-burnt-lilac bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-mist-lilac to-burnt-lilac bg-clip-text text-transparent">
               Types of Cookies We Use
             </span>
           </h2>
@@ -182,7 +148,7 @@ export default function CookiePolicyPage() {
                   style={{ transitionDelay: `${500 + index * 100}ms` }}
                 >
                   <div className="flex items-start gap-4">
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${colors.bg} flex items-center justify-center flex-shrink-0`}>
+                    <div className={`w-12 h-12 rounded-xl bg-linear-to-br ${colors.bg} flex items-center justify-center shrink-0`}>
                       <svg className={`w-6 h-6 ${colors.text}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={cookie.icon} />
                       </svg>
@@ -236,7 +202,7 @@ export default function CookiePolicyPage() {
           <div className={`mt-8 text-center transition-all duration-700 delay-700 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <button
               onClick={savePreferences}
-              className="px-8 py-4 bg-gradient-to-r from-amber-500 to-burnt-lilac rounded-xl text-white font-medium hover:shadow-lg hover:shadow-amber-500/30 hover:scale-105 transition-all duration-300"
+              className="px-8 py-4 bg-linear-to-r from-amber-500 to-burnt-lilac rounded-xl text-white font-medium hover:shadow-lg hover:shadow-amber-500/30 hover:scale-105 transition-all duration-300"
             >
               Save My Preferences
             </button>
@@ -247,7 +213,7 @@ export default function CookiePolicyPage() {
       {/* Managing Cookies */}
       <section className="relative z-10 py-12 pb-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className={`bg-gradient-to-br from-amber-900/20 to-burnt-lilac/10 rounded-2xl border border-white/10 p-8 transition-all duration-700 delay-800 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <div className={`bg-linear-to-br from-amber-900/20 to-burnt-lilac/10 rounded-2xl border border-white/10 p-8 transition-all duration-700 delay-800 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <h3 className="text-xl sm:text-2xl font-serif text-mist-lilac mb-4 text-center">Managing Cookies in Your Browser</h3>
             <p className="text-mist-lilac/70 mb-6 text-center">
               You can also control cookies through your browser settings. Most browsers allow you to:
@@ -267,7 +233,7 @@ export default function CookiePolicyPage() {
               </div>
             </div>
             <div className="flex flex-wrap justify-center gap-4">
-              <Link href="/privacy" className="px-6 py-3 bg-gradient-to-r from-amber-500 to-burnt-lilac rounded-xl text-white font-medium hover:shadow-lg hover:shadow-amber-500/30 hover:scale-105 transition-all duration-300">
+              <Link href="/privacy" className="px-6 py-3 bg-linear-to-r from-amber-500 to-burnt-lilac rounded-xl text-white font-medium hover:shadow-lg hover:shadow-amber-500/30 hover:scale-105 transition-all duration-300">
                 Privacy Policy
               </Link>
               <Link href="/contact" className="px-6 py-3 bg-white/5 backdrop-blur-sm rounded-xl text-mist-lilac border border-white/10 hover:bg-white/10 hover:border-amber-500/30 transition-all duration-300">
@@ -278,7 +244,7 @@ export default function CookiePolicyPage() {
         </div>
       </section>
 
-      <div className="fixed bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent pointer-events-none z-0" />
+      <div className="fixed bottom-0 left-0 right-0 h-32 bg-linear-to-t from-black to-transparent pointer-events-none z-0" />
     </div>
   );
 }

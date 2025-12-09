@@ -1,41 +1,20 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useWishlist } from '@/context/WishlistContext';
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatPrice } from '@/lib/shopify';
 import { useCart } from '@/context/CartContext';
+import FloatingBackground from '@/components/common/FloatingBackground';
 
 export default function WishlistView() {
     const { items, removeItem, clearWishlist } = useWishlist();
     const { addItem } = useCart();
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [isLoaded, setIsLoaded] = useState(false);
-    const heroRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setIsLoaded(true);
-    }, []);
-
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            setMousePosition({ x: e.clientX, y: e.clientY });
-        };
-        window.addEventListener('mousemove', handleMouseMove);
-        return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, []);
-
-    // Parallax effect
-    useEffect(() => {
-        const handleScroll = () => {
-            if (heroRef.current) {
-                const scrolled = window.scrollY;
-                heroRef.current.style.transform = `translateY(${scrolled * 0.3}px)`;
-            }
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
     const handleMoveToCart = async (item: any) => {
@@ -44,50 +23,12 @@ export default function WishlistView() {
 
     return (
         <div className="min-h-screen bg-black overflow-hidden">
-            {/* Animated Background Orbs */}
-            <div
-                className="fixed inset-0 pointer-events-none z-0 transition-opacity duration-500"
-                style={{ opacity: isLoaded ? 1 : 0 }}
-            >
-                <div
-                    className="absolute w-[600px] h-[600px] rounded-full blur-[100px] transition-transform duration-1000"
-                    style={{
-                        background: 'radial-gradient(circle, rgba(111,78,124,0.15) 0%, transparent 70%)',
-                        left: mousePosition.x - 300,
-                        top: mousePosition.y - 300,
-                    }}
-                />
-                <div
-                    className="absolute w-[400px] h-[400px] rounded-full blur-[80px]"
-                    style={{
-                        background: 'radial-gradient(circle, rgba(214,197,220,0.1) 0%, transparent 70%)',
-                        right: '10%',
-                        top: '20%',
-                    }}
-                />
-                <div
-                    className="absolute w-[300px] h-[300px] rounded-full blur-[60px] animate-pulse"
-                    style={{
-                        background: 'radial-gradient(circle, rgba(111,78,124,0.2) 0%, transparent 70%)',
-                        left: '5%',
-                        bottom: '30%',
-                    }}
-                />
-            </div>
-
-            {/* Grid Pattern Overlay */}
-            <div
-                className="fixed inset-0 pointer-events-none z-0 opacity-5"
-                style={{
-                    backgroundImage: `linear-gradient(rgba(214,197,220,0.1) 1px, transparent 1px),
-                                     linear-gradient(90deg, rgba(214,197,220,0.1) 1px, transparent 1px)`,
-                    backgroundSize: '50px 50px',
-                }}
-            />
+            {/* Jaw-dropping Animated Background */}
+            <FloatingBackground />
 
             {/* Hero Section */}
             <section className="relative pt-24 pb-12 sm:pt-32 sm:pb-16 overflow-hidden">
-                <div ref={heroRef} className="absolute inset-0 z-0">
+                <div className="absolute inset-0 z-0">
                     {/* Floating Shapes */}
                     <div className="absolute top-20 left-[10%] w-20 h-20 border border-pink-500/20 rounded-full animate-float" />
                     <div className="absolute top-40 right-[15%] w-32 h-32 border border-mist-lilac/10 rounded-full animate-float" style={{ animationDelay: '1s' }} />
@@ -115,8 +56,8 @@ export default function WishlistView() {
                                 isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
                             }`}
                         >
-                            <div className="absolute inset-0 bg-gradient-to-br from-pink-500/30 to-burnt-lilac/20 rounded-2xl rotate-6 animate-pulse" />
-                            <div className="absolute inset-0 bg-gradient-to-br from-deep-purple/80 to-pink-900/50 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/10">
+                            <div className="absolute inset-0 bg-linear-to-br from-pink-500/30 to-burnt-lilac/20 rounded-2xl rotate-6 animate-pulse" />
+                            <div className="absolute inset-0 bg-linear-to-br from-deep-purple/80 to-pink-900/50 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/10">
                                 <svg className="w-12 h-12 text-pink-400" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                 </svg>
@@ -134,7 +75,7 @@ export default function WishlistView() {
                                 isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                             }`}
                         >
-                            <span className="bg-gradient-to-r from-white via-pink-200 to-burnt-lilac bg-clip-text text-transparent">
+                            <span className="bg-linear-to-r from-white via-pink-200 to-burnt-lilac bg-clip-text text-transparent">
                                 My Wishlist
                             </span>
                         </h1>
@@ -164,9 +105,9 @@ export default function WishlistView() {
                                 isLoaded ? 'opacity-100' : 'opacity-0'
                             }`}
                         >
-                            <div className="h-px w-16 bg-gradient-to-r from-transparent to-pink-500/50" />
+                            <div className="h-px w-16 bg-linear-to-r from-transparent to-pink-500/50" />
                             <div className="w-2 h-2 rounded-full bg-pink-500 animate-pulse" />
-                            <div className="h-px w-16 bg-gradient-to-l from-transparent to-pink-500/50" />
+                            <div className="h-px w-16 bg-linear-to-l from-transparent to-pink-500/50" />
                         </div>
                     </div>
                 </div>
@@ -194,7 +135,7 @@ export default function WishlistView() {
                                     <Link href={`/products/${item.handle}`} className="block">
                                         <div className="relative bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden hover:border-pink-400/30 hover:shadow-lg hover:shadow-pink-500/10 transition-all duration-300 group-hover:scale-[1.02]">
                                             {/* Image */}
-                                            <div className="relative aspect-[4/5] overflow-hidden bg-deep-purple/10">
+                                            <div className="relative aspect-4/5 overflow-hidden bg-deep-purple/10">
                                                 <Image
                                                     src={item.image}
                                                     alt={item.title}
@@ -203,7 +144,7 @@ export default function WishlistView() {
                                                 />
 
                                                 {/* Gradient Overlay */}
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                                <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                                                 {/* Remove Button */}
                                                 <button
@@ -231,7 +172,7 @@ export default function WishlistView() {
                                                 <h3 className="text-sm text-mist-lilac group-hover:text-pink-300 transition-colors line-clamp-2 mb-2">
                                                     {item.title}
                                                 </h3>
-                                                <p className="text-base font-semibold bg-gradient-to-r from-pink-400 to-burnt-lilac bg-clip-text text-transparent">
+                                                <p className="text-base font-semibold bg-linear-to-r from-pink-400 to-burnt-lilac bg-clip-text text-transparent">
                                                     {formatPrice(item.price)}
                                                 </p>
                                             </div>
@@ -248,7 +189,7 @@ export default function WishlistView() {
                         >
                             {/* Empty State with Glassmorphism */}
                             <div className="max-w-md mx-auto p-8 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
-                                <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-pink-500/20 to-burnt-lilac/20 flex items-center justify-center">
+                                <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-linear-to-br from-pink-500/20 to-burnt-lilac/20 flex items-center justify-center">
                                     <svg className="w-12 h-12 text-mist-lilac/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                     </svg>
@@ -261,7 +202,7 @@ export default function WishlistView() {
                                 </p>
                                 <Link 
                                     href="/products" 
-                                    className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-pink-500 to-burnt-lilac rounded-xl text-white font-medium hover:shadow-lg hover:shadow-pink-500/30 hover:scale-105 transition-all duration-300"
+                                    className="inline-flex items-center gap-2 px-8 py-3 bg-linear-to-r from-pink-500 to-burnt-lilac rounded-xl text-white font-medium hover:shadow-lg hover:shadow-pink-500/30 hover:scale-105 transition-all duration-300"
                                 >
                                     Explore Products
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -275,7 +216,7 @@ export default function WishlistView() {
             </section>
 
             {/* Decorative bottom fade */}
-            <div className="fixed bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent pointer-events-none z-0" />
+            <div className="fixed bottom-0 left-0 right-0 h-32 bg-linear-to-t from-black to-transparent pointer-events-none z-0" />
         </div>
     );
 }

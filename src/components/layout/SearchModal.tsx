@@ -129,7 +129,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
             {/* Search Input */}
             <div className="flex items-center gap-4 p-5 sm:p-6 border-b border-white/10">
               {/* Search Icon / Loading */}
-              <div className="relative w-5 h-5 flex-shrink-0">
+              <div className="relative w-5 h-5 shrink-0">
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-burnt-lilac/30 border-t-burnt-lilac rounded-full animate-spin" />
                 ) : (

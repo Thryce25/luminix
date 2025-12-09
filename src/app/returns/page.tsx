@@ -1,22 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import FloatingBackground from '@/components/common/FloatingBackground';
 
 export default function ReturnsPage() {
-  const [scrollY, setScrollY] = useState(0);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    const handleMouseMove = (e: MouseEvent) => setMousePosition({ x: e.clientX, y: e.clientY });
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, []);
 
   const steps = [
     {
@@ -70,33 +57,8 @@ export default function ReturnsPage() {
 
   return (
     <div className="min-h-screen bg-black overflow-hidden">
-      {/* Animated Background */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div 
-          className="absolute w-[800px] h-[800px] rounded-full opacity-20 blur-3xl transition-transform duration-1000"
-          style={{
-            background: 'radial-gradient(circle, rgba(111,78,124,0.4) 0%, transparent 70%)',
-            left: `${mousePosition.x * 0.02}px`,
-            top: `${mousePosition.y * 0.02 - scrollY * 0.1}px`,
-          }}
-        />
-        <div 
-          className="absolute w-[600px] h-[600px] rounded-full opacity-15 blur-3xl"
-          style={{
-            background: 'radial-gradient(circle, rgba(214,197,220,0.3) 0%, transparent 70%)',
-            right: '10%',
-            bottom: '20%',
-            transform: `translateY(${scrollY * 0.05}px)`,
-          }}
-        />
-        <div 
-          className="absolute inset-0 opacity-5"
-          style={{
-            backgroundImage: `linear-gradient(rgba(214,197,220,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(214,197,220,0.1) 1px, transparent 1px)`,
-            backgroundSize: '50px 50px',
-          }}
-        />
-      </div>
+      {/* Jaw-dropping Animated Background */}
+      <FloatingBackground />
 
       {/* Hero Section */}
       <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
@@ -120,13 +82,13 @@ export default function ReturnsPage() {
           ))}
         </div>
 
-        <div className="relative z-10 text-center px-4" style={{ transform: `translateY(${scrollY * 0.3}px)` }}>
+        <div className="relative z-10 text-center px-4">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-burnt-lilac/10 border border-burnt-lilac/20 mb-6">
             <span className="w-2 h-2 bg-burnt-lilac rounded-full animate-pulse" />
             <span className="text-burnt-lilac text-sm font-medium tracking-wider uppercase">Hassle-Free</span>
           </div>
 
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif text-transparent bg-clip-text bg-gradient-to-b from-white via-mist-lilac to-burnt-lilac/50 mb-6 leading-tight">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif text-transparent bg-clip-text bg-linear-to-b from-white via-mist-lilac to-burnt-lilac/50 mb-6 leading-tight">
             Returns
             <br />
             <span className="italic">& Exchanges</span>
@@ -173,7 +135,7 @@ export default function ReturnsPage() {
             {steps.map((step, index) => (
               <div
                 key={index}
-                className="group relative p-6 rounded-2xl bg-gradient-to-br from-deep-purple/30 to-black border border-mist-lilac/10 hover:border-burnt-lilac/30 transition-all duration-500"
+                className="group relative p-6 rounded-2xl bg-linear-to-br from-deep-purple/30 to-black border border-mist-lilac/10 hover:border-burnt-lilac/30 transition-all duration-500"
                 style={{ animation: `fadeInUp 0.6s ease-out ${index * 0.15}s both` }}
               >
                 <div className="absolute inset-0 rounded-2xl bg-burnt-lilac/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
@@ -191,7 +153,7 @@ export default function ReturnsPage() {
 
                 {/* Connector Line */}
                 {index < steps.length - 1 && (
-                  <div className="hidden lg:block absolute top-1/2 -right-3 w-6 h-px bg-gradient-to-r from-burnt-lilac/30 to-transparent" />
+                  <div className="hidden lg:block absolute top-1/2 -right-3 w-6 h-px bg-linear-to-r from-burnt-lilac/30 to-transparent" />
                 )}
               </div>
             ))}
@@ -202,7 +164,7 @@ export default function ReturnsPage() {
       {/* Refund Info */}
       <section className="relative z-10 py-16">
         <div className="max-w-4xl mx-auto px-4">
-          <div className="relative p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-deep-purple/30 to-black border border-mist-lilac/10 overflow-hidden">
+          <div className="relative p-8 sm:p-12 rounded-3xl bg-linear-to-br from-deep-purple/30 to-black border border-mist-lilac/10 overflow-hidden">
             <div className="absolute -top-20 -right-20 w-40 h-40 bg-burnt-lilac/20 rounded-full blur-3xl" />
             <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-deep-purple/40 rounded-full blur-3xl" />
             
