@@ -198,12 +198,21 @@ export default function CartPageContent() {
             </div>
           </div>
 
-          <a
-            href={cart?.checkoutUrl || '#'}
-            className="block w-full btn-gothic text-center py-3 sm:py-4 text-sm sm:text-base touch-manipulation"
-          >
-            Proceed to Checkout
-          </a>
+          {cart?.checkoutUrl ? (
+            <a
+              href={cart.checkoutUrl}
+              className="block w-full btn-gothic text-center py-3 sm:py-4 text-sm sm:text-base touch-manipulation"
+            >
+              Proceed to Checkout
+            </a>
+          ) : (
+            <button
+              disabled
+              className="block w-full btn-gothic text-center py-3 sm:py-4 text-sm sm:text-base touch-manipulation opacity-50 cursor-not-allowed"
+            >
+              Checkout Unavailable
+            </button>
+          )}
 
           <Link
             href="/products"

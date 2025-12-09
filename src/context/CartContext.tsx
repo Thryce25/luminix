@@ -18,6 +18,7 @@ interface CartContextType {
   addItem: (variantId: string, quantity: number) => Promise<void>;
   updateItem: (lineId: string, quantity: number) => Promise<void>;
   removeItem: (lineId: string) => Promise<void>;
+  getCheckoutUrl: () => string | null;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -111,6 +112,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [cart]
   );
 
+  const getCheckoutUrl = useCallback(() => {
+    if (!cart || !cart.checkoutUrl) return null;
+    // Ensure checkout URL is valid
+    try {
+      new URL(cart.checkoutUrl);
+      return cart.checkoutUrl;
+    } catch {
+      console.error('Invalid checkout URL:', cart.checkoutUrl);
+      return null;
+    }
+  }, [cart]);
+
   return (
     <CartContext.Provider
       value={{
@@ -121,6 +134,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         addItem,
         updateItem,
         removeItem,
+        getCheckoutUrl,
       }}
     >
       {children}

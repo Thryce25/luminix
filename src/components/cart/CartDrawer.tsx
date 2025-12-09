@@ -243,12 +243,25 @@ export default function CartDrawer() {
 
             {/* Actions */}
             <div className="p-4 pt-0 space-y-2 sm:space-y-3">
-              <a
-                href={cart.checkoutUrl}
-                className="btn-gothic w-full text-center block py-3 sm:py-3 touch-manipulation text-sm sm:text-base"
-              >
-                Checkout
-              </a>
+              {cart.checkoutUrl ? (
+                <a
+                  href={cart.checkoutUrl}
+                  onClick={() => {
+                    // Close the cart drawer when navigating to checkout
+                    setCartOpen(false);
+                  }}
+                  className="btn-gothic w-full text-center block py-3 sm:py-3 touch-manipulation text-sm sm:text-base"
+                >
+                  Checkout
+                </a>
+              ) : (
+                <button
+                  disabled
+                  className="btn-gothic w-full text-center block py-3 sm:py-3 touch-manipulation text-sm sm:text-base opacity-50 cursor-not-allowed"
+                >
+                  Checkout Unavailable
+                </button>
+              )}
               <Link
                 href="/cart"
                 onClick={() => setCartOpen(false)}

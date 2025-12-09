@@ -2,6 +2,24 @@ const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN!;
 const storefrontAccessToken = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN!;
 const endpoint = `https://${domain}/api/2024-01/graphql.json`;
 
+// Helper to ensure checkout URL is absolute and properly formatted
+function ensureAbsoluteCheckoutUrl(checkoutUrl: string): string {
+  if (!checkoutUrl) return checkoutUrl;
+  
+  // If already absolute URL, return as-is
+  if (checkoutUrl.startsWith('https://')) {
+    return checkoutUrl;
+  }
+  
+  // If relative URL, prepend the Shopify store domain
+  const absoluteUrl = `https://${domain}${checkoutUrl.startsWith('/') ? '' : '/'}${checkoutUrl}`;
+  
+  // Log for debugging
+  console.log('Checkout URL:', absoluteUrl);
+  
+  return absoluteUrl;
+}
+
 interface ShopifyResponse<T> {
   data: T;
   errors?: Array<{ message: string }>;
@@ -892,7 +910,11 @@ export async function createCart(): Promise<ShopifyCart> {
     cache: 'no-store',
   });
 
-  return data.cartCreate.cart;
+  const cart = data.cartCreate.cart;
+  return {
+    ...cart,
+    checkoutUrl: ensureAbsoluteCheckoutUrl(cart.checkoutUrl),
+  };
 }
 
 export async function getCart(cartId: string): Promise<ShopifyCart | null> {
@@ -911,7 +933,11 @@ export async function getCart(cartId: string): Promise<ShopifyCart | null> {
     cache: 'no-store',
   });
 
-  return data.cart;
+  if (!data.cart) return null;
+  return {
+    ...data.cart,
+    checkoutUrl: ensureAbsoluteCheckoutUrl(data.cart.checkoutUrl),
+  };
 }
 
 export async function addToCart(
@@ -941,7 +967,11 @@ export async function addToCart(
     cache: 'no-store',
   });
 
-  return data.cartLinesAdd.cart;
+  const cart = data.cartLinesAdd.cart;
+  return {
+    ...cart,
+    checkoutUrl: ensureAbsoluteCheckoutUrl(cart.checkoutUrl),
+  };
 }
 
 export async function updateCartLine(
@@ -972,7 +1002,11 @@ export async function updateCartLine(
     cache: 'no-store',
   });
 
-  return data.cartLinesUpdate.cart;
+  const cart = data.cartLinesUpdate.cart;
+  return {
+    ...cart,
+    checkoutUrl: ensureAbsoluteCheckoutUrl(cart.checkoutUrl),
+  };
 }
 
 export async function removeFromCart(cartId: string, lineIds: string[]): Promise<ShopifyCart> {
@@ -999,7 +1033,11 @@ export async function removeFromCart(cartId: string, lineIds: string[]): Promise
     cache: 'no-store',
   });
 
-  return data.cartLinesRemove.cart;
+  const cart = data.cartLinesRemove.cart;
+  return {
+    ...cart,
+    checkoutUrl: ensureAbsoluteCheckoutUrl(cart.checkoutUrl),
+  };
 }
 
 // Utility Functions

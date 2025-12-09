@@ -1,7 +1,8 @@
 import { getFeaturedProducts, getNewArrivals, ShopifyProduct } from '@/lib/shopify';
 import HomePageClient from '@/components/home/HomePageClient';
 
-export const revalidate = 60; // Revalidate every 60 seconds for fresh data
+// Mark as dynamic since Shopify fetches use no-store cache
+export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
   let featuredProducts: ShopifyProduct[] = [];
