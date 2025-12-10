@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { useCart } from '@/context/CartContext';
+import { useCustomer } from '@/context/CustomerContext';
 import CartDrawer from '../cart/CartDrawer';
 import SearchModal from './SearchModal';
 
@@ -52,6 +53,7 @@ export default function Header() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const { cart, setCartOpen } = useCart();
+  const { isAuthenticated } = useCustomer();
 
   const cartItemCount = cart?.totalQuantity || 0;
 
@@ -105,7 +107,7 @@ export default function Header() {
 
             {/* Logo */}
             <Link href="/" className="flex items-center group">
-              <span className="text-xl sm:text-2xl lg:text-3xl font-serif font-bold gradient-text tracking-wider">
+              <span className="text-xl sm:text-2xl lg:text-3xl font-[family-name:var(--font-bodoni)] gradient-text tracking-wider">
                 LUMINIX
               </span>
             </Link>
@@ -175,6 +177,20 @@ export default function Header() {
                 </svg>
               </button>
 
+              {/* Account Button */}
+              <Link
+                href="/account"
+                className="p-2.5 sm:p-2 text-mist-lilac hover:text-burnt-lilac transition-colors touch-manipulation relative"
+                aria-label={isAuthenticated ? 'My Account' : 'Sign In'}
+              >
+                <svg className="w-5 h-5 sm:w-5 sm:h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                {isAuthenticated && (
+                  <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-green-500 rounded-full" />
+                )}
+              </Link>
+
               {/* Cart Button */}
               <button
                 onClick={() => setCartOpen(true)}
@@ -220,7 +236,7 @@ export default function Header() {
         >
           {/* Header */}
           <div className={`relative flex items-center justify-between px-6 py-5 transition-all duration-500 ${mobileMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}>
-            <span className="text-2xl font-serif font-light tracking-[0.2em] text-white/90">LUMINIX</span>
+            <span className="text-2xl font-[family-name:var(--font-bodoni)] tracking-[0.2em] text-white/90">LUMINIX</span>
             <button
               onClick={() => setMobileMenuOpen(false)}
               className="relative w-10 h-10 flex items-center justify-center touch-manipulation group"

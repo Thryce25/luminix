@@ -1,6 +1,15 @@
 @import "tailwindcss";
 @import "./animations.css";
 
+/* Custom Font - OPTIBodoni-Antiqua */
+@font-face {
+  font-family: 'OPTIBodoni-Antiqua';
+  src: url('/OPTIBodoni-Antiqua.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Gothic Color Palette - Dark Theme */
 :root {
   --color-dark-black: #000000;
@@ -12,6 +21,8 @@
   --foreground: #D6C5DC;
   --accent: #6F4E7C;
   --accent-hover: #8B5E9C;
+  
+  --font-bodoni: 'OPTIBodoni-Antiqua', Georgia, serif;
 }
 
 @theme inline {
