@@ -57,7 +57,7 @@ export default function AccountPageClient() {
     if (!result.success) {
       setError(result.error || 'Failed to create account');
     } else {
-      setSuccess('Account created successfully! You are now signed in.');
+      setSuccess('Account created successfully! You are now signed in. Check your email to verify your account.');
       // Clear the form
       setRegisterEmail('');
       setRegisterPassword('');
@@ -105,6 +105,46 @@ export default function AccountPageClient() {
                 Sign Out
               </button>
             </div>
+          </div>
+
+          {/* Profile Details Card */}
+          <div className="mb-8 p-6 border border-deep-purple/30 rounded-lg bg-deep-purple/10">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-serif text-mist-lilac">Profile Details</h2>
+              {customer.isOAuthUser && (
+                <span className="px-3 py-1 text-xs bg-burnt-lilac/20 text-burnt-lilac rounded-full border border-burnt-lilac/30">
+                  Google Account
+                </span>
+              )}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm text-mist-lilac/50 mb-1">First Name</label>
+                <p className="text-mist-lilac text-lg">{customer.firstName || 'Not provided'}</p>
+              </div>
+              <div>
+                <label className="block text-sm text-mist-lilac/50 mb-1">Last Name</label>
+                <p className="text-mist-lilac text-lg">{customer.lastName || 'Not provided'}</p>
+              </div>
+              <div>
+                <label className="block text-sm text-mist-lilac/50 mb-1">Email Address</label>
+                <p className="text-mist-lilac text-lg">{customer.email}</p>
+              </div>
+              <div>
+                <label className="block text-sm text-mist-lilac/50 mb-1">Customer ID</label>
+                <p className="text-mist-lilac/70 text-sm font-mono">{customer.id.split('/').pop()}</p>
+              </div>
+            </div>
+            {!customer.isOAuthUser && (
+              <div className="mt-4 pt-4 border-t border-deep-purple/30">
+                <p className="text-mist-lilac/50 text-sm">
+                  To update your profile information or change your password, please use the{' '}
+                  <a href={getAccountUrl()} target="_blank" rel="noopener noreferrer" className="text-burnt-lilac hover:underline">
+                    Shopify account page
+                  </a>.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Quick Links */}

@@ -40,6 +40,7 @@ const CUSTOMER_CREATE_MUTATION = `
         firstName
         lastName
         displayName
+        createdAt
       }
       customerUserErrors {
         code
@@ -220,28 +221,40 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
     lastName: string
   ): Promise<{ success: boolean; error?: string }> => {
     try {
-      // Create customer
+      // Create customer with acceptsMarketing flag
       const createData = await shopifyCustomerFetch<{
         customerCreate: {
           customer: Customer | null;
           customerUserErrors: Array<{ message: string; code: string }>;
         };
       }>(CUSTOMER_CREATE_MUTATION, {
-        input: { email, password, firstName, lastName },
+        input: { 
+          email, 
+          password, 
+          firstName, 
+          lastName,
+          acceptsMarketing: false  // Set to true if you want them opted into marketing
+        },
       });
 
-      const { customerUserErrors } = createData.customerCreate;
+      const { customer: newCustomer, customerUserErrors } = createData.customerCreate;
 
       if (customerUserErrors.length > 0) {
         const error = customerUserErrors[0];
+        console.error('Customer creation error:', error);
         if (error.code === 'TAKEN') {
           return { success: false, error: 'An account with this email already exists' };
         }
         return { success: false, error: error.message };
       }
 
-      // Auto-login after registration
-      return await login(email, password);
+      if (newCustomer) {
+        console.log('Customer created successfully:', newCustomer);
+        // Auto-login after registration
+        return await login(email, password);
+      }
+
+      return { success: false, error: 'Failed to create customer account' };
     } catch (error) {
       console.error('Registration error:', error);
       return { success: false, error: 'Failed to create account. Please try again.' };
