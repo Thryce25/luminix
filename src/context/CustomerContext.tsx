@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 
 interface Customer {
   id: string;
@@ -106,11 +106,16 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
   const { data: session, status } = useSession();
 
   const logout = useCallback(() => {
+    // Sign out of OAuth if applicable
+    if (customer?.isOAuthUser) {
+      signOut({ callbackUrl: '/account' });
+    }
+    // Clear Shopify session
     localStorage.removeItem(CUSTOMER_TOKEN_KEY);
     localStorage.removeItem(CUSTOMER_DATA_KEY);
     setAccessToken(null);
     setCustomer(null);
-  }, []);
+  }, [customer]);
 
   // Load OAuth user or Shopify customer
   useEffect(() => {
@@ -126,9 +131,15 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
             displayName: session.user.name || '',
             isOAuthUser: true,
           };
+          console.log('OAuth user authenticated:', oauthUser);
           setCustomer(oauthUser);
           setLoading(false);
           return;
+        }
+
+        // If explicitly not authenticated, clear loading
+        if (status === 'unauthenticated') {
+          setLoading(false);
         }
 
         // Fall back to Shopify authentication
@@ -266,7 +277,8 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
     return `https://${domain}/account`;
   }, []);
 
-  const isAuthenticated = !!customer && !!accessToken;
+  // User is authenticated if they have a customer object (either OAuth or Shopify)
+  const isAuthenticated = !!customer && (!!accessToken || !!customer.isOAuthUser);
 
   return (
     <CustomerContext.Provider
