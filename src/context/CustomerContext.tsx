@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { useSession } from 'next-auth/react';
 
 interface Customer {
   id: string;
@@ -8,6 +9,7 @@ interface Customer {
   firstName: string;
   lastName: string;
   displayName: string;
+  isOAuthUser?: boolean;
 }
 
 interface CustomerContextType {
@@ -100,6 +102,7 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [loading, setLoading] = useState(true);
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const { data: session, status } = useSession();
 
   const logout = useCallback(() => {
     localStorage.removeItem(CUSTOMER_TOKEN_KEY);
@@ -108,10 +111,26 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
     setCustomer(null);
   }, []);
 
-  // Load customer data from localStorage on mount
+  // Load OAuth user or Shopify customer
   useEffect(() => {
     const loadCustomer = async () => {
       try {
+        // Check for OAuth session first
+        if (status === 'authenticated' && session?.user) {
+          const oauthUser: Customer = {
+            id: session.user.id || '',
+            email: session.user.email || '',
+            firstName: session.user.name?.split(' ')[0] || '',
+            lastName: session.user.name?.split(' ').slice(1).join(' ') || '',
+            displayName: session.user.name || '',
+            isOAuthUser: true,
+          };
+          setCustomer(oauthUser);
+          setLoading(false);
+          return;
+        }
+
+        // Fall back to Shopify authentication
         const token = localStorage.getItem(CUSTOMER_TOKEN_KEY);
         const storedCustomer = localStorage.getItem(CUSTOMER_DATA_KEY);
         
@@ -144,8 +163,10 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    loadCustomer();
-  }, [logout]);
+    if (status !== 'loading') {
+      loadCustomer();
+    }
+  }, [logout, session, status]);
 
   const login = useCallback(async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
