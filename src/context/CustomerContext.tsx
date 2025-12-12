@@ -131,57 +131,6 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
             displayName: session.user.name || '',
             isOAuthUser: true,
           };
-          console.log('OAuth user authenticated:', oauthUser);
-          
-          // Check if this OAuth user has been synced to Shopify before
-          const syncedKey = `shopify_synced_${session.user.email}`;
-          const alreadySynced = localStorage.getItem(syncedKey);
-          
-          // If not synced yet, create them in Shopify (without login capability)
-          if (!alreadySynced && oauthUser.email) {
-            try {
-              console.log('Creating Shopify customer for OAuth user...');
-              
-              // Build input without password field - OAuth users authenticate via Google
-              const input: {
-                email: string;
-                firstName?: string;
-                lastName?: string;
-                acceptsMarketing: boolean;
-              } = {
-                email: oauthUser.email,
-                acceptsMarketing: false,
-              };
-              
-              // Only add name fields if they exist
-              if (oauthUser.firstName) input.firstName = oauthUser.firstName;
-              if (oauthUser.lastName) input.lastName = oauthUser.lastName;
-              
-              const createData = await shopifyCustomerFetch<{
-                customerCreate: {
-                  customer: { id: string } | null;
-                  customerUserErrors: Array<{ message: string; code: string }>;
-                };
-              }>(CUSTOMER_CREATE_MUTATION, { input });
-
-              if (createData.customerCreate.customer) {
-                console.log('Successfully created Shopify customer:', createData.customerCreate.customer.id);
-                localStorage.setItem(syncedKey, 'true');
-              } else if (createData.customerCreate.customerUserErrors.length > 0) {
-                const error = createData.customerCreate.customerUserErrors[0];
-                // If email is taken, that's fine - customer already exists
-                if (error.code === 'TAKEN') {
-                  console.log('Shopify customer already exists');
-                  localStorage.setItem(syncedKey, 'true');
-                } else {
-                  console.error('Failed to create Shopify customer:', error.message);
-                }
-              }
-            } catch (error) {
-              console.error('Error syncing OAuth user to Shopify:', error);
-              // Continue anyway - OAuth user can still use the site
-            }
-          }
           
           setCustomer(oauthUser);
           setLoading(false);
