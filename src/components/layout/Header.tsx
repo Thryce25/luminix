@@ -184,11 +184,21 @@ export default function Header() {
                 className="p-2.5 sm:p-2 text-mist-lilac hover:text-burnt-lilac transition-colors touch-manipulation relative"
                 aria-label={isAuthenticated ? 'My Account' : 'Sign In'}
               >
-                <svg className="w-5 h-5 sm:w-5 sm:h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                {isAuthenticated && (
-                  <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-green-500 rounded-full" />
+                {isAuthenticated && user?.user_metadata?.avatar_url ? (
+                  <img 
+                    src={user.user_metadata.avatar_url} 
+                    alt="Profile" 
+                    className="w-8 h-8 lg:w-9 lg:h-9 rounded-full border-2 border-burnt-lilac/30 hover:border-burnt-lilac transition-all object-cover"
+                  />
+                ) : (
+                  <>
+                    <svg className="w-5 h-5 sm:w-5 sm:h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    {isAuthenticated && (
+                      <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-green-500 rounded-full" />
+                    )}
+                  </>
                 )}
               </Link>
 

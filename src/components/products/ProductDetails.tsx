@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { ShopifyProduct, ShopifyProductVariant, formatPrice, getProductImageUrl } from '@/lib/shopify';
 import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 
 interface ProductDetailsProps {
   product: ShopifyProduct;
@@ -11,6 +12,7 @@ interface ProductDetailsProps {
 
 export default function ProductDetails({ product }: ProductDetailsProps) {
   const { addItem, loading } = useCart();
+  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
   const [selectedVariant, setSelectedVariant] = useState<ShopifyProductVariant>(
     product.variants.edges[0]?.node
   );
@@ -23,6 +25,9 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
+  const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
+
+  const isWishlisted = isInWishlist(product.id);
 
   const images = product.images.edges.map((edge) => edge.node);
   const currentImage = images[selectedImageIndex] || product.featuredImage;
@@ -57,6 +62,21 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
     setIsAdding(true);
     await addItem(selectedVariant.id, quantity);
     setIsAdding(false);
+  };
+
+  const handleToggleWishlist = async () => {
+    setIsTogglingWishlist(true);
+    try {
+      if (isWishlisted) {
+        await removeFromWishlist(product.id);
+      } else {
+        await addToWishlist(product);
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error);
+    } finally {
+      setIsTogglingWishlist(false);
+    }
   };
 
   return (
@@ -201,36 +221,59 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
 
         {/* Add to Cart Button - Sticky on mobile */}
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-black border-t border-deep-purple/30 sm:relative sm:p-0 sm:border-0 sm:bg-transparent z-40">
-          <button
-            onClick={handleAddToCart}
-            disabled={isAdding || loading || !selectedVariant?.availableForSale}
-            className="w-full btn-gothic py-4 text-base sm:text-lg disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
-          >
-            {!selectedVariant?.availableForSale ? (
-              'Sold Out'
-            ) : isAdding ? (
-              <span className="flex items-center justify-center gap-2">
+          <div className="flex gap-3">
+            <button
+              onClick={handleToggleWishlist}
+              disabled={isTogglingWishlist}
+              className="btn-gothic-outline py-4 px-6 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+            >
+              {isTogglingWishlist ? (
                 <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-                Adding to Cart...
-              </span>
-            ) : (
-              'Add to Cart'
-            )}
-          </button>
+              ) : (
+                <svg 
+                  className="w-5 h-5" 
+                  fill={isWishlisted ? 'currentColor' : 'none'} 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              )}
+            </button>
+            <button
+              onClick={handleAddToCart}
+              disabled={isAdding || loading || !selectedVariant?.availableForSale}
+              className="flex-1 btn-gothic py-4 text-base sm:text-lg disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+            >
+              {!selectedVariant?.availableForSale ? (
+                'Sold Out'
+              ) : isAdding ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                  Adding to Cart...
+                </span>
+              ) : (
+                'Add to Cart'
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Spacer for fixed button on mobile */}

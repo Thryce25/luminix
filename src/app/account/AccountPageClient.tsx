@@ -34,9 +34,7 @@ export default function AccountPageClient() {
   const [confirmPassword, setConfirmPassword] = useState('');
   
   // Address states
-  const [addresses, setAddresses] = useState([
-    { id: 1, type: 'Shipping', name: 'John Doe', street: '123 Gothic Street', city: 'Dark City', state: 'NY', zip: '10001', isDefault: true },
-  ]);
+  const [addresses, setAddresses] = useState([]);
   const [isAddingAddress, setIsAddingAddress] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -336,7 +334,18 @@ export default function AccountPageClient() {
               </form>
             ) : null}
 
-            <div className="grid md:grid-cols-2 gap-4">
+            {addresses.length === 0 && !isAddingAddress ? (
+              <div className="text-center py-12">
+                <svg className="w-16 h-16 mx-auto text-mist-lilac/30 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                <p className="text-mist-lilac/60 mb-4">No saved addresses yet</p>
+                <button onClick={() => setIsAddingAddress(true)} className="btn-gothic inline-block">
+                  Add Your First Address
+                </button>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-4">
               {addresses.map((address) => (
                 <div key={address.id} className="p-6 bg-white/5 rounded-lg border border-burnt-lilac/20 relative">
                   {address.isDefault && (
@@ -353,6 +362,7 @@ export default function AccountPageClient() {
                 </div>
               ))}
             </div>
+            )}
           </div>
         )}
 

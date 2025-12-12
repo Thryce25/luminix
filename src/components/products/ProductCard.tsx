@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ShopifyProduct, formatPrice, getProductImageUrl } from '@/lib/shopify';
 import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 import { useState } from 'react';
 
 interface ProductCardProps {
@@ -13,8 +14,11 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, priority = false }: ProductCardProps) {
   const { addItem, loading } = useCart();
+  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
   const [isAdding, setIsAdding] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
+
+  const isWishlisted = isInWishlist(product.id);
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -28,10 +32,22 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
     setIsAdding(false);
   };
 
-  const handleWishlist = (e: React.MouseEvent) => {
+  const handleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsWishlisted(!isWishlisted);
+    
+    setIsTogglingWishlist(true);
+    try {
+      if (isWishlisted) {
+        await removeFromWishlist(product.id);
+      } else {
+        await addToWishlist(product);
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error);
+    } finally {
+      setIsTogglingWishlist(false);
+    }
   };
 
   const imageUrl = getProductImageUrl(product);
@@ -91,21 +107,29 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
           {/* Wishlist Button - Always visible on mobile */}
           <button
             onClick={handleWishlist}
-            className="absolute top-2 sm:top-3 right-2 sm:right-3 z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-mist-lilac hover:bg-burnt-lilac hover:text-white transition-all sm:opacity-0 sm:group-hover:opacity-100 touch-manipulation"
+            disabled={isTogglingWishlist}
+            className="absolute top-2 sm:top-3 right-2 sm:right-3 z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-mist-lilac hover:bg-burnt-lilac hover:text-white transition-all sm:opacity-0 sm:group-hover:opacity-100 touch-manipulation disabled:opacity-50"
           >
-            <svg
-              className="w-4 h-4 sm:w-5 sm:h-5"
-              fill={isWishlisted ? 'currentColor' : 'none'}
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              />
-            </svg>
+            {isTogglingWishlist ? (
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            ) : (
+              <svg
+                className="w-4 h-4 sm:w-5 sm:h-5"
+                fill={isWishlisted ? 'currentColor' : 'none'}
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                />
+              </svg>
+            )}
           </button>
 
           {/* Quick Actions - Desktop only */}
