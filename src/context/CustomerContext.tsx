@@ -10,6 +10,7 @@ interface Customer {
   lastName: string;
   displayName: string;
   isOAuthUser?: boolean;
+  isMagicLinkUser?: boolean;
 }
 
 interface CustomerContextType {
@@ -18,6 +19,8 @@ interface CustomerContextType {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (email: string, password: string, firstName: string, lastName: string) => Promise<{ success: boolean; error?: string }>;
+  sendMagicCode: (email: string, firstName?: string, lastName?: string) => Promise<{ success: boolean; error?: string }>;
+  verifyMagicCode: (email: string, code: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   getAccountUrl: () => string;
 }
@@ -302,6 +305,54 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
     }
   }, [login]);
 
+  // Send magic link code via email
+  const sendMagicCode = useCallback(async (email: string, firstName?: string, lastName?: string) => {
+    try {
+      const response = await fetch('/api/auth/send-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, firstName, lastName }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: data.error || 'Failed to send code' };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('Send magic code error:', error);
+      return { success: false, error: 'Failed to send code. Please try again.' };
+    }
+  }, []);
+
+  // Verify magic link code and authenticate
+  const verifyMagicCode = useCallback(async (email: string, code: string) => {
+    try {
+      const response = await fetch('/api/auth/verify-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: data.error || 'Invalid code' };
+      }
+
+      // Set customer data
+      setCustomer(data.customer);
+      localStorage.setItem(CUSTOMER_DATA_KEY, JSON.stringify(data.customer));
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Verify magic code error:', error);
+      return { success: false, error: 'Verification failed. Please try again.' };
+    }
+  }, []);
+
   // Get Shopify hosted account URL for orders/addresses
   const getAccountUrl = useCallback(() => {
     // Use Shopify's direct customer accounts URL
@@ -313,8 +364,8 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
     return `https://shopify.com/76976652519/account/login?return_url=${returnUrl}`;
   }, []);
 
-  // User is authenticated if they have a customer object (either OAuth or Shopify)
-  const isAuthenticated = !!customer && (!!accessToken || !!customer.isOAuthUser);
+  // User is authenticated if they have a customer object (either OAuth, magic link, or Shopify)
+  const isAuthenticated = !!customer && (!!accessToken || !!customer.isOAuthUser || !!customer.isMagicLinkUser);
 
   return (
     <CustomerContext.Provider
@@ -324,6 +375,8 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
         isAuthenticated,
         login,
         register,
+        sendMagicCode,
+        verifyMagicCode,
         logout,
         getAccountUrl,
       }}

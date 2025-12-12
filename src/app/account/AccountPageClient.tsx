@@ -9,12 +9,19 @@ import Image from 'next/image';
 import { formatPrice } from '@/lib/shopify';
 
 export default function AccountPageClient() {
-  const { customer, loading, isAuthenticated, login, register, logout, getAccountUrl } = useCustomer();
+  const { customer, loading, isAuthenticated, login, register, sendMagicCode, verifyMagicCode, logout, getAccountUrl } = useCustomer();
   const { items: wishlistItems, removeItem: removeFromWishlist } = useWishlist();
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  // Magic link state
+  const [magicLinkMode, setMagicLinkMode] = useState<'email' | 'code' | null>(null);
+  const [magicEmail, setMagicEmail] = useState('');
+  const [magicCode, setMagicCode] = useState('');
+  const [magicFirstName, setMagicFirstName] = useState('');
+  const [magicLastName, setMagicLastName] = useState('');
 
   // Login form state
   const [loginEmail, setLoginEmail] = useState('');
@@ -35,6 +42,46 @@ export default function AccountPageClient() {
     
     if (!result.success) {
       setError(result.error || 'Failed to login');
+    }
+    
+    setFormLoading(false);
+  };
+
+  const handleSendMagicCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+    setFormLoading(true);
+
+    const result = await sendMagicCode(magicEmail, magicFirstName, magicLastName);
+    
+    if (!result.success) {
+      setError(result.error || 'Failed to send code');
+      setFormLoading(false);
+    } else {
+      setSuccess('Verification code sent! Check your email.');
+      setMagicLinkMode('code');
+      setFormLoading(false);
+    }
+  };
+
+  const handleVerifyMagicCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setFormLoading(true);
+
+    const result = await verifyMagicCode(magicEmail, magicCode);
+    
+    if (!result.success) {
+      setError(result.error || 'Invalid code');
+    } else {
+      setSuccess('Successfully signed in!');
+      // Reset magic link state
+      setMagicLinkMode(null);
+      setMagicEmail('');
+      setMagicCode('');
+      setMagicFirstName('');
+      setMagicLastName('');
     }
     
     setFormLoading(false);
@@ -286,6 +333,139 @@ export default function AccountPageClient() {
         {success && (
           <div className="mb-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-sm">
             {success}
+          </div>
+        )}
+
+        {/* Magic Link Section */}
+        {magicLinkMode === null && (
+          <div className="mb-6 p-4 bg-gradient-to-r from-burnt-lilac/10 to-deep-purple/10 border border-burnt-lilac/30 rounded-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <svg className="w-5 h-5 text-burnt-lilac" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <h3 className="text-mist-lilac font-medium">Quick Sign In</h3>
+            </div>
+            <p className="text-mist-lilac/70 text-sm mb-3">
+              Get a 6-digit code sent to your email. No password needed!
+            </p>
+            <button
+              onClick={() => {
+                setMagicLinkMode('email');
+                setError(null);
+                setSuccess(null);
+              }}
+              className="w-full btn-gothic py-2 text-sm"
+            >
+              Continue with Email Code
+            </button>
+          </div>
+        )}
+
+        {/* Magic Link - Email Input */}
+        {magicLinkMode === 'email' && (
+          <div className="mb-6 p-4 bg-deep-purple/20 border border-burnt-lilac/30 rounded-lg">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-mist-lilac font-medium">Enter Your Email</h3>
+              <button
+                onClick={() => {
+                  setMagicLinkMode(null);
+                  setMagicEmail('');
+                  setMagicFirstName('');
+                  setMagicLastName('');
+                  setError(null);
+                }}
+                className="text-mist-lilac/50 hover:text-mist-lilac text-sm"
+              >
+                Cancel
+              </button>
+            </div>
+            <form onSubmit={handleSendMagicCode} className="space-y-3">
+              {activeTab === 'register' && (
+                <div className="grid grid-cols-2 gap-3">
+                  <input
+                    type="text"
+                    value={magicFirstName}
+                    onChange={(e) => setMagicFirstName(e.target.value)}
+                    placeholder="First name"
+                    className="px-4 py-2 bg-deep-purple/20 border border-deep-purple/30 rounded-lg text-mist-lilac placeholder-mist-lilac/40 text-sm focus:outline-none focus:border-burnt-lilac/50"
+                  />
+                  <input
+                    type="text"
+                    value={magicLastName}
+                    onChange={(e) => setMagicLastName(e.target.value)}
+                    placeholder="Last name"
+                    className="px-4 py-2 bg-deep-purple/20 border border-deep-purple/30 rounded-lg text-mist-lilac placeholder-mist-lilac/40 text-sm focus:outline-none focus:border-burnt-lilac/50"
+                  />
+                </div>
+              )}
+              <input
+                type="email"
+                value={magicEmail}
+                onChange={(e) => setMagicEmail(e.target.value)}
+                required
+                placeholder="your@email.com"
+                className="w-full px-4 py-3 bg-deep-purple/20 border border-deep-purple/30 rounded-lg text-mist-lilac placeholder-mist-lilac/40 focus:outline-none focus:border-burnt-lilac/50"
+              />
+              <button
+                type="submit"
+                disabled={formLoading}
+                className="w-full btn-gothic py-2 text-sm disabled:opacity-50"
+              >
+                {formLoading ? 'Sending...' : 'Send Code'}
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* Magic Link - Code Verification */}
+        {magicLinkMode === 'code' && (
+          <div className="mb-6 p-4 bg-deep-purple/20 border border-burnt-lilac/30 rounded-lg">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-mist-lilac font-medium">Enter Code</h3>
+              <button
+                onClick={() => {
+                  setMagicLinkMode('email');
+                  setMagicCode('');
+                  setError(null);
+                }}
+                className="text-mist-lilac/50 hover:text-mist-lilac text-sm"
+              >
+                Back
+              </button>
+            </div>
+            <p className="text-mist-lilac/70 text-sm mb-3">
+              We sent a 6-digit code to <strong>{magicEmail}</strong>
+            </p>
+            <form onSubmit={handleVerifyMagicCode} className="space-y-3">
+              <input
+                type="text"
+                value={magicCode}
+                onChange={(e) => setMagicCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                required
+                placeholder="000000"
+                maxLength={6}
+                className="w-full px-4 py-3 bg-deep-purple/20 border border-deep-purple/30 rounded-lg text-mist-lilac placeholder-mist-lilac/40 text-center text-2xl tracking-widest font-mono focus:outline-none focus:border-burnt-lilac/50"
+              />
+              <button
+                type="submit"
+                disabled={formLoading || magicCode.length !== 6}
+                className="w-full btn-gothic py-2 text-sm disabled:opacity-50"
+              >
+                {formLoading ? 'Verifying...' : 'Verify Code'}
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* Divider - Only show when magic link is not active */}
+        {magicLinkMode === null && (
+          <div className="relative mb-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-deep-purple/30"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-black text-mist-lilac/50">Or use traditional sign in</span>
+            </div>
           </div>
         )}
 
