@@ -141,20 +141,28 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
           if (!alreadySynced && oauthUser.email) {
             try {
               console.log('Creating Shopify customer for OAuth user...');
+              
+              // Build input without password field - OAuth users authenticate via Google
+              const input: {
+                email: string;
+                firstName?: string;
+                lastName?: string;
+                acceptsMarketing: boolean;
+              } = {
+                email: oauthUser.email,
+                acceptsMarketing: false,
+              };
+              
+              // Only add name fields if they exist
+              if (oauthUser.firstName) input.firstName = oauthUser.firstName;
+              if (oauthUser.lastName) input.lastName = oauthUser.lastName;
+              
               const createData = await shopifyCustomerFetch<{
                 customerCreate: {
                   customer: { id: string } | null;
                   customerUserErrors: Array<{ message: string; code: string }>;
                 };
-              }>(CUSTOMER_CREATE_MUTATION, {
-                input: {
-                  email: oauthUser.email,
-                  firstName: oauthUser.firstName,
-                  lastName: oauthUser.lastName,
-                  acceptsMarketing: false,
-                  // No password - this customer can only sign in via OAuth
-                },
-              });
+              }>(CUSTOMER_CREATE_MUTATION, { input });
 
               if (createData.customerCreate.customer) {
                 console.log('Successfully created Shopify customer:', createData.customerCreate.customer.id);
