@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
 export default function AccountPageClient() {
-  const { user, loading, signIn, signUp, signInWithMagicLink, signInWithGoogle, signInWithGitHub, signOut } = useAuth();
+  const { user, loading, signIn, signUp, signInWithGoogle, signInWithGitHub, signOut } = useAuth();
   const router = useRouter();
 
   const [isLogin, setIsLogin] = useState(true);
@@ -16,7 +16,6 @@ export default function AccountPageClient() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showMagicLink, setShowMagicLink] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,24 +34,6 @@ export default function AccountPageClient() {
         if (error) throw error;
         setSuccess('Account created! Check your email to confirm.');
       }
-    } catch (err: any) {
-      setError(err.message || 'An error occurred');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleMagicLink = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-    setIsSubmitting(true);
-
-    try {
-      const { error } = await signInWithMagicLink(email);
-      if (error) throw error;
-      setSuccess('Check your email for the magic link!');
-      setEmail('');
     } catch (err: any) {
       setError(err.message || 'An error occurred');
     } finally {
@@ -159,10 +140,10 @@ export default function AccountPageClient() {
       {/* Hero Section */}
       <div className="text-center mb-12 animate-fade-in-up opacity-0 stagger-1">
         <h1 className="font-serif text-5xl md:text-6xl mb-4 gradient-text">
-          {showMagicLink ? 'Magic Link' : (isLogin ? 'Welcome Back' : 'Join Us')}
+          {isLogin ? 'Welcome Back' : 'Join Us'}
         </h1>
         <p className="text-mist-lilac/60">
-          {showMagicLink ? 'Enter your email for instant access' : (isLogin ? 'Sign in to your account' : 'Create your account')}
+          {isLogin ? 'Sign in to your account' : 'Create your account'}
         </p>
       </div>
 
@@ -179,10 +160,8 @@ export default function AccountPageClient() {
           </div>
         )}
 
-        {!showMagicLink ? (
-          <>
-            {/* OAuth Buttons */}
-            <div className="space-y-3 mb-6">
+        {/* OAuth Buttons */}
+        <div className="space-y-3 mb-6">
               <button
                 onClick={handleGoogleSignIn}
                 disabled={isSubmitting}
@@ -208,15 +187,6 @@ export default function AccountPageClient() {
                 Continue with GitHub
               </button>
             </div>
-
-            {/* Magic Link Button */}
-            <button
-              onClick={() => setShowMagicLink(true)}
-              className="w-full mb-6 btn-gothic flex items-center justify-center gap-2"
-            >
-              <span className="text-xl">⚡</span>
-              Continue with Magic Link
-            </button>
 
             <div className="relative mb-6">
               <div className="absolute inset-0 flex items-center">
@@ -299,62 +269,6 @@ export default function AccountPageClient() {
                 {isLogin ? "Don't have an account? Join us" : 'Already have an account? Sign in'}
               </button>
             </div>
-          </>
-        ) : (
-          <>
-            <form onSubmit={handleMagicLink} className="space-y-5">
-              <div>
-                <label className="block text-sm mb-2 text-burnt-lilac font-medium">Email Address</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 bg-black/40 border border-burnt-lilac/30 rounded-lg focus:border-burnt-lilac focus:outline-none transition-all duration-300 text-mist-lilac placeholder-mist-lilac/40"
-                  placeholder="your@email.com"
-                />
-                <p className="mt-2 text-sm text-mist-lilac/60">We'll send you a magic link to sign in instantly</p>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full btn-gothic disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {isSubmitting ? (
-                  <>
-                    <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Sending...
-                  </>
-                ) : (
-                  <>
-                    <span className="text-xl">⚡</span>
-                    Send Magic Link
-                  </>
-                )}
-              </button>
-            </form>
-
-            <div className="mt-6 text-center">
-              <button
-                onClick={() => {
-                  setShowMagicLink(false);
-                  setError('');
-                  setSuccess('');
-                }}
-                className="text-burnt-lilac hover:text-mist-lilac transition-colors font-medium inline-flex items-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Back to other options
-              </button>
-            </div>
-          </>
-        )}
       </div>
     </div>
   );
