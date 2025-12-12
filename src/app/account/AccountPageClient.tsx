@@ -8,6 +8,17 @@ import Link from 'next/link';
 
 type ActiveTab = 'profile' | 'orders' | 'addresses' | 'wishlist' | 'settings';
 
+interface Address {
+  id: number;
+  type: string;
+  name: string;
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  isDefault?: boolean;
+}
+
 export default function AccountPageClient() {
   const { user, loading, signIn, signUp, signInWithGoogle, signInWithGitHub, signOut, updateProfile } = useAuth();
   const router = useRouter();
@@ -34,7 +45,7 @@ export default function AccountPageClient() {
   const [confirmPassword, setConfirmPassword] = useState('');
   
   // Address states
-  const [addresses, setAddresses] = useState([]);
+  const [addresses, setAddresses] = useState<Address[]>([]);
   const [isAddingAddress, setIsAddingAddress] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
