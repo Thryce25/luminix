@@ -132,13 +132,13 @@ export default function WishlistView() {
                                         opacity: 0,
                                     }}
                                 >
-                                    <Link href={`/products/${item.handle}`} className="block">
+                                    <Link href={`/products/${item.productHandle}`} className="block">
                                         <div className="relative bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden hover:border-pink-400/30 hover:shadow-lg hover:shadow-pink-500/10 transition-all duration-300 group-hover:scale-[1.02]">
                                             {/* Image */}
                                             <div className="relative aspect-4/5 overflow-hidden bg-deep-purple/10">
                                                 <Image
-                                                    src={item.image}
-                                                    alt={item.title}
+                                                    src={item.productImage || '/images/placeholder.jpg'}
+                                                    alt={item.productTitle || 'Product'}
                                                     fill
                                                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                                                     className="object-cover group-hover:scale-110 transition-transform duration-500"
@@ -171,10 +171,10 @@ export default function WishlistView() {
                                             {/* Info */}
                                             <div className="p-3 sm:p-4">
                                                 <h3 className="text-sm text-mist-lilac group-hover:text-pink-300 transition-colors line-clamp-2 mb-2">
-                                                    {item.title}
+                                                    {item.productTitle}
                                                 </h3>
                                                 <p className="text-base font-semibold bg-linear-to-r from-pink-400 to-burnt-lilac bg-clip-text text-transparent">
-                                                    {formatPrice(item.price)}
+                                                    {item.productPrice ? formatPrice({ amount: item.productPrice, currencyCode: 'USD' }) : '$0.00'}
                                                 </p>
                                             </div>
                                         </div>

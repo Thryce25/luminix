@@ -18,6 +18,7 @@ interface WishlistContextType {
   loading: boolean;
   addItem: (product: any) => Promise<void>;
   removeItem: (productId: string) => Promise<void>;
+  clearWishlist: () => Promise<void>;
   isInWishlist: (productId: string) => boolean;
   refreshWishlist: () => Promise<void>;
 }
@@ -115,6 +116,24 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const clearWishlist = async () => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('wishlists')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      await fetchWishlist();
+    } catch (error) {
+      console.error('Error clearing wishlist:', error);
+      alert('Failed to clear wishlist');
+    }
+  };
+
   const isInWishlist = (productId: string) => {
     return items.some((item) => item.productId === productId);
   };
@@ -130,6 +149,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
         loading,
         addItem,
         removeItem,
+        clearWishlist,
         isInWishlist,
         refreshWishlist,
       }}
