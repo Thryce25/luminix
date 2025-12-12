@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { useCart } from '@/context/CartContext';
-import { useCustomer } from '@/context/CustomerContext';
+import { useAuth } from '@/context/AuthContext';
 import CartDrawer from '../cart/CartDrawer';
 import SearchModal from './SearchModal';
 
@@ -53,7 +53,8 @@ export default function Header() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const { cart, setCartOpen } = useCart();
-  const { isAuthenticated } = useCustomer();
+  const { user } = useAuth();
+  const isAuthenticated = !!user;
 
   const cartItemCount = cart?.totalQuantity || 0;
 

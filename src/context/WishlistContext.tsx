@@ -1,195 +1,137 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useCustomer } from './CustomerContext';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { useAuth } from './AuthContext';
+import { createClient } from '@/lib/supabase/client';
 
 interface WishlistItem {
   id: string;
-  handle: string;
-  title: string;
-  price: {
-    amount: string;
-    currencyCode: string;
-  };
-  image: string;
-  addedAt: number;
+  productId: string;
+  productHandle: string;
+  productTitle?: string;
+  productImage?: string;
+  productPrice?: string;
 }
 
 interface WishlistContextType {
   items: WishlistItem[];
-  addItem: (item: WishlistItem) => void;
-  removeItem: (id: string) => void;
-  isInWishlist: (id: string) => boolean;
-  clearWishlist: () => void;
-  syncInProgress: boolean;
+  loading: boolean;
+  addItem: (product: any) => Promise<void>;
+  removeItem: (productId: string) => Promise<void>;
+  isInWishlist: (productId: string) => boolean;
+  refreshWishlist: () => Promise<void>;
 }
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
 
-const WISHLIST_STORAGE_KEY = 'luminix_wishlist';
-
 export function WishlistProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [items, setItems] = useState<WishlistItem[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [syncInProgress, setSyncInProgress] = useState(false);
-  const { customer, isAuthenticated } = useCustomer();
+  const [loading, setLoading] = useState(false);
+  const supabase = createClient();
 
-  // Load wishlist on mount and sync with Shopify if authenticated
+  const fetchWishlist = async () => {
+    if (!user) {
+      setItems([]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('wishlists')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setItems(
+        data?.map((item) => ({
+          id: item.id,
+          productId: item.product_id,
+          productHandle: item.product_handle,
+          productTitle: item.product_title,
+          productImage: item.product_image,
+          productPrice: item.product_price,
+        })) || []
+      );
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadWishlist = async () => {
-      try {
-        // Always load from localStorage first for immediate UI
-        const stored = localStorage.getItem(WISHLIST_STORAGE_KEY);
-        const localItems = stored ? JSON.parse(stored) : [];
-        
-        // If authenticated, sync with Shopify metafield
-        if (isAuthenticated && customer?.id) {
-          setSyncInProgress(true);
-          try {
-            const response = await fetch('/api/wishlist/sync', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ customerId: customer.id }),
-            });
+    fetchWishlist();
+  }, [user]);
 
-            if (response.ok) {
-              const { productIds } = await response.json();
-              
-              // Merge Shopify wishlist with local wishlist
-              const mergedItems = [...localItems];
-              for (const productId of productIds) {
-                if (!mergedItems.some((item: WishlistItem) => item.id === productId)) {
-                  // Product in Shopify but not in local - fetch product details
-                  // For now, just add the ID (product details will be fetched when viewing wishlist)
-                  const existingItem = localItems.find((item: WishlistItem) => item.id === productId);
-                  if (existingItem) {
-                    mergedItems.push(existingItem);
-                  }
-                }
-              }
-              
-              // Remove items that are in local but not in Shopify
-              const syncedItems = mergedItems.filter((item: WishlistItem) => productIds.includes(item.id));
-              setItems(syncedItems);
-              localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(syncedItems));
-            } else {
-              // Fallback to local if sync fails
-              setItems(localItems);
-            }
-          } catch (error) {
-            console.error('Failed to sync wishlist from Shopify:', error);
-            setItems(localItems);
-          } finally {
-            setSyncInProgress(false);
-          }
-        } else {
-          // Not authenticated, use localStorage only
-          setItems(localItems);
-        }
-      } catch (error) {
-        console.error('Failed to load wishlist:', error);
-      } finally {
-        setIsLoaded(true);
-      }
-    };
-
-    loadWishlist();
-  }, [customer?.id, isAuthenticated]);
-
-  // Save wishlist to localStorage whenever it changes
-  useEffect(() => {
-    if (isLoaded) {
-      try {
-        localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(items));
-      } catch (error) {
-        console.error('Failed to save wishlist:', error);
-      }
+  const addItem = async (product: any) => {
+    if (!user) {
+      alert('Please sign in to add items to your wishlist');
+      return;
     }
-  }, [items, isLoaded]);
 
-  const addItem = async (item: WishlistItem) => {
-    // Add to local state immediately
-    setItems((prev) => {
-      if (prev.some((i) => i.id === item.id)) {
-        return prev;
-      }
-      return [...prev, { ...item, addedAt: Date.now() }];
-    });
+    try {
+      const { error } = await supabase.from('wishlists').insert({
+        user_id: user.id,
+        product_id: product.id,
+        product_handle: product.handle,
+        product_title: product.title,
+        product_image: product.images?.[0]?.url || product.featuredImage?.url,
+        product_price: product.priceRange?.minVariantPrice?.amount || product.variants?.edges?.[0]?.node?.price?.amount,
+      });
 
-    // Sync to Shopify if authenticated
-    if (isAuthenticated && customer?.id) {
-      try {
-        await fetch('/api/wishlist/add', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            customerId: customer.id, 
-            productId: item.id 
-          }),
-        });
-      } catch (error) {
-        console.error('Failed to sync add to Shopify:', error);
+      if (error) throw error;
+
+      await fetchWishlist();
+    } catch (error: any) {
+      console.error('Error adding to wishlist:', error);
+      if (error.code === '23505') {
+        alert('This item is already in your wishlist');
+      } else {
+        alert('Failed to add to wishlist');
       }
     }
   };
 
-  const removeItem = async (id: string) => {
-    // Remove from local state immediately
-    setItems((prev) => prev.filter((item) => item.id !== id));
+  const removeItem = async (productId: string) => {
+    if (!user) return;
 
-    // Sync to Shopify if authenticated
-    if (isAuthenticated && customer?.id) {
-      try {
-        await fetch('/api/wishlist/remove', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            customerId: customer.id, 
-            productId: id 
-          }),
-        });
-      } catch (error) {
-        console.error('Failed to sync remove to Shopify:', error);
-      }
+    try {
+      const { error } = await supabase
+        .from('wishlists')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('product_id', productId);
+
+      if (error) throw error;
+
+      await fetchWishlist();
+    } catch (error) {
+      console.error('Error removing from wishlist:', error);
+      alert('Failed to remove from wishlist');
     }
   };
 
-  const isInWishlist = (id: string) => {
-    return items.some((item) => item.id === id);
+  const isInWishlist = (productId: string) => {
+    return items.some((item) => item.productId === productId);
   };
 
-  const clearWishlist = async () => {
-    setItems([]);
-    
-    // If authenticated, clear from Shopify too
-    if (isAuthenticated && customer?.id) {
-      try {
-        // Remove all items one by one
-        for (const item of items) {
-          await fetch('/api/wishlist/remove', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              customerId: customer.id, 
-              productId: item.id 
-            }),
-          });
-        }
-      } catch (error) {
-        console.error('Failed to clear wishlist from Shopify:', error);
-      }
-    }
+  const refreshWishlist = async () => {
+    await fetchWishlist();
   };
 
   return (
     <WishlistContext.Provider
       value={{
         items,
+        loading,
         addItem,
         removeItem,
         isInWishlist,
-        clearWishlist,
-        syncInProgress,
+        refreshWishlist,
       }}
     >
       {children}

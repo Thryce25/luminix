@@ -5,8 +5,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
-import { CustomerProvider } from "@/context/CustomerContext";
-import { AuthProvider } from "@/components/providers/AuthProvider";
+import { AuthProvider } from "@/context/AuthContext";
 import FloatingBackground from "@/components/common/FloatingBackground";
 import { generateOrganizationJsonLd, generateWebsiteJsonLd, JsonLd } from "@/lib/structured-data";
 
@@ -83,15 +82,13 @@ export default function RootLayout({
       >
         <FloatingBackground />
         <AuthProvider>
-          <CustomerProvider>
-            <CartProvider>
-              <WishlistProvider>
-                <Header />
-                <main className="min-h-screen pt-20 relative" style={{ zIndex: 10 }}>{children}</main>
-                <Footer />
-              </WishlistProvider>
-            </CartProvider>
-          </CustomerProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <Header />
+              <main className="min-h-screen pt-20 relative" style={{ zIndex: 10 }}>{children}</main>
+              <Footer />
+            </WishlistProvider>
+          </CartProvider>
         </AuthProvider>
       </body>
     </html>
