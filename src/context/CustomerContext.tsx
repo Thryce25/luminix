@@ -304,12 +304,13 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
 
   // Get Shopify hosted account URL for orders/addresses
   const getAccountUrl = useCallback(() => {
-    // New customer accounts URL (not legacy)
+    // Use Shopify's direct customer accounts URL
     // Add return URL so users come back to our site after authentication
     const returnUrl = typeof window !== 'undefined' 
       ? encodeURIComponent(window.location.origin + '/account')
       : encodeURIComponent('https://www.luminixclothing.com/account');
-    return `https://shopify.com/76976652519/account?return_url=${returnUrl}`;
+    // Direct link to Shopify customer accounts - bypass custom domain
+    return `https://shopify.com/76976652519/account/login?return_url=${returnUrl}`;
   }, []);
 
   // User is authenticated if they have a customer object (either OAuth or Shopify)
