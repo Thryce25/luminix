@@ -4,10 +4,12 @@ CREATE TABLE IF NOT EXISTS profiles (
   email TEXT UNIQUE NOT NULL,
   first_name TEXT,
   last_name TEXT,
+  phone_number TEXT NOT NULL,
   display_name TEXT,
   avatar_url TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT phone_number_format CHECK (phone_number ~ '^[0-9]{10}$')
 );
 
 -- Enable Row Level Security

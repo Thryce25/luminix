@@ -25,7 +25,7 @@ const promotions = [
   {
     id: 3,
     title: 'Free Shipping',
-    subtitle: 'Orders $100+',
+    subtitle: 'Orders ₹5000+',
     description: 'Plus easy 30-day returns on all orders',
     cta: 'Start Shopping',
     href: '/products',

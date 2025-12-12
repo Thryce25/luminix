@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useWishlist } from '@/context/WishlistContext';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
 
-type ActiveTab = 'profile' | 'orders' | 'addresses' | 'wishlist' | 'settings';
+type ActiveTab = 'profile' | 'orders' | 'addresses' | 'wishlist';
 
 interface Address {
   id: number;
@@ -24,20 +25,33 @@ export default function AccountPageClient() {
   const router = useRouter();
   const { items: wishlistItems } = useWishlist();
 
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>('profile');
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [modalPhoneNumber, setModalPhoneNumber] = useState('');
   
   // Edit profile states
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editFirstName, setEditFirstName] = useState('');
   const [editLastName, setEditLastName] = useState('');
+
+  // Check if OAuth user needs to provide phone number
+  useEffect(() => {
+    if (user && typeof window !== 'undefined') {
+      const needsPhone = localStorage.getItem('needsPhoneNumber');
+      if (needsPhone === 'true') {
+        setShowPhoneModal(true);
+      }
+    }
+  }, [user]);
   
   // Change password states
   const [currentPassword, setCurrentPassword] = useState('');
@@ -61,7 +75,7 @@ export default function AccountPageClient() {
         setSuccess('Signed in successfully!');
         setTimeout(() => router.push('/account'), 1000);
       } else {
-        const { error } = await signUp(email, password, firstName, lastName);
+        const { error } = await signUp(email, password, firstName, lastName, phoneNumber);
         if (error) throw error;
         setSuccess('Account created! Check your email to confirm.');
       }
@@ -131,7 +145,8 @@ export default function AccountPageClient() {
     setError('');
     setIsSubmitting(true);
     try {
-      const { error } = await signInWithGoogle();
+      const mode = isLogin ? 'signin' : 'signup';
+      const { error } = await signInWithGoogle(mode);
       if (error) throw error;
     } catch (err: any) {
       setError(err.message || 'Failed to sign in with Google');
@@ -143,11 +158,37 @@ export default function AccountPageClient() {
     setError('');
     setIsSubmitting(true);
     try {
-      const { error } = await signInWithGitHub();
+      const mode = isLogin ? 'signin' : 'signup';
+      const { error } = await signInWithGitHub(mode);
       if (error) throw error;
     } catch (err: any) {
       setError(err.message || 'Failed to sign in with GitHub');
       setIsSubmitting(false);
+    }
+  };
+
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!/^[0-9]{10}$/.test(modalPhoneNumber)) {
+      alert('Please enter a valid 10-digit phone number');
+      return;
+    }
+
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('profiles')
+        .update({ phone_number: modalPhoneNumber })
+        .eq('id', user?.id);
+
+      if (error) throw error;
+
+      localStorage.removeItem('needsPhoneNumber');
+      setShowPhoneModal(false);
+      setModalPhoneNumber('');
+    } catch (err: any) {
+      alert('Failed to update phone number: ' + err.message);
     }
   };
 
@@ -176,7 +217,6 @@ export default function AccountPageClient() {
               { id: 'orders' as ActiveTab, label: 'Orders', icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
               { id: 'addresses' as ActiveTab, label: 'Addresses', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
               { id: 'wishlist' as ActiveTab, label: 'Wishlist', icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' },
-              { id: 'settings' as ActiveTab, label: 'Settings', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -412,67 +452,13 @@ export default function AccountPageClient() {
           </div>
         )}
 
-        {/* Settings Tab */}
-        {activeTab === 'settings' && (
-          <div className="card-gothic p-8 md:p-12 animate-scale-in">
-            <h2 className="text-2xl font-serif text-burnt-lilac mb-8">Account Settings</h2>
-            
-            <div className="space-y-8">
-              {/* Change Password */}
-              <div className="border-b border-burnt-lilac/20 pb-8">
-                <h3 className="text-xl font-serif text-burnt-lilac mb-4">Change Password</h3>
-                <form onSubmit={handleChangePassword} className="space-y-4 max-w-md">
-                  <div>
-                    <label className="block text-sm mb-2 text-mist-lilac/60">Current Password</label>
-                    <input
-                      type="password"
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="w-full px-4 py-3 bg-black/40 border border-burnt-lilac/30 rounded-lg focus:border-burnt-lilac focus:outline-none text-mist-lilac"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm mb-2 text-mist-lilac/60">New Password</label>
-                    <input
-                      type="password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      minLength={6}
-                      className="w-full px-4 py-3 bg-black/40 border border-burnt-lilac/30 rounded-lg focus:border-burnt-lilac focus:outline-none text-mist-lilac"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm mb-2 text-mist-lilac/60">Confirm New Password</label>
-                    <input
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      minLength={6}
-                      className="w-full px-4 py-3 bg-black/40 border border-burnt-lilac/30 rounded-lg focus:border-burnt-lilac focus:outline-none text-mist-lilac"
-                    />
-                  </div>
-                  <button type="submit" disabled={isSubmitting} className="btn-gothic">
-                    {isSubmitting ? 'Updating...' : 'Update Password'}
-                  </button>
-                </form>
-              </div>
 
-              {/* Delete Account */}
-              <div>
-                <h3 className="text-xl font-serif text-red-400 mb-4">Danger Zone</h3>
-                <p className="text-mist-lilac/60 mb-4">Once you delete your account, there is no going back.</p>
-                <button className="px-6 py-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 hover:bg-red-500/20 transition-all">
-                  Delete Account
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     );
   }
 
   return (
+    <>
     <div className="container mx-auto px-4 py-12 max-w-lg">
       {/* Hero Section */}
       <div className="text-center mb-12 animate-fade-in-up opacity-0 stagger-1">
@@ -499,31 +485,31 @@ export default function AccountPageClient() {
 
         {/* OAuth Buttons */}
         <div className="space-y-3 mb-6">
-              <button
-                onClick={handleGoogleSignIn}
-                disabled={isSubmitting}
-                className="w-full py-4 px-6 bg-white text-gray-900 rounded-lg font-semibold hover:bg-gray-100 transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:transform hover:-translate-y-0.5"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                Continue with Google
-              </button>
+            <button
+              onClick={handleGoogleSignIn}
+              disabled={isSubmitting}
+              className="w-full py-4 px-6 bg-white text-gray-900 rounded-lg font-semibold hover:bg-gray-100 transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:transform hover:-translate-y-0.5"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              Continue with Google
+            </button>
 
-              <button
-                onClick={handleGitHubSignIn}
-                disabled={isSubmitting}
-                className="w-full py-4 px-6 bg-[#24292F] text-white rounded-lg font-semibold hover:bg-[#2f363d] transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:transform hover:-translate-y-0.5"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/>
-                </svg>
-                Continue with GitHub
-              </button>
-            </div>
+            <button
+              onClick={handleGitHubSignIn}
+              disabled={isSubmitting}
+              className="w-full py-4 px-6 bg-[#24292F] text-white rounded-lg font-semibold hover:bg-[#2f363d] transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:transform hover:-translate-y-0.5"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/>
+              </svg>
+              Continue with GitHub
+            </button>
+          </div>
 
             <div className="relative mb-6">
               <div className="absolute inset-0 flex items-center">
@@ -543,6 +529,7 @@ export default function AccountPageClient() {
                       type="text"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
+                      required
                       className="w-full px-4 py-3 bg-black/40 border border-burnt-lilac/30 rounded-lg focus:border-burnt-lilac focus:outline-none transition-all duration-300 text-mist-lilac placeholder-mist-lilac/40"
                       placeholder="First"
                     />
@@ -553,8 +540,24 @@ export default function AccountPageClient() {
                       type="text"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
+                      required
                       className="w-full px-4 py-3 bg-black/40 border border-burnt-lilac/30 rounded-lg focus:border-burnt-lilac focus:outline-none transition-all duration-300 text-mist-lilac placeholder-mist-lilac/40"
                       placeholder="Last"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm mb-2 text-burnt-lilac font-medium">
+                      Phone Number <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      required
+                      pattern="[0-9]{10}"
+                      title="Please enter exactly 10 digits"
+                      className="w-full px-4 py-3 bg-black/40 border border-burnt-lilac/30 rounded-lg focus:border-burnt-lilac focus:outline-none transition-all duration-300 text-mist-lilac placeholder-mist-lilac/40"
+                      placeholder="10-digit mobile number (required)"
                     />
                   </div>
                 </>
@@ -608,5 +611,42 @@ export default function AccountPageClient() {
             </div>
       </div>
     </div>
+
+    {/* Phone Number Collection Modal */}
+    {showPhoneModal && (
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="bg-deep-purple border border-burnt-lilac/30 rounded-2xl p-8 max-w-md w-full shadow-2xl animate-fade-in">
+          <h2 className="text-2xl font-serif text-burnt-lilac mb-4">Phone Number Required</h2>
+          <p className="text-mist-lilac/80 mb-6">
+            Please provide your phone number to complete your profile. This is required for order updates and customer support.
+          </p>
+          <form onSubmit={handlePhoneSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm mb-2 text-burnt-lilac font-medium">
+                Phone Number <span className="text-red-400">*</span>
+              </label>
+              <input
+                type="tel"
+                value={modalPhoneNumber}
+                onChange={(e) => setModalPhoneNumber(e.target.value)}
+                required
+                pattern="[0-9]{10}"
+                title="Please enter exactly 10 digits"
+                className="w-full px-4 py-3 bg-black/40 border border-burnt-lilac/30 rounded-lg focus:border-burnt-lilac focus:outline-none transition-all duration-300 text-mist-lilac placeholder-mist-lilac/40"
+                placeholder="10-digit mobile number"
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full btn-gothic py-3"
+            >
+              Save Phone Number
+            </button>
+          </form>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
+

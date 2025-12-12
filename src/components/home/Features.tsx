@@ -10,8 +10,8 @@ const features = [
       </svg>
     ),
     title: 'Free Shipping',
-    description: 'On orders over $100',
-    detail: 'We offer complimentary standard shipping on all orders over $100. Express shipping options available at checkout.',
+    description: 'On orders over ₹5000',
+    detail: 'We offer complimentary standard shipping on all orders over ₹5000. Express shipping options available at checkout.',
   },
   {
     icon: (

@@ -1043,9 +1043,9 @@ export async function removeFromCart(cartId: string, lineIds: string[]): Promise
 // Utility Functions
 export function formatPrice(price: ShopifyPrice): string {
   const amount = parseFloat(price.amount);
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: price.currencyCode,
+    currency: 'INR',
   }).format(amount);
 }
 

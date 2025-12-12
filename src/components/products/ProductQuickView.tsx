@@ -248,7 +248,7 @@ export default function ProductQuickView({ product, open, onClose }: ProductQuic
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
                                 </svg>
-                                Free shipping on orders over $50
+                                Free shipping on orders over ₹2500
                             </div>
                             <div className="flex items-center gap-2 text-sm text-mist-lilac/70">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

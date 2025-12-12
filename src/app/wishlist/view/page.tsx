@@ -174,7 +174,7 @@ export default function WishlistView() {
                                                     {item.productTitle}
                                                 </h3>
                                                 <p className="text-base font-semibold bg-linear-to-r from-pink-400 to-burnt-lilac bg-clip-text text-transparent">
-                                                    {item.productPrice ? formatPrice({ amount: item.productPrice, currencyCode: 'USD' }) : '$0.00'}
+                                                    {item.productPrice ? formatPrice({ amount: item.productPrice, currencyCode: 'INR' }) : '₹0.00'}
                                                 </p>
                                             </div>
                                         </div>

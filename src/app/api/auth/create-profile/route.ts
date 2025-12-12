@@ -8,7 +8,23 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, email, firstName, lastName } = await request.json();
+    const { userId, email, firstName, lastName, phoneNumber } = await request.json();
+
+    // Validate required fields
+    if (!phoneNumber || phoneNumber.trim() === '') {
+      return NextResponse.json(
+        { error: 'Phone number is required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate phone number format (10 digits)
+    if (!/^[0-9]{10}$/.test(phoneNumber)) {
+      return NextResponse.json(
+        { error: 'Phone number must be exactly 10 digits' },
+        { status: 400 }
+      );
+    }
 
     // Create user profile in profiles table
     const { error } = await supabase.from('profiles').upsert({
@@ -16,6 +32,7 @@ export async function POST(request: NextRequest) {
       email,
       first_name: firstName || '',
       last_name: lastName || '',
+      phone_number: phoneNumber,
       display_name: firstName || email.split('@')[0],
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
