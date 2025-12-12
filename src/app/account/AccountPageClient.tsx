@@ -292,32 +292,6 @@ export default function AccountPageClient() {
         {/* Login Form */}
         {activeTab === 'login' && (
           <div className="space-y-4">
-            {/* Shopify Magic Link Button */}
-            <div>
-              <a
-                href={getAccountUrl()}
-                className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-burnt-lilac/10 border border-burnt-lilac/30 text-mist-lilac rounded-lg hover:bg-burnt-lilac/20 hover:border-burnt-lilac/50 transition-colors font-medium"
-              >
-                <svg className="w-5 h-5 text-burnt-lilac" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                Sign in with Email Code
-              </a>
-              <p className="text-xs text-mist-lilac/50 mt-2 text-center">
-                You'll receive a 6-digit code via email. After authenticating, you'll return to this site.
-              </p>
-            </div>
-
-            {/* Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-deep-purple/30"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-black text-mist-lilac/50">Or sign in with password</span>
-              </div>
-            </div>
-
             {/* Email/Password Form */}
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
