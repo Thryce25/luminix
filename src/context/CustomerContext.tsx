@@ -132,6 +132,36 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
             isOAuthUser: true,
           };
           
+          // Check if this OAuth user has been synced to Shopify before
+          const syncedKey = `shopify_synced_${session.user.email}`;
+          const alreadySynced = localStorage.getItem(syncedKey);
+          
+          // If not synced yet, create them in Shopify via Admin API
+          if (!alreadySynced && oauthUser.email) {
+            try {
+              const response = await fetch('/api/sync-oauth-customer', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  email: oauthUser.email,
+                  firstName: oauthUser.firstName,
+                  lastName: oauthUser.lastName,
+                }),
+              });
+
+              const data = await response.json();
+
+              if (data.success) {
+                localStorage.setItem(syncedKey, 'true');
+              }
+            } catch (error) {
+              // Continue anyway - OAuth user can still use the site
+              console.error('Failed to sync OAuth user to Shopify:', error);
+            }
+          }
+          
           setCustomer(oauthUser);
           setLoading(false);
           return;
@@ -274,7 +304,12 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
 
   // Get Shopify hosted account URL for orders/addresses
   const getAccountUrl = useCallback(() => {
-    return `https://${domain}/account`;
+    // New customer accounts URL (not legacy)
+    // Add return URL so users come back to our site after authentication
+    const returnUrl = typeof window !== 'undefined' 
+      ? encodeURIComponent(window.location.origin + '/account')
+      : encodeURIComponent('https://www.luminixclothing.com/account');
+    return `https://shopify.com/76976652519/account?return_url=${returnUrl}`;
   }, []);
 
   // User is authenticated if they have a customer object (either OAuth or Shopify)
