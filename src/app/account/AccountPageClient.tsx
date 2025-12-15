@@ -302,15 +302,15 @@ export default function AccountPageClient() {
   if (user) {
     return (
       <>
-      <div className="container mx-auto px-4 py-12 max-w-6xl">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 md:py-12 max-w-6xl">
         {/* Hero Section */}
-        <div className="text-center mb-12 animate-fade-in-up opacity-0 stagger-1">
-          <h1 className="font-serif text-5xl md:text-6xl mb-4 gradient-text">My Account</h1>
-          <p className="text-mist-lilac/60 text-lg">Welcome back, {user.user_metadata?.first_name || 'Shadow Walker'}</p>
+        <div className="text-center mb-6 sm:mb-8 md:mb-12 animate-fade-in-up opacity-0 stagger-1">
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-2 sm:mb-4 gradient-text">My Account</h1>
+          <p className="text-mist-lilac/60 text-sm sm:text-base md:text-lg">Welcome back, {user.user_metadata?.first_name || 'Shadow Walker'}</p>
         </div>
 
         {/* Tabs Navigation */}
-        <div className="mb-8 overflow-x-auto">
+        <div className="mb-6 sm:mb-8 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
           <div className="flex gap-2 min-w-max">
             {[
               { id: 'profile' as ActiveTab, label: 'Profile', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
@@ -321,18 +321,18 @@ export default function AccountPageClient() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 flex items-center gap-2 ${
+                className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium text-sm sm:text-base transition-all duration-300 flex items-center gap-1.5 sm:gap-2 whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'bg-burnt-lilac text-white shadow-lg shadow-burnt-lilac/30'
                     : 'bg-white/5 text-mist-lilac hover:bg-white/10 border border-white/10'
                 }`}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.icon} />
                 </svg>
-                {tab.label}
+                <span>{tab.label}</span>
                 {tab.id === 'wishlist' && wishlistItems.length > 0 && (
-                  <span className="ml-1 px-2 py-0.5 bg-pink-500 text-white text-xs rounded-full">{wishlistItems.length}</span>
+                  <span className="ml-0.5 sm:ml-1 px-1.5 sm:px-2 py-0.5 bg-pink-500 text-white text-[10px] sm:text-xs rounded-full">{wishlistItems.length}</span>
                 )}
               </button>
             ))}
@@ -353,9 +353,9 @@ export default function AccountPageClient() {
 
         {/* Profile Tab */}
         {activeTab === 'profile' && (
-          <div className="card-gothic p-8 md:p-12 animate-scale-in">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-serif text-burnt-lilac">Profile Information</h2>
+          <div className="card-gothic p-4 sm:p-6 md:p-8 lg:p-12 animate-scale-in">
+            <div className="flex items-center justify-between mb-6 sm:mb-8">
+              <h2 className="text-xl sm:text-2xl font-serif text-burnt-lilac">Profile Information</h2>
               {!isEditingProfile && (
                 <button
                   onClick={() => {
@@ -363,9 +363,10 @@ export default function AccountPageClient() {
                     setEditFirstName(user.user_metadata?.first_name || '');
                     setEditLastName(user.user_metadata?.last_name || '');
                   }}
-                  className="btn-gothic-outline py-2 px-4 text-sm"
+                  className="btn-gothic-outline py-1.5 sm:py-2 px-3 sm:px-4 text-xs sm:text-sm"
                 >
-                  Edit Profile
+                  <span className="hidden sm:inline">Edit Profile</span>
+                  <span className="sm:hidden">Edit</span>
                 </button>
               )}
             </div>
@@ -392,28 +393,28 @@ export default function AccountPageClient() {
                     />
                   </div>
                 </div>
-                <div className="flex gap-3">
-                  <button type="submit" disabled={isSubmitting} className="btn-gothic">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button type="submit" disabled={isSubmitting} className="btn-gothic w-full sm:w-auto">
                     {isSubmitting ? 'Saving...' : 'Save Changes'}
                   </button>
-                  <button type="button" onClick={() => setIsEditingProfile(false)} className="btn-gothic-outline">
+                  <button type="button" onClick={() => setIsEditingProfile(false)} className="btn-gothic-outline w-full sm:w-auto">
                     Cancel
                   </button>
                 </div>
               </form>
             ) : (
-              <div className="space-y-6">
-                <div className="flex items-center gap-4 p-4 bg-white/5 rounded-lg border border-burnt-lilac/20">
-                  <svg className="w-6 h-6 text-burnt-lilac" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-white/5 rounded-lg border border-burnt-lilac/20">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-burnt-lilac shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
-                  <div>
-                    <p className="text-sm text-mist-lilac/60">Email</p>
-                    <p className="text-mist-lilac">{user.email}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm text-mist-lilac/60">Email</p>
+                    <p className="text-sm sm:text-base text-mist-lilac truncate">{user.email}</p>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-4 p-4 bg-white/5 rounded-lg border border-burnt-lilac/20">
+                <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-white/5 rounded-lg border border-burnt-lilac/20">
                   <svg className="w-6 h-6 text-burnt-lilac" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -458,8 +459,8 @@ export default function AccountPageClient() {
 
         {/* Orders Tab */}
         {activeTab === 'orders' && (
-          <div className="card-gothic p-8 md:p-12 animate-scale-in">
-            <h2 className="text-2xl font-serif text-burnt-lilac mb-8">Order History</h2>
+          <div className="card-gothic p-4 sm:p-6 md:p-8 lg:p-12 animate-scale-in">
+            <h2 className="text-xl sm:text-2xl font-serif text-burnt-lilac mb-6 sm:mb-8">Order History</h2>
             <div className="space-y-4">
               <div className="text-center py-12">
                 <svg className="w-16 h-16 mx-auto text-mist-lilac/30 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -476,9 +477,9 @@ export default function AccountPageClient() {
 
         {/* Addresses Tab */}
         {activeTab === 'addresses' && (
-          <div className="card-gothic p-8 md:p-12 animate-scale-in">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-serif text-burnt-lilac">Saved Addresses</h2>
+          <div className="card-gothic p-4 sm:p-6 md:p-8 lg:p-12 animate-scale-in">
+            <div className="flex items-center justify-between mb-6 sm:mb-8">
+              <h2 className="text-xl sm:text-2xl font-serif text-burnt-lilac">Saved Addresses</h2>
               <button onClick={() => setIsAddingAddress(true)} className="btn-gothic py-2 px-4 text-sm">
                 + Add Address
               </button>
@@ -496,9 +497,9 @@ export default function AccountPageClient() {
                   <input type="text" placeholder="State" className="w-full px-4 py-3 bg-black/40 border border-burnt-lilac/30 rounded-lg focus:border-burnt-lilac focus:outline-none text-mist-lilac" />
                   <input type="text" placeholder="ZIP Code" className="w-full px-4 py-3 bg-black/40 border border-burnt-lilac/30 rounded-lg focus:border-burnt-lilac focus:outline-none text-mist-lilac" />
                 </div>
-                <div className="flex gap-3">
-                  <button type="submit" className="btn-gothic">Save Address</button>
-                  <button type="button" onClick={() => setIsAddingAddress(false)} className="btn-gothic-outline">Cancel</button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button type="submit" className="btn-gothic w-full sm:w-auto">Save Address</button>
+                  <button type="button" onClick={() => setIsAddingAddress(false)} className="btn-gothic-outline w-full sm:w-auto">Cancel</button>
                 </div>
               </form>
             ) : null}
@@ -514,9 +515,9 @@ export default function AccountPageClient() {
                 </button>
               </div>
             ) : (
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid sm:grid-cols-2 gap-4">
               {addresses.map((address) => (
-                <div key={address.id} className="p-6 bg-white/5 rounded-lg border border-burnt-lilac/20 relative">
+                <div key={address.id} className="p-4 sm:p-6 bg-white/5 rounded-lg border border-burnt-lilac/20 relative">
                   {address.isDefault && (
                     <span className="absolute top-3 right-3 px-3 py-1 bg-burnt-lilac text-white text-xs rounded-full">Default</span>
                   )}
@@ -537,10 +538,10 @@ export default function AccountPageClient() {
 
         {/* Wishlist Tab */}
         {activeTab === 'wishlist' && (
-          <div className="card-gothic p-8 md:p-12 animate-scale-in">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-serif text-burnt-lilac">My Wishlist</h2>
-              <Link href="/wishlist/view" className="btn-gothic-outline py-2 px-4 text-sm">
+          <div className="card-gothic p-4 sm:p-6 md:p-8 lg:p-12 animate-scale-in">
+            <div className="flex items-center justify-between mb-6 sm:mb-8">
+              <h2 className="text-xl sm:text-2xl font-serif text-burnt-lilac">My Wishlist</h2>
+              <Link href="/wishlist/view" className="btn-gothic-outline py-1.5 sm:py-2 px-3 sm:px-4 text-xs sm:text-sm">
                 View All
               </Link>
             </div>
@@ -556,8 +557,8 @@ export default function AccountPageClient() {
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {wishlistItems.slice(0, 6).map((item) => (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                {wishlistItems.slice(0, 8).map((item) => (
                   <Link key={item.id} href={`/products/${item.productHandle}`} className="group">
                     <div className="aspect-square bg-white/5 rounded-lg border border-burnt-lilac/20 overflow-hidden hover:border-burnt-lilac/50 transition-all">
                       <img src={item.productImage || '/images/placeholder.jpg'} alt={item.productTitle || ''} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />

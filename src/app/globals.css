@@ -34,6 +34,8 @@
   --color-mist-lilac: #D6C5DC;
   --font-serif: "Playfair Display", Georgia, serif;
   --font-sans: "Inter", system-ui, sans-serif;
+  
+  --breakpoint-xs: 480px;
 }
 
 * {
@@ -285,4 +287,14 @@ body {
   background: linear-gradient(90deg, #1a1a1a 25%, #2C1B28 50%, #1a1a1a 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
+}
+
+/* Hide Scrollbar */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
