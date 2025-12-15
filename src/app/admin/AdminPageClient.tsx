@@ -107,12 +107,15 @@ export default function AdminPageClient() {
       const response = await fetch('/api/admin/carts');
       const data = await response.json();
       
+      console.log('Cart users response:', data);
+      
       if (data.message) {
         // Table not set up yet
         console.warn(data.message);
       }
       
       setCartUsers(data.users || []);
+      console.log('Set cart users:', data.users?.length || 0);
     } catch (err: any) {
       console.error('Error fetching cart users:', err);
       setCartUsers([]);

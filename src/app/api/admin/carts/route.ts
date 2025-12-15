@@ -65,6 +65,7 @@ export async function GET() {
       })
       .filter(Boolean); // Filter out null entries
 
+    console.log('Returning cart users:', users.length, 'users');
     return NextResponse.json({ users });
   } catch (error: any) {
     console.error('Error fetching cart users:', error);
