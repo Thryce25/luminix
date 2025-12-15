@@ -14,9 +14,11 @@ const collections = [
     description: 'Refined essentials',
     subcategories: [
       { name: 'View All', href: '/collections/mens-essentials' },
-      { name: 'Hoodies', href: '/collections/mens-essentials?type=Hoodie' },
-      { name: 'Sweatshirts', href: '/collections/mens-essentials?type=Sweatshirt' },
-      { name: 'T-Shirts', href: '/collections/mens-essentials?type=T-Shirt' },
+      { name: 'Hoodie', href: '/collections/mens-essentials?type=Hoodie' },
+      { name: 'Sweatshirt', href: '/collections/mens-essentials?type=Sweatshirt' },
+      { name: 'T-Shirt', href: '/collections/mens-essentials?type=T-Shirt' },
+      { name: 'Shirt', href: '/collections/mens-essentials?type=Shirt' },
+      { name: 'Pants', href: '/collections/mens-essentials?type=Pants' },
     ],
   },
   {
@@ -25,8 +27,11 @@ const collections = [
     description: 'Latest drops',
     subcategories: [
       { name: 'View All', href: '/collections/new-arrivals' },
-      { name: 'Hoodies', href: '/collections/new-arrivals?type=Hoodie' },
-      { name: 'T-Shirts', href: '/collections/new-arrivals?type=T-Shirt' },
+      { name: 'Hoodie', href: '/collections/new-arrivals?type=Hoodie' },
+      { name: 'Sweatshirt', href: '/collections/new-arrivals?type=Sweatshirt' },
+      { name: 'T-Shirt', href: '/collections/new-arrivals?type=T-Shirt' },
+      { name: 'Shirt', href: '/collections/new-arrivals?type=Shirt' },
+      { name: 'Pants', href: '/collections/new-arrivals?type=Pants' },
     ],
   },
   {
@@ -35,8 +40,10 @@ const collections = [
     description: 'Curated pieces',
     subcategories: [
       { name: 'View All', href: '/collections/womens-essentials' },
-      { name: 'Boyfriend Tees', href: '/collections/womens-essentials?type=T-Shirt' },
-      { name: 'Tops', href: '/collections/womens-essentials?type=Top' },
+      { name: 'T-Shirt', href: '/collections/womens-essentials?type=T-Shirt' },
+      { name: 'Top', href: '/collections/womens-essentials?type=Top' },
+      { name: 'Hoodie', href: '/collections/womens-essentials?type=Hoodie' },
+      { name: 'Sweatshirt', href: '/collections/womens-essentials?type=Sweatshirt' },
     ],
   },
   {
