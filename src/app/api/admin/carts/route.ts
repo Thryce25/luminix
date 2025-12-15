@@ -5,7 +5,7 @@ export async function GET() {
   try {
     const supabase = await createClient();
 
-    // Get users with cart data
+    // Try to get users with cart data (if carts table exists)
     const { data: carts, error } = await supabase
       .from('carts')
       .select(`
@@ -13,7 +13,7 @@ export async function GET() {
         items,
         total_quantity,
         updated_at,
-        profiles:user_id (
+        profiles!user_id (
           id,
           first_name,
           last_name,
@@ -24,7 +24,14 @@ export async function GET() {
       .gt('total_quantity', 0)
       .order('updated_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      // If carts table doesn't exist yet, return empty array with helpful message
+      console.warn('Carts table not found. Please execute supabase-cart-tracking.sql first.');
+      return NextResponse.json({ 
+        users: [],
+        message: 'Cart tracking table not set up yet. Please execute the SQL file in Supabase.'
+      });
+    }
 
     // Transform data to match expected format
     const users = (carts || []).map((cart: any) => ({
@@ -41,6 +48,9 @@ export async function GET() {
     return NextResponse.json({ users });
   } catch (error: any) {
     console.error('Error fetching cart users:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ 
+      users: [],
+      error: error.message 
+    }, { status: 500 });
   }
 }

@@ -107,14 +107,15 @@ export default function AdminPageClient() {
       const response = await fetch('/api/admin/carts');
       const data = await response.json();
       
-      if (data.error) {
-        throw new Error(data.error);
+      if (data.message) {
+        // Table not set up yet
+        console.warn(data.message);
       }
       
       setCartUsers(data.users || []);
     } catch (err: any) {
       console.error('Error fetching cart users:', err);
-      alert('Error loading users: ' + err.message);
+      setCartUsers([]);
     } finally {
       setLoading(false);
     }
@@ -537,7 +538,20 @@ export default function AdminPageClient() {
                   </svg>
                 </div>
                 <p className="text-mist-lilac/60 text-lg mb-2">No Active Carts</p>
-                <p className="text-mist-lilac/40 text-sm">Users with items in their cart will appear here</p>
+                <p className="text-mist-lilac/40 text-sm mb-4">Users with items in their cart will appear here</p>
+                <div className="inline-block bg-amber-500/10 border border-amber-500/30 rounded-lg px-4 py-3 text-left max-w-md mx-auto">
+                  <div className="flex gap-2 items-start">
+                    <svg className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <p className="text-amber-300 text-sm font-semibold mb-1">Setup Required</p>
+                      <p className="text-amber-200/80 text-xs">
+                        If you haven't set up the cart tracking table yet, please execute <code className="px-1.5 py-0.5 bg-black/30 rounded">supabase-cart-tracking.sql</code> in your Supabase dashboard.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="space-y-4">
