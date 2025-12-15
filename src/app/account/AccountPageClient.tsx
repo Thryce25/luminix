@@ -549,8 +549,10 @@ export default function AccountPageClient() {
       </div>
 
       {/* Phone Number Collection Modal - Rendered here for authenticated users */}
-      {showPhoneModal && (
-        <div className="fixed inset-0 bg-gradient-to-br from-deep-purple via-black to-deep-purple z-[99999] flex items-center justify-center p-4 sm:p-6 md:p-8 overflow-hidden">
+      {showPhoneModal && (() => {
+        console.log('[Modal Render] Modal is being rendered in authenticated section');
+        return (
+        <div data-phone-modal="true" className="fixed inset-0 bg-gradient-to-br from-deep-purple via-black to-deep-purple flex items-center justify-center p-4 sm:p-6 md:p-8 overflow-hidden" style={{ zIndex: 99999 }}>
           {/* Animated Background Elements */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute top-1/4 left-1/4 w-64 h-64 md:w-96 md:h-96 bg-burnt-lilac/10 rounded-full blur-3xl animate-pulse"></div>
@@ -666,7 +668,8 @@ export default function AccountPageClient() {
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
       </>
     );
   }
