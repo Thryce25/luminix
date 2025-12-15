@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 
-type AdminTab = 'users' | 'wishlists' | 'shopify';
+type AdminTab = 'users' | 'wishlists' | 'carts' | 'shopify';
 
 interface User {
   id: string;
@@ -35,6 +35,7 @@ export default function AdminPageClient() {
   // Users data
   const [users, setUsers] = useState<User[]>([]);
   const [wishlists, setWishlists] = useState<Wishlist[]>([]);
+  const [cartUsers, setCartUsers] = useState<User[]>([]);
   
   const supabase = createClient();
 
@@ -93,6 +94,46 @@ export default function AdminPageClient() {
     }
   };
 
+  const fetchCartUsers = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/admin/carts');
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
+      setCartUsers(data.users || []);
+    } catch (err: any) {
+      console.error('Error fetching cart users:', err);
+      alert('Error loading users: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sendWhatsAppMessage = (phone: string, name: string) => {
+    if (!phone || phone === 'NOT_PROVIDED') {
+      alert('This user does not have a phone number');
+      return;
+    }
+
+    const message = encodeURIComponent(
+      `Hi ${name}! 👋\n\n` +
+      `We noticed you have items in your cart at Luminix Clothing. 🖤\n\n` +
+      `Complete your purchase now and embrace the darkness with our exclusive gothic fashion collection!\n\n` +
+      `Shop now: https://www.luminixclothing.com/cart\n\n` +
+      `Need help? Reply to this message! ✨`
+    );
+
+    // Remove any non-digit characters and ensure it starts with country code
+    const cleanPhone = phone.replace(/\D/g, '');
+    const phoneWithCountryCode = cleanPhone.startsWith('91') ? cleanPhone : `91${cleanPhone}`;
+    
+    window.open(`https://wa.me/${phoneWithCountryCode}?text=${message}`, '_blank');
+  };
+
   const deleteUser = async (userId: string) => {
     if (!confirm('Are you sure you want to delete this user? This will delete both their auth account and profile data.')) return;
     
@@ -138,6 +179,8 @@ export default function AdminPageClient() {
       fetchUsers();
     } else if (isAuthenticated && activeTab === 'wishlists') {
       fetchWishlists();
+    } else if (isAuthenticated && activeTab === 'carts') {
+      fetchCartUsers();
     }
   }, [activeTab, isAuthenticated]);
 
@@ -226,6 +269,7 @@ export default function AdminPageClient() {
           {[
             { id: 'users' as AdminTab, label: 'Users', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
             { id: 'wishlists' as AdminTab, label: 'Wishlists', icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' },
+            { id: 'carts' as AdminTab, label: 'Cart Reminders', icon: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z' },
             { id: 'shopify' as AdminTab, label: 'Shopify', icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
           ].map((tab) => (
             <button
@@ -363,6 +407,98 @@ export default function AdminPageClient() {
                             className="text-red-400 hover:text-red-300 text-sm"
                           >
                             Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Cart Reminders Tab */}
+        {activeTab === 'carts' && (
+          <div className="card-gothic p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-serif text-burnt-lilac">Cart Reminders</h2>
+                <p className="text-mist-lilac/60 text-sm mt-1">Send WhatsApp messages to customers</p>
+              </div>
+              <button onClick={fetchCartUsers} className="btn-gothic-outline py-2 px-4 text-sm">
+                Refresh
+              </button>
+            </div>
+
+            <div className="mb-6 p-4 bg-burnt-lilac/10 border border-burnt-lilac/30 rounded-lg">
+              <div className="flex gap-3">
+                <svg className="w-5 h-5 text-burnt-lilac shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <p className="text-sm text-mist-lilac/90 leading-relaxed">
+                    <strong className="text-burnt-lilac">How it works:</strong> Click "Send WhatsApp" to open WhatsApp with a pre-filled cart reminder message. The message encourages customers to complete their purchase.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin w-8 h-8 border-2 border-burnt-lilac border-t-transparent rounded-full mx-auto"></div>
+              </div>
+            ) : cartUsers.length === 0 ? (
+              <div className="text-center py-12 text-mist-lilac/60">
+                No users found
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-burnt-lilac/20">
+                      <th className="text-left py-3 px-4 text-burnt-lilac font-medium">Name</th>
+                      <th className="text-left py-3 px-4 text-burnt-lilac font-medium">Email</th>
+                      <th className="text-left py-3 px-4 text-burnt-lilac font-medium">Phone</th>
+                      <th className="text-left py-3 px-4 text-burnt-lilac font-medium">Joined</th>
+                      <th className="text-left py-3 px-4 text-burnt-lilac font-medium">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cartUsers.map((user) => (
+                      <tr key={user.id} className="border-b border-white/5 hover:bg-white/5">
+                        <td className="py-3 px-4 text-mist-lilac">
+                          {user.first_name || user.last_name ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : 'N/A'}
+                        </td>
+                        <td className="py-3 px-4 text-mist-lilac text-sm">{user.email}</td>
+                        <td className="py-3 px-4">
+                          {user.phone_number && user.phone_number !== 'NOT_PROVIDED' ? (
+                            <div className="flex items-center gap-2">
+                              <span className="text-mist-lilac font-mono text-sm">{user.phone_number}</span>
+                              <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                              </svg>
+                            </div>
+                          ) : (
+                            <span className="text-mist-lilac/40 text-sm">No phone</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-4 text-mist-lilac/60 text-sm">
+                          {new Date(user.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="py-3 px-4">
+                          <button
+                            onClick={() => sendWhatsAppMessage(
+                              user.phone_number || '',
+                              user.first_name || user.email.split('@')[0]
+                            )}
+                            disabled={!user.phone_number || user.phone_number === 'NOT_PROVIDED'}
+                            className="btn-gothic py-1.5 px-3 text-xs flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                            </svg>
+                            Send WhatsApp
                           </button>
                         </td>
                       </tr>
