@@ -472,9 +472,6 @@ export default function AdminPageClient() {
                   <thead>
                     <tr className="border-b border-burnt-lilac/20">
                       <th className="text-left py-3 px-4 text-burnt-lilac font-medium">Product</th>
-                      <th className="text-left py-3 px-4 text-burnt-lilac font-medium">User Name</th>
-                      <th className="text-left py-3 px-4 text-burnt-lilac font-medium">Phone</th>
-                      <th className="text-left py-3 px-4 text-burnt-lilac font-medium">Email</th>
                       <th className="text-left py-3 px-4 text-burnt-lilac font-medium">Created</th>
                       <th className="text-left py-3 px-4 text-burnt-lilac font-medium">Actions</th>
                     </tr>
@@ -487,15 +484,6 @@ export default function AdminPageClient() {
                             <div className="text-mist-lilac font-medium">{item.product_title}</div>
                             <div className="text-mist-lilac/60 text-sm">{item.product_handle}</div>
                           </div>
-                        </td>
-                        <td className="py-3 px-4 text-mist-lilac">
-                          {item.profiles?.first_name} {item.profiles?.last_name}
-                        </td>
-                        <td className="py-3 px-4 text-mist-lilac">
-                          {item.profiles?.phone_number || 'N/A'}
-                        </td>
-                        <td className="py-3 px-4 text-mist-lilac/80 text-sm">
-                          {item.profiles?.email}
                         </td>
                         <td className="py-3 px-4 text-mist-lilac/60 text-sm">
                           {new Date(item.created_at).toLocaleDateString()}
