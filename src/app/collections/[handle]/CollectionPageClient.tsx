@@ -61,7 +61,7 @@ export default function CollectionPageClient({
       setFilteredProducts(products);
     } else {
       setFilteredProducts(
-        products.filter(p => p.productType?.toLowerCase().includes(activeFilter.toLowerCase()))
+        products.filter(p => p.productType?.toLowerCase() === activeFilter.toLowerCase())
       );
     }
   }, [activeFilter, products]);

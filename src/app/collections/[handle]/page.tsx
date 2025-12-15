@@ -77,7 +77,7 @@ export default async function CollectionPage({
     // Filter by type if specified
     if (type) {
       products = allProducts.filter(p => 
-        p.productType?.toLowerCase().includes(type.toLowerCase())
+        p.productType?.toLowerCase() === type.toLowerCase()
       );
     } else {
       products = allProducts;
