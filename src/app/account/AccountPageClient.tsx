@@ -668,19 +668,19 @@ export default function AccountPageClient() {
       </div>
     </div>
 
-    {/* Phone Number Collection - Full Page Overlay (Mandatory) */}
+    {/* Phone Number Collection - Full Page Overlay (Mandatory) - Works on ALL devices */}
     {showPhoneModal && (
-      <div className="fixed inset-0 bg-gradient-to-br from-deep-purple via-black to-deep-purple z-[9999] flex items-center justify-center p-4 overflow-hidden">
+      <div className="fixed inset-0 bg-gradient-to-br from-deep-purple via-black to-deep-purple z-[99999] flex items-center justify-center p-4 sm:p-6 md:p-8 overflow-hidden">
         {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-burnt-lilac/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-mist-lilac/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 md:w-96 md:h-96 bg-burnt-lilac/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 md:w-[32rem] md:h-[32rem] bg-mist-lilac/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
         </div>
 
         {/* Main Content */}
-        <div className="relative w-full max-w-lg">
+        <div className="relative w-full max-w-lg lg:max-w-xl">
           {/* Card */}
-          <div className="bg-black/80 backdrop-blur-xl border-2 border-burnt-lilac/40 rounded-3xl p-8 md:p-12 shadow-2xl">
+          <div className="bg-black/90 backdrop-blur-xl border-2 border-burnt-lilac/40 rounded-3xl p-6 sm:p-8 md:p-10 lg:p-12 shadow-2xl shadow-burnt-lilac/20">
             {/* Header */}
             <div className="text-center mb-8">
               {/* Icon */}
@@ -691,10 +691,10 @@ export default function AccountPageClient() {
               </div>
 
               {/* Title */}
-              <h2 className="font-serif text-3xl md:text-4xl gradient-text mb-3 tracking-wide">
+              <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl gradient-text mb-3 tracking-wide">
                 One More Step
               </h2>
-              <p className="text-mist-lilac/80 text-base md:text-lg leading-relaxed">
+              <p className="text-mist-lilac/80 text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed">
                 Provide your phone number to unlock your Luminix experience
               </p>
             </div>
@@ -763,7 +763,7 @@ export default function AccountPageClient() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full btn-gothic py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transform transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full btn-gothic py-3 sm:py-4 text-base sm:text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transform transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-burnt-lilac/20"
               >
                 {isSubmitting ? (
                   <span className="flex items-center justify-center gap-2">
