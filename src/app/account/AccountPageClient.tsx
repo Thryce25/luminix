@@ -49,6 +49,21 @@ export default function AccountPageClient() {
       if (user) {
         try {
           const supabase = createClient();
+          
+          // Check for pending phone number from signup
+          const pendingPhone = typeof window !== 'undefined' ? sessionStorage.getItem('pendingPhoneNumber') : null;
+          
+          if (pendingPhone) {
+            // Save pending phone number
+            await supabase
+              .from('profiles')
+              .update({ phone_number: pendingPhone })
+              .eq('id', user.id);
+            sessionStorage.removeItem('pendingPhoneNumber');
+            return; // Phone already saved
+          }
+          
+          // Check if profile needs phone number
           const { data: profile, error } = await supabase
             .from('profiles')
             .select('phone_number')
@@ -95,11 +110,17 @@ export default function AccountPageClient() {
         // Sign up without phone number - will collect via popup
         const { error } = await signUp(email, password, firstName, lastName, 'NOT_PROVIDED');
         if (error) throw error;
-        setSuccess('Account created! Please provide your phone number.');
-        // Trigger phone modal for new user
-        setTimeout(() => {
-          setShowPhoneModal(true);
-        }, 500);
+        
+        // Clear form
+        setEmail('');
+        setPassword('');
+        setFirstName('');
+        setLastName('');
+        
+        // Show phone modal immediately after signup
+        setIsSubmitting(false);
+        setShowPhoneModal(true);
+        return; // Exit early to prevent closing modal
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred');
@@ -199,19 +220,30 @@ export default function AccountPageClient() {
 
     setIsSubmitting(true);
     try {
-      const supabase = createClient();
-      const { error } = await supabase
-        .from('profiles')
-        .update({ phone_number: modalPhoneNumber })
-        .eq('id', user?.id);
+      // If user is authenticated, update their profile
+      if (user) {
+        const supabase = createClient();
+        const { error } = await supabase
+          .from('profiles')
+          .update({ phone_number: modalPhoneNumber })
+          .eq('id', user.id);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      setShowPhoneModal(false);
-      setModalPhoneNumber('');
-      setSuccess('Phone number updated successfully!');
+        setShowPhoneModal(false);
+        setModalPhoneNumber('');
+        setSuccess('Phone number saved! Please check your email to verify your account.');
+      } else {
+        // Store phone temporarily if user isn't authenticated yet (just signed up)
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('pendingPhoneNumber', modalPhoneNumber);
+        }
+        setShowPhoneModal(false);
+        setModalPhoneNumber('');
+        setSuccess('Account created! Please check your email to verify your account. Your phone number will be saved after verification.');
+      }
     } catch (err: any) {
-      setError('Failed to update phone number: ' + err.message);
+      setError('Failed to save phone number: ' + err.message);
     } finally {
       setIsSubmitting(false);
     }
