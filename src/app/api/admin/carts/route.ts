@@ -21,11 +21,15 @@ export async function GET() {
     }
 
     if (!carts || carts.length === 0) {
+      console.log('No carts found with total_quantity > 0');
       return NextResponse.json({ users: [] });
     }
 
+    console.log('Found', carts.length, 'carts');
+    
     // Get user IDs from carts
     const userIds = carts.map(cart => cart.user_id);
+    console.log('Looking for profiles with user_ids:', userIds);
 
     // Fetch profiles for these users
     const { data: profiles, error: profilesError } = await supabase
@@ -41,6 +45,8 @@ export async function GET() {
       }, { status: 500 });
     }
 
+    console.log('Found', profiles?.length || 0, 'profiles');
+
     // Create a map of profiles for quick lookup
     const profileMap = new Map(
       (profiles || []).map(profile => [profile.id, profile])
@@ -50,7 +56,21 @@ export async function GET() {
     const users = carts
       .map((cart: any) => {
         const profile = profileMap.get(cart.user_id);
-        if (!profile) return null;
+        if (!profile) {
+          console.log('No profile found for user_id:', cart.user_id);
+          return null;
+        }
+
+        // Parse items if it's a string
+        let cartItems = cart.items || [];
+        if (typeof cartItems === 'string') {
+          try {
+            cartItems = JSON.parse(cartItems);
+          } catch (e) {
+            console.error('Error parsing cart items:', e);
+            cartItems = [];
+          }
+        }
 
         return {
           id: profile.id,
@@ -58,7 +78,7 @@ export async function GET() {
           last_name: profile.last_name,
           phone_number: profile.phone_number,
           email: profile.email,
-          cartItems: cart.items || [],
+          cartItems: cartItems,
           totalQuantity: cart.total_quantity,
           lastUpdated: cart.updated_at,
         };
