@@ -147,6 +147,39 @@ export default function AdminPageClient() {
     );
   };
 
+  const sendToAllCustomers = () => {
+    const usersWithPhone = cartUsers.filter(
+      user => user.phone_number && user.phone_number !== 'NOT_PROVIDED'
+    );
+
+    if (usersWithPhone.length === 0) {
+      alert('No customers with valid phone numbers found.');
+      return;
+    }
+
+    const confirmMessage = `This will open ${usersWithPhone.length} WhatsApp chat(s) in new tabs. Your browser may block some pop-ups. Continue?`;
+    
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    // Open WhatsApp for each user with a small delay to prevent browser blocking
+    usersWithPhone.forEach((user, index) => {
+      setTimeout(() => {
+        const name = user.first_name || user.email.split('@')[0];
+        const personalizedMessage = customMessage.replace(/{name}/g, name);
+        const message = encodeURIComponent(personalizedMessage);
+        
+        const cleanPhone = user.phone_number!.replace(/\D/g, '');
+        const phoneWithCountryCode = cleanPhone.startsWith('91') ? cleanPhone : `91${cleanPhone}`;
+        
+        window.open(`https://wa.me/${phoneWithCountryCode}?text=${message}`, '_blank');
+      }, index * 500); // 500ms delay between each window
+    });
+
+    alert(`Opening ${usersWithPhone.length} WhatsApp chat(s). Please allow pop-ups if prompted.`);
+  };
+
   const deleteUser = async (userId: string) => {
     if (!confirm('Are you sure you want to delete this user? This will delete both their auth account and profile data.')) return;
     
@@ -439,9 +472,21 @@ export default function AdminPageClient() {
                 <h2 className="text-2xl font-serif text-burnt-lilac">Cart Reminders</h2>
                 <p className="text-mist-lilac/60 text-sm mt-1">Send WhatsApp messages to customers</p>
               </div>
-              <button onClick={fetchCartUsers} className="btn-gothic-outline py-2 px-4 text-sm">
-                Refresh
-              </button>
+              <div className="flex gap-3">
+                <button 
+                  onClick={sendToAllCustomers}
+                  disabled={cartUsers.filter(u => u.phone_number && u.phone_number !== 'NOT_PROVIDED').length === 0}
+                  className="btn-gothic py-2 px-4 text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                  </svg>
+                  Send to All ({cartUsers.filter(u => u.phone_number && u.phone_number !== 'NOT_PROVIDED').length})
+                </button>
+                <button onClick={fetchCartUsers} className="btn-gothic-outline py-2 px-4 text-sm">
+                  Refresh
+                </button>
+              </div>
             </div>
 
             {/* Message Template Customization */}
