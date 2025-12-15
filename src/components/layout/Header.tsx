@@ -107,7 +107,12 @@ export default function Header() {
             </button>
 
             {/* Logo */}
-            <Link href="/" className="flex items-center group">
+            <Link href="/" className="flex items-center gap-0 group -ml-8 sm:-ml-5">
+              <img 
+                src="/images/Luminix symbol - white.svg" 
+                alt="Luminix Logo" 
+                className="h-8 sm:h-10 lg:h-12 w-auto ml-2"
+              />
               <span className="text-xl sm:text-2xl lg:text-3xl font-[family-name:var(--font-bodoni)] gradient-text tracking-wider">
                 LUMINIX
               </span>
@@ -247,7 +252,14 @@ export default function Header() {
         >
           {/* Header */}
           <div className={`relative flex items-center justify-between px-6 py-5 transition-all duration-500 ${mobileMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}>
-            <span className="text-2xl font-[family-name:var(--font-bodoni)] tracking-[0.2em] text-white/90">LUMINIX</span>
+            <div className="flex items-center gap-3">
+              <img 
+                src="/images/Luminix symbol - white.svg" 
+                alt="Luminix Logo" 
+                className="h-8 w-auto"
+              />
+              <span className="text-2xl font-[family-name:var(--font-bodoni)] tracking-[0.2em] text-white/90">LUMINIX</span>
+            </div>
             <button
               onClick={() => setMobileMenuOpen(false)}
               className="relative w-10 h-10 flex items-center justify-center touch-manipulation group"

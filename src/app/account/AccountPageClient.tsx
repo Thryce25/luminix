@@ -43,14 +43,31 @@ export default function AccountPageClient() {
   const [editFirstName, setEditFirstName] = useState('');
   const [editLastName, setEditLastName] = useState('');
 
-  // Check if OAuth user needs to provide phone number
+  // Check if user needs to provide phone number - mandatory for all users
   useEffect(() => {
-    if (user && typeof window !== 'undefined') {
-      const needsPhone = localStorage.getItem('needsPhoneNumber');
-      if (needsPhone === 'true') {
-        setShowPhoneModal(true);
+    const checkPhoneNumber = async () => {
+      if (user) {
+        try {
+          const supabase = createClient();
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('phone_number')
+            .eq('id', user.id)
+            .single();
+
+          if (!error && profile) {
+            // Show modal if phone is missing or set to NOT_PROVIDED
+            if (!profile.phone_number || profile.phone_number === 'NOT_PROVIDED') {
+              setShowPhoneModal(true);
+            }
+          }
+        } catch (err) {
+          console.error('Error checking phone number:', err);
+        }
       }
-    }
+    };
+
+    checkPhoneNumber();
   }, [user]);
   
   // Change password states
@@ -75,9 +92,14 @@ export default function AccountPageClient() {
         setSuccess('Signed in successfully!');
         setTimeout(() => router.push('/account'), 1000);
       } else {
-        const { error } = await signUp(email, password, firstName, lastName, phoneNumber);
+        // Sign up without phone number - will collect via popup
+        const { error } = await signUp(email, password, firstName, lastName, 'NOT_PROVIDED');
         if (error) throw error;
-        setSuccess('Account created! Check your email to confirm.');
+        setSuccess('Account created! Please provide your phone number.');
+        // Trigger phone modal for new user
+        setTimeout(() => {
+          setShowPhoneModal(true);
+        }, 500);
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred');
@@ -171,10 +193,11 @@ export default function AccountPageClient() {
     e.preventDefault();
     
     if (!/^[0-9]{10}$/.test(modalPhoneNumber)) {
-      alert('Please enter a valid 10-digit phone number');
+      setError('Please enter a valid 10-digit phone number');
       return;
     }
 
+    setIsSubmitting(true);
     try {
       const supabase = createClient();
       const { error } = await supabase
@@ -184,11 +207,13 @@ export default function AccountPageClient() {
 
       if (error) throw error;
 
-      localStorage.removeItem('needsPhoneNumber');
       setShowPhoneModal(false);
       setModalPhoneNumber('');
+      setSuccess('Phone number updated successfully!');
     } catch (err: any) {
-      alert('Failed to update phone number: ' + err.message);
+      setError('Failed to update phone number: ' + err.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -545,21 +570,6 @@ export default function AccountPageClient() {
                       placeholder="Last"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm mb-2 text-burnt-lilac font-medium">
-                      Phone Number <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="tel"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      required
-                      pattern="[0-9]{10}"
-                      title="Please enter exactly 10 digits"
-                      className="w-full px-4 py-3 bg-black/40 border border-burnt-lilac/30 rounded-lg focus:border-burnt-lilac focus:outline-none transition-all duration-300 text-mist-lilac placeholder-mist-lilac/40"
-                      placeholder="10-digit mobile number (required)"
-                    />
-                  </div>
                 </>
               )}
 
@@ -612,35 +622,58 @@ export default function AccountPageClient() {
       </div>
     </div>
 
-    {/* Phone Number Collection Modal */}
+    {/* Phone Number Collection Modal - Mandatory, Cannot Close */}
     {showPhoneModal && (
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-50 p-4">
         <div className="bg-deep-purple border border-burnt-lilac/30 rounded-2xl p-8 max-w-md w-full shadow-2xl animate-fade-in">
-          <h2 className="text-2xl font-serif text-burnt-lilac mb-4">Phone Number Required</h2>
-          <p className="text-mist-lilac/80 mb-6">
-            Please provide your phone number to complete your profile. This is required for order updates and customer support.
-          </p>
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-burnt-lilac/20 mb-4">
+              <svg className="w-8 h-8 text-burnt-lilac" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-serif text-burnt-lilac mb-2">Complete Your Registration</h2>
+            <p className="text-mist-lilac/80 text-sm">
+              Please provide your phone number to complete your account setup. We'll use it for order updates and WhatsApp notifications.
+            </p>
+          </div>
+          
+          {error && (
+            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+              {error}
+            </div>
+          )}
+          
           <form onSubmit={handlePhoneSubmit} className="space-y-4">
             <div>
               <label className="block text-sm mb-2 text-burnt-lilac font-medium">
-                Phone Number <span className="text-red-400">*</span>
+                WhatsApp Number <span className="text-red-400">*</span>
               </label>
               <input
                 type="tel"
                 value={modalPhoneNumber}
-                onChange={(e) => setModalPhoneNumber(e.target.value)}
+                onChange={(e) => {
+                  setModalPhoneNumber(e.target.value);
+                  setError('');
+                }}
                 required
                 pattern="[0-9]{10}"
+                maxLength={10}
                 title="Please enter exactly 10 digits"
                 className="w-full px-4 py-3 bg-black/40 border border-burnt-lilac/30 rounded-lg focus:border-burnt-lilac focus:outline-none transition-all duration-300 text-mist-lilac placeholder-mist-lilac/40"
-                placeholder="10-digit mobile number"
+                placeholder="Enter 10-digit mobile number"
+                autoFocus
               />
+              <p className="text-xs text-mist-lilac/50 mt-2">
+                We'll send order updates and reminders via WhatsApp
+              </p>
             </div>
             <button
               type="submit"
-              className="w-full btn-gothic py-3"
+              disabled={isSubmitting}
+              className="w-full btn-gothic py-3 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Save Phone Number
+              {isSubmitting ? 'Saving...' : 'Continue'}
             </button>
           </form>
         </div>

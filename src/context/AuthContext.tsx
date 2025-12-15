@@ -41,11 +41,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null);
       setLoading(false);
 
-      // Handle OAuth sign in - create profile if needed
+      // Handle sign in - check for phone number requirement
       if (event === 'SIGNED_IN' && session?.user) {
         const provider = session.user.app_metadata.provider;
         
-        // If it's an OAuth provider (google, github), create/verify profile
+        // For OAuth providers (google, github), create/verify profile
         if (provider === 'google' || provider === 'github') {
           // Try to extract phone number from OAuth metadata
           const phoneNumber = session.user.user_metadata?.phone_number || 

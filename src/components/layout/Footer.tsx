@@ -30,8 +30,13 @@ export default function Footer() {
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand Column - Full width on mobile */}
           <div className="col-span-2 sm:col-span-2 md:col-span-4 lg:col-span-2 mb-4 lg:mb-0">
-            <Link href="/" className="inline-block mb-4 sm:mb-6">
-              <span className="text-2xl sm:text-3xl font-serif font-bold gradient-text tracking-wider">
+            <Link href="/" className="flex items-center gap-0 group -ml-3 mb-4">
+              <img 
+                src="/images/Luminix symbol - white.svg" 
+                alt="Luminix Logo" 
+                className="h-8 sm:h-10 lg:h-12 w-auto"
+              />
+              <span className="text-xl sm:text-2xl lg:text-3xl font-[family-name:var(--font-bodoni)] gradient-text tracking-wider">
                 LUMINIX
               </span>
             </Link>
