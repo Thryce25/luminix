@@ -95,21 +95,42 @@ export default function AdminPageClient() {
   const fetchWishlists = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      // Fetch wishlists
+      const { data: wishlistData, error: wishlistError } = await supabase
         .from('wishlists')
-        .select(`
-          *,
-          profiles:user_id (
-            first_name,
-            last_name,
-            phone_number,
-            email
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
-      setWishlists(data || []);
+      if (wishlistError) throw wishlistError;
+      
+      if (!wishlistData || wishlistData.length === 0) {
+        setWishlists([]);
+        return;
+      }
+
+      // Get unique user IDs
+      const userIds = [...new Set(wishlistData.map(w => w.user_id))];
+
+      // Fetch profiles for these users
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, phone_number, email')
+        .in('id', userIds);
+
+      if (profilesError) throw profilesError;
+
+      // Create a map of profiles
+      const profileMap = new Map(
+        (profilesData || []).map(profile => [profile.id, profile])
+      );
+
+      // Combine wishlist data with profile data
+      const enrichedWishlists = wishlistData.map(wishlist => ({
+        ...wishlist,
+        profiles: profileMap.get(wishlist.user_id) || null
+      }));
+
+      setWishlists(enrichedWishlists);
     } catch (err: any) {
       console.error('Error fetching wishlists:', err);
     } finally {
