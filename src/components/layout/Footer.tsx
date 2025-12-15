@@ -94,9 +94,20 @@ export default function Footer() {
       <div className="border-t border-burnt-lilac/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
-            <a href="https://thryce.vercel.app" target="_blank" rel="noopener noreferrer" className="text-mist-lilac/70 text-xs sm:text-sm text-center sm:text-left hover:text-burnt-lilac transition-colors">
-              © {new Date().getFullYear()} Thryce. All rights reserved.
-            </a>
+            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-mist-lilac/70 text-xs sm:text-sm">
+              <p className="text-center sm:text-left">
+                © {new Date().getFullYear()} Luminix. All rights reserved.
+              </p>
+              <span className="hidden sm:inline text-mist-lilac/30">•</span>
+              <a 
+                href="https://thryce.vercel.app" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-burnt-lilac transition-colors"
+              >
+                Developed by Thryce
+              </a>
+            </div>
             <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-mist-lilac/70 text-xs sm:text-sm">
               {footerLinks.legal.map((link) => (
                 <Link key={link.name} href={link.href} className="hover:text-mist-lilac transition-colors touch-manipulation">
