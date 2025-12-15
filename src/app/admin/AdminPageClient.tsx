@@ -36,6 +36,13 @@ export default function AdminPageClient() {
   const [users, setUsers] = useState<User[]>([]);
   const [wishlists, setWishlists] = useState<Wishlist[]>([]);
   const [cartUsers, setCartUsers] = useState<User[]>([]);
+  const [customMessage, setCustomMessage] = useState(
+    `Hi {name}! 👋\n\n` +
+    `We noticed you have items in your cart at Luminix Clothing. 🖤\n\n` +
+    `Complete your purchase now and embrace the darkness with our exclusive gothic fashion collection!\n\n` +
+    `Shop now: https://www.luminixclothing.com/cart\n\n` +
+    `Need help? Reply to this message! ✨`
+  );
   
   const supabase = createClient();
 
@@ -119,19 +126,25 @@ export default function AdminPageClient() {
       return;
     }
 
-    const message = encodeURIComponent(
-      `Hi ${name}! 👋\n\n` +
-      `We noticed you have items in your cart at Luminix Clothing. 🖤\n\n` +
-      `Complete your purchase now and embrace the darkness with our exclusive gothic fashion collection!\n\n` +
-      `Shop now: https://www.luminixclothing.com/cart\n\n` +
-      `Need help? Reply to this message! ✨`
-    );
+    // Replace {name} placeholder with actual name
+    const personalizedMessage = customMessage.replace(/{name}/g, name);
+    const message = encodeURIComponent(personalizedMessage);
 
     // Remove any non-digit characters and ensure it starts with country code
     const cleanPhone = phone.replace(/\D/g, '');
     const phoneWithCountryCode = cleanPhone.startsWith('91') ? cleanPhone : `91${cleanPhone}`;
     
     window.open(`https://wa.me/${phoneWithCountryCode}?text=${message}`, '_blank');
+  };
+
+  const resetMessageTemplate = () => {
+    setCustomMessage(
+      `Hi {name}! 👋\n\n` +
+      `We noticed you have items in your cart at Luminix Clothing. 🖤\n\n` +
+      `Complete your purchase now and embrace the darkness with our exclusive gothic fashion collection!\n\n` +
+      `Shop now: https://www.luminixclothing.com/cart\n\n` +
+      `Need help? Reply to this message! ✨`
+    );
   };
 
   const deleteUser = async (userId: string) => {
@@ -431,16 +444,39 @@ export default function AdminPageClient() {
               </button>
             </div>
 
-            <div className="mb-6 p-4 bg-burnt-lilac/10 border border-burnt-lilac/30 rounded-lg">
-              <div className="flex gap-3">
-                <svg className="w-5 h-5 text-burnt-lilac shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {/* Message Template Customization */}
+            <div className="mb-6 p-6 bg-white/5 rounded-lg border border-burnt-lilac/20">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-burnt-lilac">Message Template</h3>
+                <button
+                  onClick={resetMessageTemplate}
+                  className="text-sm text-mist-lilac/70 hover:text-burnt-lilac transition-colors flex items-center gap-1"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Reset to Default
+                </button>
+              </div>
+              
+              <div className="mb-3">
+                <label className="block text-sm text-mist-lilac/80 mb-2">
+                  Customize your WhatsApp message. Use <code className="px-1.5 py-0.5 bg-burnt-lilac/20 text-burnt-lilac rounded text-xs">&#123;name&#125;</code> as placeholder for customer name.
+                </label>
+                <textarea
+                  value={customMessage}
+                  onChange={(e) => setCustomMessage(e.target.value)}
+                  rows={6}
+                  className="w-full px-4 py-3 bg-black/40 border border-burnt-lilac/30 rounded-lg focus:border-burnt-lilac focus:outline-none transition-all duration-300 text-mist-lilac text-sm font-mono resize-none"
+                  placeholder="Enter your custom message..."
+                />
+              </div>
+              
+              <div className="flex items-start gap-2 text-xs text-mist-lilac/60">
+                <svg className="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <div>
-                  <p className="text-sm text-mist-lilac/90 leading-relaxed">
-                    <strong className="text-burnt-lilac">How it works:</strong> Click "Send WhatsApp" to open WhatsApp with a pre-filled cart reminder message. The message encourages customers to complete their purchase.
-                  </p>
-                </div>
+                <p>This message will be used for all WhatsApp reminders. The &#123;name&#125; will be automatically replaced with each customer's name.</p>
               </div>
             </div>
 
