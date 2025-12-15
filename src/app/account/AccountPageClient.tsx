@@ -37,52 +37,66 @@ export default function AccountPageClient() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('profile');
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [modalPhoneNumber, setModalPhoneNumber] = useState('');
+
+  // Check URL params for OAuth signup
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const oauthMode = params.get('oauth_mode');
+      
+      // If coming from OAuth signup, check phone immediately
+      if (oauthMode === 'signup' && user) {
+        checkUserPhone();
+      }
+    }
+  }, [user]);
   
   // Edit profile states
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editFirstName, setEditFirstName] = useState('');
   const [editLastName, setEditLastName] = useState('');
 
+  // Function to check user phone
+  const checkUserPhone = async () => {
+    if (user) {
+      try {
+        const supabase = createClient();
+        
+        // Check for pending phone number from signup
+        const pendingPhone = typeof window !== 'undefined' ? sessionStorage.getItem('pendingPhoneNumber') : null;
+        
+        if (pendingPhone) {
+          // Save pending phone number
+          await supabase
+            .from('profiles')
+            .update({ phone_number: pendingPhone })
+            .eq('id', user.id);
+          sessionStorage.removeItem('pendingPhoneNumber');
+          return; // Phone already saved
+        }
+        
+        // Check if profile needs phone number
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('phone_number')
+          .eq('id', user.id)
+          .single();
+
+        if (!error && profile) {
+          // Show modal if phone is missing or set to NOT_PROVIDED
+          if (!profile.phone_number || profile.phone_number === 'NOT_PROVIDED') {
+            setShowPhoneModal(true);
+          }
+        }
+      } catch (err) {
+        console.error('Error checking phone number:', err);
+      }
+    }
+  };
+
   // Check if user needs to provide phone number - mandatory for all users
   useEffect(() => {
-    const checkPhoneNumber = async () => {
-      if (user) {
-        try {
-          const supabase = createClient();
-          
-          // Check for pending phone number from signup
-          const pendingPhone = typeof window !== 'undefined' ? sessionStorage.getItem('pendingPhoneNumber') : null;
-          
-          if (pendingPhone) {
-            // Save pending phone number
-            await supabase
-              .from('profiles')
-              .update({ phone_number: pendingPhone })
-              .eq('id', user.id);
-            sessionStorage.removeItem('pendingPhoneNumber');
-            return; // Phone already saved
-          }
-          
-          // Check if profile needs phone number
-          const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('phone_number')
-            .eq('id', user.id)
-            .single();
-
-          if (!error && profile) {
-            // Show modal if phone is missing or set to NOT_PROVIDED
-            if (!profile.phone_number || profile.phone_number === 'NOT_PROVIDED') {
-              setShowPhoneModal(true);
-            }
-          }
-        } catch (err) {
-          console.error('Error checking phone number:', err);
-        }
-      }
-    };
-
-    checkPhoneNumber();
+    checkUserPhone();
   }, [user]);
   
   // Change password states
