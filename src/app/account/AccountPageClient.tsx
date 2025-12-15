@@ -552,7 +552,7 @@ export default function AccountPageClient() {
       {showPhoneModal && (() => {
         console.log('[Modal Render] Modal is being rendered in authenticated section');
         return (
-        <div data-phone-modal="true" className="fixed inset-0 bg-gradient-to-br from-deep-purple via-black to-deep-purple flex items-center justify-center p-4 sm:p-6 md:p-8 overflow-hidden" style={{ zIndex: 99999 }}>
+        <div data-phone-modal="true" className="fixed inset-0 flex items-center justify-center p-4 sm:p-6 md:p-8 overflow-hidden" style={{ zIndex: 99999, backgroundColor: 'rgba(0, 0, 0, 0.95)' }}>
           {/* Animated Background Elements */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute top-1/4 left-1/4 w-64 h-64 md:w-96 md:h-96 bg-burnt-lilac/10 rounded-full blur-3xl animate-pulse"></div>
@@ -562,7 +562,7 @@ export default function AccountPageClient() {
           {/* Main Content */}
           <div className="relative w-full max-w-lg lg:max-w-xl">
             {/* Card */}
-            <div className="bg-black/90 backdrop-blur-xl border-2 border-burnt-lilac/40 rounded-3xl p-6 sm:p-8 md:p-10 lg:p-12 shadow-2xl shadow-burnt-lilac/20">
+            <div className="bg-white border-4 border-red-500 rounded-3xl p-6 sm:p-8 md:p-10 lg:p-12 shadow-2xl">
               {/* Header */}
               <div className="text-center mb-8">
                 {/* Icon */}
@@ -573,10 +573,10 @@ export default function AccountPageClient() {
                 </div>
 
                 {/* Title */}
-                <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl gradient-text mb-3 tracking-wide">
-                  One More Step
+                <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-3 tracking-wide text-black font-bold">
+                  One More Step - PHONE REQUIRED
                 </h2>
-                <p className="text-mist-lilac/80 text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed">
+                <p className="text-black text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed font-semibold">
                   Provide your phone number to unlock your Luminix experience
                 </p>
               </div>
