@@ -38,14 +38,21 @@ export default function AccountPageClient() {
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [modalPhoneNumber, setModalPhoneNumber] = useState('');
 
+  // Debug: Log state changes
+  useEffect(() => {
+    console.log('[Modal State] showPhoneModal:', showPhoneModal);
+  }, [showPhoneModal]);
+
   // Check URL params for OAuth signup
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const oauthMode = params.get('oauth_mode');
+      console.log('[OAuth Check] oauth_mode:', oauthMode, 'user:', user?.id);
       
       // If coming from OAuth signup, check phone immediately
       if (oauthMode === 'signup' && user) {
+        console.log('[OAuth Check] Triggering phone check for OAuth signup');
         checkUserPhone();
       }
     }
@@ -58,12 +65,15 @@ export default function AccountPageClient() {
 
   // Function to check user phone
   const checkUserPhone = async () => {
+    console.log('[Phone Check] Starting check, user:', user?.id);
+    
     if (user) {
       try {
         const supabase = createClient();
         
         // Check for pending phone number from signup
         const pendingPhone = typeof window !== 'undefined' ? sessionStorage.getItem('pendingPhoneNumber') : null;
+        console.log('[Phone Check] Pending phone from session:', pendingPhone);
         
         if (pendingPhone) {
           // Save pending phone number
@@ -72,6 +82,7 @@ export default function AccountPageClient() {
             .update({ phone_number: pendingPhone })
             .eq('id', user.id);
           sessionStorage.removeItem('pendingPhoneNumber');
+          console.log('[Phone Check] Saved pending phone, no modal needed');
           return; // Phone already saved
         }
         
@@ -82,21 +93,31 @@ export default function AccountPageClient() {
           .eq('id', user.id)
           .single();
 
+        console.log('[Phone Check] Profile data:', profile, 'Error:', error);
+
         if (!error && profile) {
           // Show modal if phone is missing or set to NOT_PROVIDED
           if (!profile.phone_number || profile.phone_number === 'NOT_PROVIDED') {
+            console.log('[Phone Check] NO PHONE FOUND - SHOWING MODAL');
             setShowPhoneModal(true);
+          } else {
+            console.log('[Phone Check] Phone exists:', profile.phone_number);
           }
         }
       } catch (err) {
-        console.error('Error checking phone number:', err);
+        console.error('[Phone Check] Error:', err);
       }
+    } else {
+      console.log('[Phone Check] No user logged in');
     }
   };
 
   // Check if user needs to provide phone number - mandatory for all users
   useEffect(() => {
-    checkUserPhone();
+    console.log('[Main Effect] User changed:', user?.id);
+    if (user) {
+      checkUserPhone();
+    }
   }, [user]);
   
   // Change password states
