@@ -61,27 +61,45 @@ export default async function CollectionPage({
     bgPattern: 'default',
   };
 
+  let allProducts: ShopifyProduct[] = [];
   let products: ShopifyProduct[] = [];
   
   try {
-    products = await getProductsByCollection(
+    allProducts = await getProductsByCollection(
       handle, 
       50, 
       (sort as 'newest' | 'price-asc' | 'price-desc' | 'best-selling') || 'newest'
     );
     
+    // Get unique product types from ALL products (before filtering)
+    const productTypes = [...new Set(allProducts.map(p => p.productType).filter(Boolean))];
+    
     // Filter by type if specified
     if (type) {
-      products = products.filter(p => 
+      products = allProducts.filter(p => 
         p.productType?.toLowerCase().includes(type.toLowerCase())
       );
+    } else {
+      products = allProducts;
     }
+    
+    // Pass productTypes and products separately
+    return (
+      <CollectionPageClient
+        handle={handle}
+        info={info}
+        products={products}
+        productTypes={productTypes as string[]}
+        currentType={type}
+        currentSort={sort || 'newest'}
+      />
+    );
   } catch (error) {
     console.error('Error fetching collection:', error);
   }
 
-  // Get unique product types for filtering
-  const productTypes = [...new Set(products.map(p => p.productType).filter(Boolean))];
+  // Fallback if error occurred
+  const productTypes: string[] = [];
 
   return (
     <CollectionPageClient
