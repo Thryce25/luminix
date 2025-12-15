@@ -36,13 +36,29 @@ export default function AdminPageClient() {
   const [users, setUsers] = useState<User[]>([]);
   const [wishlists, setWishlists] = useState<Wishlist[]>([]);
   const [cartUsers, setCartUsers] = useState<User[]>([]);
-  const [customMessage, setCustomMessage] = useState(
-    `Hi {name}! 👋\n\n` +
-    `We noticed you have items in your cart at Luminix Clothing. 🖤\n\n` +
-    `Complete your purchase now and embrace the darkness with our exclusive gothic fashion collection!\n\n` +
-    `Shop now: https://www.luminixclothing.com/cart\n\n` +
-    `Need help? Reply to this message! ✨`
-  );
+  const [messageType, setMessageType] = useState<'cart' | 'formal' | 'wishlist'>('cart');
+  
+  const messageTemplates = {
+    cart: `Hi {name}! 👋\n\n` +
+      `We noticed you have items in your cart at Luminix Clothing. 🖤\n\n` +
+      `Complete your purchase now and embrace the darkness with our exclusive gothic fashion collection!\n\n` +
+      `Shop now: https://www.luminixclothing.com/cart\n\n` +
+      `Need help? Reply to this message! ✨`,
+    formal: `Dear {name},\n\n` +
+      `This is a gentle reminder about the items waiting in your shopping cart at Luminix Clothing.\n\n` +
+      `We've reserved your selected items for you. To complete your purchase, please visit:\n` +
+      `https://www.luminixclothing.com/cart\n\n` +
+      `Should you require any assistance, please don't hesitate to reach out.\n\n` +
+      `Best regards,\n` +
+      `Luminix Clothing Team`,
+    wishlist: `Hey {name}! 💜\n\n` +
+      `Your wishlist items are calling! We noticed you've been eyeing some amazing pieces at Luminix Clothing.\n\n` +
+      `Good news - they're still available! Don't miss out on your favorite gothic styles.\n\n` +
+      `Check them out: https://www.luminixclothing.com/wishlist\n\n` +
+      `Limited stock available! 🖤✨`
+  };
+  
+  const [customMessage, setCustomMessage] = useState(messageTemplates.cart);
   
   const supabase = createClient();
 
@@ -142,13 +158,12 @@ export default function AdminPageClient() {
   };
 
   const resetMessageTemplate = () => {
-    setCustomMessage(
-      `Hi {name}! 👋\n\n` +
-      `We noticed you have items in your cart at Luminix Clothing. 🖤\n\n` +
-      `Complete your purchase now and embrace the darkness with our exclusive gothic fashion collection!\n\n` +
-      `Shop now: https://www.luminixclothing.com/cart\n\n` +
-      `Need help? Reply to this message! ✨`
-    );
+    setCustomMessage(messageTemplates[messageType]);
+  };
+
+  const changeMessageType = (type: 'cart' | 'formal' | 'wishlist') => {
+    setMessageType(type);
+    setCustomMessage(messageTemplates[type]);
   };
 
   const sendToAllCustomers = () => {
@@ -506,6 +521,43 @@ export default function AdminPageClient() {
                   </svg>
                   Reset to Default
                 </button>
+              </div>
+
+              {/* Template Type Selector */}
+              <div className="mb-4">
+                <label className="block text-sm text-mist-lilac/80 mb-2">Choose Template Type:</label>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => changeMessageType('cart')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      messageType === 'cart'
+                        ? 'bg-burnt-lilac text-white shadow-lg'
+                        : 'bg-black/40 text-mist-lilac/70 border border-burnt-lilac/30 hover:border-burnt-lilac/50'
+                    }`}
+                  >
+                    🛒 Cart Reminder
+                  </button>
+                  <button
+                    onClick={() => changeMessageType('formal')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      messageType === 'formal'
+                        ? 'bg-burnt-lilac text-white shadow-lg'
+                        : 'bg-black/40 text-mist-lilac/70 border border-burnt-lilac/30 hover:border-burnt-lilac/50'
+                    }`}
+                  >
+                    💼 Formal Reminder
+                  </button>
+                  <button
+                    onClick={() => changeMessageType('wishlist')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      messageType === 'wishlist'
+                        ? 'bg-burnt-lilac text-white shadow-lg'
+                        : 'bg-black/40 text-mist-lilac/70 border border-burnt-lilac/30 hover:border-burnt-lilac/50'
+                    }`}
+                  >
+                    💜 Wishlist Reminder
+                  </button>
+                </div>
               </div>
               
               <div className="mb-3">
