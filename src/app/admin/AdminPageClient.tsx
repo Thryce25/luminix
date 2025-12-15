@@ -166,7 +166,7 @@ export default function AdminPageClient() {
     setCustomMessage(messageTemplates[type]);
   };
 
-  const sendToAllCustomers = () => {
+  const exportToCSV = () => {
     const usersWithPhone = cartUsers.filter(
       user => user.phone_number && user.phone_number !== 'NOT_PROVIDED'
     );
@@ -176,27 +176,40 @@ export default function AdminPageClient() {
       return;
     }
 
-    const confirmMessage = `This will open ${usersWithPhone.length} WhatsApp chat(s) in new tabs. Your browser may block some pop-ups. Continue?`;
-    
-    if (!confirm(confirmMessage)) {
-      return;
-    }
-
-    // Open WhatsApp for each user with a small delay to prevent browser blocking
-    usersWithPhone.forEach((user, index) => {
-      setTimeout(() => {
+    // Generate CSV content
+    const csvRows = [
+      ['Name', 'Phone Number', 'Email', 'Personalized Message'],
+      ...usersWithPhone.map(user => {
         const name = user.first_name || user.email.split('@')[0];
         const personalizedMessage = customMessage.replace(/{name}/g, name);
-        const message = encodeURIComponent(personalizedMessage);
-        
         const cleanPhone = user.phone_number!.replace(/\D/g, '');
         const phoneWithCountryCode = cleanPhone.startsWith('91') ? cleanPhone : `91${cleanPhone}`;
         
-        window.open(`https://wa.me/${phoneWithCountryCode}?text=${message}`, '_blank');
-      }, index * 500); // 500ms delay between each window
-    });
+        return [
+          `${user.first_name || ''} ${user.last_name || ''}`.trim(),
+          phoneWithCountryCode,
+          user.email,
+          `"${personalizedMessage.replace(/"/g, '""')}"` // Escape quotes in message
+        ];
+      })
+    ];
 
-    alert(`Opening ${usersWithPhone.length} WhatsApp chat(s). Please allow pop-ups if prompted.`);
+    const csvContent = csvRows.map(row => row.join(',')).join('\n');
+    
+    // Create and download CSV file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `cart-reminders-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    alert(`Exported ${usersWithPhone.length} customers to CSV successfully!`);
   };
 
   const deleteUser = async (userId: string) => {
@@ -493,14 +506,14 @@ export default function AdminPageClient() {
               </div>
               <div className="flex gap-3">
                 <button 
-                  onClick={sendToAllCustomers}
+                  onClick={exportToCSV}
                   disabled={cartUsers.filter(u => u.phone_number && u.phone_number !== 'NOT_PROVIDED').length === 0}
                   className="btn-gothic py-2 px-4 text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  Send to All ({cartUsers.filter(u => u.phone_number && u.phone_number !== 'NOT_PROVIDED').length})
+                  Export to CSV ({cartUsers.filter(u => u.phone_number && u.phone_number !== 'NOT_PROVIDED').length})
                 </button>
                 <button onClick={fetchCartUsers} className="btn-gothic-outline py-2 px-4 text-sm">
                   Refresh
