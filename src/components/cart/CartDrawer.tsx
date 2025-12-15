@@ -57,33 +57,6 @@ export default function CartDrawer() {
             </svg>
           </button>
         </div>
-
-        {/* Free Shipping Banner */}
-        {lines.length > 0 && cart && (
-          <div className="px-4 py-3 bg-deep-purple/20 border-b border-mist-lilac/10">
-            {parseFloat(cart.cost.subtotalAmount.amount) >= 100 ? (
-              <p className="text-green-400 text-xs sm:text-sm text-center flex items-center justify-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                You've unlocked free shipping!
-              </p>
-            ) : (
-              <div className="text-center">
-                <p className="text-mist-lilac/70 text-xs sm:text-sm mb-2">
-                  Add ${(100 - parseFloat(cart.cost.subtotalAmount.amount)).toFixed(2)} more for free shipping
-                </p>
-                <div className="w-full h-1.5 bg-mist-lilac/10 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-linear-to-r from-burnt-lilac to-mist-lilac rounded-full transition-all duration-500"
-                    style={{ width: `${Math.min((parseFloat(cart.cost.subtotalAmount.amount) / 100) * 100, 100)}%` }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
         {/* Cart Items */}
         <div className="flex-1 overflow-y-auto overscroll-contain">
           {loading && lines.length === 0 ? (
@@ -273,20 +246,6 @@ export default function CartDrawer() {
 
             {/* Payment Methods */}
             <div className="px-4 pb-4">
-              <div className="flex items-center justify-center gap-2 text-mist-lilac/40">
-                <svg className="w-6 h-4 sm:w-8 sm:h-5" viewBox="0 0 38 24" fill="currentColor">
-                  <path d="M35 0H3C1.3 0 0 1.3 0 3v18c0 1.7 1.4 3 3 3h32c1.7 0 3-1.3 3-3V3c0-1.7-1.4-3-3-3z"/>
-                </svg>
-                <svg className="w-6 h-4 sm:w-8 sm:h-5" viewBox="0 0 38 24" fill="currentColor">
-                  <path d="M35 0H3C1.3 0 0 1.3 0 3v18c0 1.7 1.4 3 3 3h32c1.7 0 3-1.3 3-3V3c0-1.7-1.4-3-3-3z"/>
-                </svg>
-                <svg className="w-6 h-4 sm:w-8 sm:h-5" viewBox="0 0 38 24" fill="currentColor">
-                  <path d="M35 0H3C1.3 0 0 1.3 0 3v18c0 1.7 1.4 3 3 3h32c1.7 0 3-1.3 3-3V3c0-1.7-1.4-3-3-3z"/>
-                </svg>
-                <svg className="w-6 h-4 sm:w-8 sm:h-5" viewBox="0 0 38 24" fill="currentColor">
-                  <path d="M35 0H3C1.3 0 0 1.3 0 3v18c0 1.7 1.4 3 3 3h32c1.7 0 3-1.3 3-3V3c0-1.7-1.4-3-3-3z"/>
-                </svg>
-              </div>
               <p className="text-mist-lilac/30 text-[10px] sm:text-xs text-center mt-2">
                 Secure checkout powered by Shopify
               </p>
