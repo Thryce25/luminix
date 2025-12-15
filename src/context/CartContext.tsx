@@ -9,6 +9,7 @@ import {
   updateCartLine,
   removeFromCart,
 } from '@/lib/shopify';
+import { createClient } from '@/lib/supabase/client';
 
 interface CartContextType {
   cart: ShopifyCart | null;
@@ -29,6 +30,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<ShopifyCart | null>(null);
   const [loading, setLoading] = useState(true);
   const [cartOpen, setCartOpen] = useState(false);
+  const supabase = createClient();
 
   // Initialize cart
   useEffect(() => {
@@ -123,6 +125,50 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return null;
     }
   }, [cart]);
+
+  // Sync cart to Supabase when cart changes and user is logged in
+  useEffect(() => {
+    const syncCartToSupabase = async () => {
+      if (!cart) return;
+
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const cartItems = cart.lines?.edges?.map((edge: any) => ({
+          id: edge.node.id,
+          variantId: edge.node.merchandise.id,
+          title: edge.node.merchandise.product.title,
+          variantTitle: edge.node.merchandise.title,
+          quantity: edge.node.quantity,
+          price: edge.node.merchandise.price.amount,
+          image: edge.node.merchandise.image?.url || edge.node.merchandise.product.featuredImage?.url,
+        })) || [];
+
+        const totalQuantity = cart.totalQuantity || 0;
+
+        // Upsert cart data
+        const { error } = await supabase
+          .from('carts')
+          .upsert({
+            user_id: user.id,
+            shopify_cart_id: cart.id,
+            items: cartItems,
+            total_quantity: totalQuantity,
+          }, {
+            onConflict: 'user_id'
+          });
+
+        if (error) {
+          console.error('Error syncing cart to Supabase:', error);
+        }
+      } catch (error) {
+        console.error('Error syncing cart:', error);
+      }
+    };
+
+    syncCartToSupabase();
+  }, [cart, supabase]);
 
   return (
     <CartContext.Provider

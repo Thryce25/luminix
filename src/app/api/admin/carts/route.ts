@@ -5,17 +5,42 @@ export async function GET() {
   try {
     const supabase = await createClient();
 
-    // Get all users with their profile information
-    const { data: users, error } = await supabase
-      .from('profiles')
-      .select('id, first_name, last_name, phone_number, email, created_at')
-      .order('created_at', { ascending: false });
+    // Get users with cart data
+    const { data: carts, error } = await supabase
+      .from('carts')
+      .select(`
+        id,
+        items,
+        total_quantity,
+        updated_at,
+        profiles:user_id (
+          id,
+          first_name,
+          last_name,
+          phone_number,
+          email
+        )
+      `)
+      .gt('total_quantity', 0)
+      .order('updated_at', { ascending: false });
 
     if (error) throw error;
 
-    return NextResponse.json({ users: users || [] });
+    // Transform data to match expected format
+    const users = (carts || []).map((cart: any) => ({
+      id: cart.profiles?.id,
+      first_name: cart.profiles?.first_name,
+      last_name: cart.profiles?.last_name,
+      phone_number: cart.profiles?.phone_number,
+      email: cart.profiles?.email,
+      cartItems: cart.items || [],
+      totalQuantity: cart.total_quantity,
+      lastUpdated: cart.updated_at,
+    })).filter((user: any) => user.id); // Filter out any null profiles
+
+    return NextResponse.json({ users });
   } catch (error: any) {
-    console.error('Error fetching users for cart reminders:', error);
+    console.error('Error fetching cart users:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
