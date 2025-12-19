@@ -17,11 +17,9 @@ const generateParticles = (count: number) => {
   }));
 };
 
-// 50 particles for desktop
-const desktopParticles = generateParticles(50);
-
-// 10 particles for mobile (with animations)
-const mobileParticles = generateParticles(10);
+// Reduced particles for better performance
+const desktopParticles = generateParticles(20); // Was 50
+const mobileParticles = generateParticles(5);   // Was 10
 
 export default function FloatingBackground({ variant = 'default' }: FloatingBackgroundProps) {
   const [isMobile, setIsMobile] = useState(false);
@@ -68,15 +66,15 @@ export default function FloatingBackground({ variant = 'default' }: FloatingBack
       {/* Deep Dark Base Gradient - Static, no animation */}
       <div className="absolute inset-0 bg-linear-to-b from-black via-[#0a0612] to-[#050208]" />
       
-      {/* Desktop: Subtle animated gradient */}
+      {/* Desktop: Subtle animated gradient - Reduced blur */}
       {!shouldReduceAnimations && (
         <div className="absolute inset-0 opacity-25">
           <div 
-            className="absolute top-0 left-1/4 w-[80vw] h-[80vh] -translate-x-1/2 rounded-full bg-burnt-lilac/10 blur-[100px]"
+            className="absolute top-0 left-1/4 w-[80vw] h-[80vh] -translate-x-1/2 rounded-full bg-burnt-lilac/10 blur-[60px] will-change-transform"
             style={{ animation: 'aurora-slow 25s ease-in-out infinite' }}
           />
           <div 
-            className="absolute bottom-0 right-1/4 w-[60vw] h-[60vh] rounded-full bg-purple-900/10 blur-[80px]"
+            className="absolute bottom-0 right-1/4 w-[60vw] h-[60vh] rounded-full bg-purple-900/10 blur-[50px] will-change-transform"
             style={{ animation: 'aurora-slow 30s ease-in-out infinite reverse' }}
           />
         </div>
@@ -123,7 +121,7 @@ export default function FloatingBackground({ variant = 'default' }: FloatingBack
         }}
       />
 
-      {/* Minimal CSS Animations - Only for desktop */}
+      {/* Minimal CSS Animations - Hardware accelerated */}
       <style jsx global>{`
         @keyframes aurora-slow {
           0%, 100% { 
@@ -143,6 +141,13 @@ export default function FloatingBackground({ variant = 'default' }: FloatingBack
           50% { 
             opacity: 0.7;
           }
+        }
+        
+        /* Hardware acceleration */
+        .will-change-transform {
+          will-change: transform, opacity;
+          transform: translateZ(0);
+          backface-visibility: hidden;
         }
       `}</style>
     </div>
