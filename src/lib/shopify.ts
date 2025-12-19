@@ -4,10 +4,14 @@ const endpoint = `https://${domain}/api/2024-01/graphql.json`;
 
 // Helper to ensure checkout URL is absolute and properly formatted
 function ensureAbsoluteCheckoutUrl(checkoutUrl: string): string {
-  if (!checkoutUrl) return checkoutUrl;
+  if (!checkoutUrl) {
+    console.warn('No checkout URL provided');
+    return checkoutUrl;
+  }
   
   // If already absolute URL, return as-is
-  if (checkoutUrl.startsWith('https://')) {
+  if (checkoutUrl.startsWith('https://') || checkoutUrl.startsWith('http://')) {
+    console.log('Checkout URL (absolute):', checkoutUrl);
     return checkoutUrl;
   }
   
@@ -15,7 +19,7 @@ function ensureAbsoluteCheckoutUrl(checkoutUrl: string): string {
   const absoluteUrl = `https://${domain}${checkoutUrl.startsWith('/') ? '' : '/'}${checkoutUrl}`;
   
   // Log for debugging
-  console.log('Checkout URL:', absoluteUrl);
+  console.log('Checkout URL (converted to absolute):', absoluteUrl);
   
   return absoluteUrl;
 }

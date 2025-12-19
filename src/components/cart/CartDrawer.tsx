@@ -219,6 +219,8 @@ export default function CartDrawer() {
               {cart.checkoutUrl ? (
                 <a
                   href={cart.checkoutUrl}
+                  target="_self"
+                  rel="noopener"
                   onClick={() => {
                     // Close the cart drawer when navigating to checkout
                     setCartOpen(false);

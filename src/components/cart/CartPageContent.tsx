@@ -201,6 +201,8 @@ export default function CartPageContent() {
           {cart?.checkoutUrl ? (
             <a
               href={cart.checkoutUrl}
+              target="_self"
+              rel="noopener"
               className="block w-full btn-gothic text-center py-3 sm:py-4 text-sm sm:text-base touch-manipulation"
             >
               Proceed to Checkout
