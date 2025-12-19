@@ -52,9 +52,9 @@ export default function HomePageClient({ featuredProducts, newArrivals }: HomePa
   }, []);
 
   const collections = [
-    { name: "Men's Essentials", href: '/collections/mens-essentials', color: 'from-slate-900 via-gray-800 to-burnt-lilac/30' },
-    { name: 'New Arrivals', href: '/collections/new-arrivals', color: 'from-purple-900 via-indigo-800 to-burnt-lilac/30' },
-    { name: "Women's Fashion", href: '/collections/womens-essentials', color: 'from-rose-900 via-pink-800 to-burnt-lilac/30' },
+    { name: "Men's Essentials", href: '/collections/mens-essentials', image: '/images/mens.jpg' },
+    { name: 'New Arrivals', href: '/collections/new-arrivals', image: '/images/new_arrivals.jpg' },
+    { name: "Women's Fashion", href: '/collections/womens-essentials', image: '/images/womens.jpg' },
   ];
 
   return (
@@ -170,36 +170,29 @@ export default function HomePageClient({ featuredProducts, newArrivals }: HomePa
                 }`}
                 onMouseEnter={() => setActiveCollection(index)}
               >
-                {/* Background Gradient */}
-                <div className={`absolute inset-0 bg-linear-to-br ${collection.color} transition-all duration-500`} />
+                {/* Background Image */}
+                <Image
+                  src={collection.image}
+                  alt={collection.name}
+                  fill
+                  className={`transition-transform duration-700 group-hover:scale-110 ${
+                    collection.name === "Women's Fashion" ? 'object-cover object-[50%_20%]' : 'object-cover'
+                  }`}
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
                 
-                {/* Animated Pattern */}
-                <div className="absolute inset-0 opacity-20">
-                  <div className="absolute inset-0" style={{
-                    backgroundImage: `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
-                  }} />
-                  {[...Array(5)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute w-32 h-32 border border-white/10 rounded-full animate-float"
-                      style={{
-                        top: `${20 + i * 15}%`,
-                        left: `${10 + i * 20}%`,
-                        animationDelay: `${i * 0.5}s`,
-                      }}
-                    />
-                  ))}
-                </div>
+                {/* Dark Overlay */}
+                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-500" />
 
                 {/* Content */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center z-10">
                   <div className={`w-20 h-20 mb-6 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-white/20`}>
                     <span className="text-3xl font-serif text-white">{index + 1}</span>
                   </div>
                   <h3 className="text-2xl sm:text-3xl font-serif text-white mb-3 group-hover:scale-105 transition-transform">
                     {collection.name}
                   </h3>
-                  <p className="text-white/60 text-sm mb-6">
+                  <p className="text-white/80 text-sm mb-6">
                     Explore the collection
                   </p>
                   <div className="px-6 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white text-sm border border-white/20 group-hover:bg-white/20 group-hover:scale-105 transition-all">
@@ -216,7 +209,7 @@ export default function HomePageClient({ featuredProducts, newArrivals }: HomePa
           </div>
 
           {/* Collection Indicators */}
-          <div className="flex justify-center gap-3 mt-8">
+          <div className="hidden md:flex justify-center gap-3 mt-8">
             {collections.map((_, i) => (
               <button
                 key={i}

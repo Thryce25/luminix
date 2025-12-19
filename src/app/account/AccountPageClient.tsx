@@ -7,7 +7,7 @@ import { useWishlist } from '@/context/WishlistContext';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 
-type ActiveTab = 'profile' | 'orders' | 'addresses' | 'wishlist';
+type ActiveTab = 'profile' | 'orders' | 'wishlist';
 
 interface Address {
   id: number;
@@ -312,11 +312,10 @@ export default function AccountPageClient() {
         {/* Tabs Navigation */}
         <div className="mb-6 sm:mb-8">
           {/* Mobile: Grid Layout */}
-          <div className="grid grid-cols-2 gap-2 sm:hidden">
+          <div className="grid grid-cols-3 gap-2 sm:hidden">
             {[
               { id: 'profile' as ActiveTab, label: 'Profile', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
               { id: 'orders' as ActiveTab, label: 'Orders', icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
-              { id: 'addresses' as ActiveTab, label: 'Addresses', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
               { id: 'wishlist' as ActiveTab, label: 'Wishlist', icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' },
             ].map((tab) => (
               <button
@@ -344,7 +343,6 @@ export default function AccountPageClient() {
             {[
               { id: 'profile' as ActiveTab, label: 'Profile', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
               { id: 'orders' as ActiveTab, label: 'Orders', icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
-              { id: 'addresses' as ActiveTab, label: 'Addresses', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
               { id: 'wishlist' as ActiveTab, label: 'Wishlist', icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' },
             ].map((tab) => (
               <button
@@ -501,67 +499,6 @@ export default function AccountPageClient() {
                 </Link>
               </div>
             </div>
-          </div>
-        )}
-
-        {/* Addresses Tab */}
-        {activeTab === 'addresses' && (
-          <div className="card-gothic p-4 sm:p-6 md:p-8 lg:p-12 animate-scale-in">
-            <div className="flex items-center justify-between mb-6 sm:mb-8">
-              <h2 className="text-xl sm:text-2xl font-serif text-burnt-lilac">Saved Addresses</h2>
-              <button onClick={() => setIsAddingAddress(true)} className="btn-gothic py-2 px-4 text-sm">
-                + Add Address
-              </button>
-            </div>
-
-            {isAddingAddress ? (
-              <form className="space-y-4 mb-6 p-6 bg-white/5 rounded-lg border border-burnt-lilac/20">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <input type="text" placeholder="Full Name" className="w-full px-4 py-3 bg-black/40 border border-burnt-lilac/30 rounded-lg focus:border-burnt-lilac focus:outline-none text-mist-lilac" />
-                  <input type="text" placeholder="Phone Number" className="w-full px-4 py-3 bg-black/40 border border-burnt-lilac/30 rounded-lg focus:border-burnt-lilac focus:outline-none text-mist-lilac" />
-                </div>
-                <input type="text" placeholder="Street Address" className="w-full px-4 py-3 bg-black/40 border border-burnt-lilac/30 rounded-lg focus:border-burnt-lilac focus:outline-none text-mist-lilac" />
-                <div className="grid md:grid-cols-3 gap-4">
-                  <input type="text" placeholder="City" className="w-full px-4 py-3 bg-black/40 border border-burnt-lilac/30 rounded-lg focus:border-burnt-lilac focus:outline-none text-mist-lilac" />
-                  <input type="text" placeholder="State" className="w-full px-4 py-3 bg-black/40 border border-burnt-lilac/30 rounded-lg focus:border-burnt-lilac focus:outline-none text-mist-lilac" />
-                  <input type="text" placeholder="ZIP Code" className="w-full px-4 py-3 bg-black/40 border border-burnt-lilac/30 rounded-lg focus:border-burnt-lilac focus:outline-none text-mist-lilac" />
-                </div>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <button type="submit" className="btn-gothic w-full sm:w-auto">Save Address</button>
-                  <button type="button" onClick={() => setIsAddingAddress(false)} className="btn-gothic-outline w-full sm:w-auto">Cancel</button>
-                </div>
-              </form>
-            ) : null}
-
-            {addresses.length === 0 && !isAddingAddress ? (
-              <div className="text-center py-12">
-                <svg className="w-16 h-16 mx-auto text-mist-lilac/30 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-                <p className="text-mist-lilac/60 mb-4">No saved addresses yet</p>
-                <button onClick={() => setIsAddingAddress(true)} className="btn-gothic inline-block">
-                  Add Your First Address
-                </button>
-              </div>
-            ) : (
-              <div className="grid sm:grid-cols-2 gap-4">
-              {addresses.map((address) => (
-                <div key={address.id} className="p-4 sm:p-6 bg-white/5 rounded-lg border border-burnt-lilac/20 relative">
-                  {address.isDefault && (
-                    <span className="absolute top-3 right-3 px-3 py-1 bg-burnt-lilac text-white text-xs rounded-full">Default</span>
-                  )}
-                  <h3 className="text-lg font-semibold text-burnt-lilac mb-2">{address.type}</h3>
-                  <p className="text-mist-lilac">{address.name}</p>
-                  <p className="text-mist-lilac/60 text-sm">{address.street}</p>
-                  <p className="text-mist-lilac/60 text-sm">{address.city}, {address.state} {address.zip}</p>
-                  <div className="mt-4 flex gap-2">
-                    <button className="text-sm text-burnt-lilac hover:text-mist-lilac">Edit</button>
-                    <button className="text-sm text-red-400 hover:text-red-300">Delete</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-            )}
           </div>
         )}
 
