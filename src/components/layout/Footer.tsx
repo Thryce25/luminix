@@ -9,6 +9,7 @@ const footerLinks = {
     { name: 'Sale', href: '/products?sale=true' },
   ],
   help: [
+    { name: 'About Us', href: '/about' },
     { name: 'Track Order', href: '/track-order' },
     { name: 'Shipping & Delivery', href: '/shipping' },
     { name: 'Returns & Exchanges', href: '/returns' },

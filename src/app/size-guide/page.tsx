@@ -1,11 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import FloatingBackground from '@/components/common/FloatingBackground';
 
 export default function SizeGuidePage() {
   const [activeTab, setActiveTab] = useState<'men' | 'women'>('men');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const menSizes = [
     { size: 'S', chest: '34-36', waist: '28-30', sleeve: '32-33' },
@@ -23,11 +28,34 @@ export default function SizeGuidePage() {
     { size: 'XL', bust: '40-42', waist: '33-35', hips: '43-45' },
   ];
 
+  const tshirtIcon = (
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 6L19 3L21 5L18 8V11H6V8L3 5L5 3L8 6C8 4.5 9.5 3 12 3C14.5 3 16 4.5 16 6Z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 11H18V21H6V11Z" />
+    </svg>
+  );
+
   const measurementTips = [
-    { area: 'Chest/Bust', tip: 'Measure around the fullest part of your chest, keeping the tape horizontal.' },
-    { area: 'Waist', tip: 'Measure around your natural waistline, keeping the tape comfortably loose.' },
-    { area: 'Hips', tip: 'Measure around the fullest part of your hips, about 8 inches below your waist.' },
-    { area: 'Sleeve', tip: 'Measure from the center back of your neck, over your shoulder, down to your wrist.' },
+    { 
+      area: 'Chest/Bust', 
+      tip: 'Measure around the fullest part of your chest, keeping the tape horizontal.',
+      icon: tshirtIcon
+    },
+    { 
+      area: 'Waist', 
+      tip: 'Measure around your natural waistline, keeping the tape comfortably loose.',
+      icon: tshirtIcon
+    },
+    { 
+      area: 'Hips', 
+      tip: 'Measure around the fullest part of your hips, about 8 inches below your waist.',
+      icon: tshirtIcon
+    },
+    { 
+      area: 'Sleeve', 
+      tip: 'Measure from the center back of your neck, over your shoulder, down to your wrist.',
+      icon: tshirtIcon
+    },
   ];
 
   return (
@@ -37,25 +65,27 @@ export default function SizeGuidePage() {
 
       {/* Hero Section */}
       <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0">
-          {[...Array(10)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full mix-blend-overlay"
-              style={{
-                width: `${Math.random() * 80 + 20}px`,
-                height: `${Math.random() * 80 + 20}px`,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                background: i % 2 === 0 
-                  ? 'linear-gradient(135deg, rgba(111,78,124,0.3), transparent)'
-                  : 'linear-gradient(135deg, rgba(214,197,220,0.2), transparent)',
-                animation: `float ${10 + Math.random() * 10}s ease-in-out infinite`,
-                animationDelay: `${i * 0.5}s`,
-              }}
-            />
-          ))}
-        </div>
+        {mounted && (
+          <div className="absolute inset-0">
+            {[...Array(10)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full mix-blend-overlay"
+                style={{
+                  width: `${Math.random() * 80 + 20}px`,
+                  height: `${Math.random() * 80 + 20}px`,
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  background: i % 2 === 0 
+                    ? 'linear-gradient(135deg, rgba(111,78,124,0.3), transparent)'
+                    : 'linear-gradient(135deg, rgba(214,197,220,0.2), transparent)',
+                  animation: `float ${10 + Math.random() * 10}s ease-in-out infinite`,
+                  animationDelay: `${i * 0.5}s`,
+                }}
+              />
+            ))}
+          </div>
+        )}
 
         <div className="relative z-10 text-center px-4">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-burnt-lilac/10 border border-burnt-lilac/20 mb-6">
@@ -200,9 +230,7 @@ export default function SizeGuidePage() {
                 
                 <div className="relative z-10 flex gap-4">
                   <div className="w-12 h-12 rounded-xl bg-burnt-lilac/10 border border-burnt-lilac/20 flex items-center justify-center text-burnt-lilac shrink-0 group-hover:scale-110 transition-transform">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                    </svg>
+                    {item.icon}
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-mist-lilac mb-2">{item.area}</h3>

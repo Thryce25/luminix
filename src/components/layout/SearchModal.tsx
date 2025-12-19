@@ -10,8 +10,6 @@ interface SearchModalProps {
   onClose: () => void;
 }
 
-const popularSearches = ['Hoodies', 'T-Shirts', 'Sweatshirts', 'New Arrivals'];
-
 const categories = [
   { name: "Men's", href: '/collections/mens-essentials' },
   { name: "Women's", href: '/collections/womens-essentials' },
@@ -82,12 +80,18 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
 
   if (!open) return null;
 
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
     <>
       {/* Backdrop */}
       <div
         className={`fixed inset-0 z-50 transition-all duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-        onClick={onClose}
+        onClick={handleBackdropClick}
       >
         <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" />
         
@@ -251,25 +255,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
                 </div>
               ) : (
                 /* Default State */
-                <div className="p-6 space-y-8">
-                  {/* Popular Searches */}
-                  <div>
-                    <h3 className="text-mist-lilac/50 text-xs uppercase tracking-wider mb-3">
-                      Popular Searches
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {popularSearches.map((term) => (
-                        <button
-                          key={term}
-                          onClick={() => setQuery(term)}
-                          className="px-4 py-2 bg-white/5 hover:bg-burnt-lilac/10 border border-white/10 hover:border-burnt-lilac/30 rounded-lg text-sm text-mist-lilac/80 hover:text-mist-lilac transition-all"
-                        >
-                          {term}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
+                <div className="p-6">
                   {/* Categories */}
                   <div>
                     <h3 className="text-mist-lilac/50 text-xs uppercase tracking-wider mb-3">

@@ -12,8 +12,8 @@ export default function ContactPage() {
         </svg>
       ),
       title: 'Email Us',
-      content: 'luminixclothing@gmail.com',
-      link: 'mailto:luminixclothing@gmail.com',
+      content: 'support@luminixclothing.com',
+      link: 'mailto:support@luminixclothing.com',
     },
     {
       icon: (
@@ -22,10 +22,9 @@ export default function ContactPage() {
         </svg>
       ),
       title: 'Call Us',
-      content: '+91 86107 26382',
-      link: 'tel:+918610726382',
-    },
-    {
+      content: '+91 8148826382',
+      link: 'tel:+918148826382'
+    },{
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />

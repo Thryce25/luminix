@@ -5,7 +5,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import CartDrawer from '../cart/CartDrawer';
-import SearchModal from './SearchModal';
 
 const collections = [
   {
@@ -55,7 +54,6 @@ const collections = [
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
   const [expandedMobileCategory, setExpandedMobileCategory] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -179,17 +177,6 @@ export default function Header() {
 
             {/* Actions */}
             <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4">
-              {/* Search Button */}
-              <button
-                onClick={() => setSearchOpen(true)}
-                className="p-2.5 sm:p-2 text-mist-lilac hover:text-burnt-lilac transition-colors touch-manipulation"
-                aria-label="Search"
-              >
-                <svg className="w-5 h-5 sm:w-5 sm:h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </button>
-
               {/* Account Button */}
               <Link
                 href="/account"
@@ -410,7 +397,6 @@ export default function Header() {
       </div>
 
       <CartDrawer />
-      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }

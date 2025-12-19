@@ -38,6 +38,7 @@ export default function ProductFilters({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   
   const currentSort = searchParams.get('sort') || 'newest';
   const currentCategory = searchParams.get('category') || searchParams.get('collection') || '';
@@ -65,10 +66,23 @@ export default function ProductFilters({
 
   // Clear all filters
   const clearFilters = () => {
+    setSearchQuery('');
     router.push('/products', { scroll: false });
   };
 
-  const hasActiveFilters = currentCategory || currentType || currentPrice || currentInStock;
+  // Handle search
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      updateFilters('search', searchQuery.trim());
+    } else {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('search');
+      router.push(`/products?${params.toString()}`, { scroll: false });
+    }
+  };
+
+  const hasActiveFilters = currentCategory || currentType || currentPrice || currentInStock || searchQuery;
 
   // Prevent body scroll when mobile filters open
   useEffect(() => {
@@ -84,42 +98,61 @@ export default function ProductFilters({
 
   return (
     <>
-      {/* Top Bar - Sort & Mobile Filter Button */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
+      {/* Top Bar - Search, Filter & Sort */}
+      <div className="flex justify-between items-center gap-3 mb-6 sm:mb-8">
         <div className="flex items-center gap-2">
           {hasActiveFilters && (
             <button
               onClick={clearFilters}
-              className="text-xs sm:text-sm text-burnt-lilac hover:text-mist-lilac transition-colors"
+              className="text-xs sm:text-sm text-burnt-lilac hover:text-mist-lilac transition-colors whitespace-nowrap"
             >
               Clear all filters
             </button>
           )}
         </div>
         
-        <div className="flex items-center gap-3 w-full sm:w-auto">
+        <div className="flex items-center gap-2">
+          {/* Search Bar - Mobile/Tablet only */}
+          <form onSubmit={handleSearch} className="relative lg:hidden">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search..."
+              className="w-32 sm:w-48 px-3 py-2.5 pr-9 bg-deep-purple/30 border border-mist-lilac/20 rounded-lg text-mist-lilac text-sm placeholder-mist-lilac/40 hover:border-burnt-lilac/50 focus:border-burnt-lilac focus:outline-none transition-colors"
+            />
+            <button
+              type="submit"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-burnt-lilac/10 rounded transition-colors"
+            >
+              <svg className="w-4 h-4 text-burnt-lilac" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+          </form>
+
           {/* Mobile Filter Button */}
           <button
             onClick={() => setMobileFiltersOpen(true)}
-            className="lg:hidden flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-deep-purple/30 border border-mist-lilac/20 rounded-lg text-mist-lilac text-sm hover:border-burnt-lilac/50 transition-colors touch-manipulation"
+            className="lg:hidden flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 bg-deep-purple/30 border border-mist-lilac/20 rounded-lg text-mist-lilac text-sm hover:border-burnt-lilac/50 transition-colors touch-manipulation whitespace-nowrap"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
             </svg>
-            Filters
+            <span className="hidden sm:inline">Filters</span>
             {hasActiveFilters && (
               <span className="w-5 h-5 bg-burnt-lilac text-white text-xs rounded-full flex items-center justify-center">
-                {[currentCategory, currentType, currentPrice, currentInStock].filter(Boolean).length}
+                {[currentCategory, currentType, currentPrice, currentInStock, searchQuery].filter(Boolean).length}
               </span>
             )}
           </button>
           
           {/* Sort Dropdown */}
-          <div className="relative flex-1 sm:flex-none">
+          <div className="relative">
             <select
               value={currentSort}
               onChange={(e) => updateFilters('sort', e.target.value)}
-              className="w-full sm:w-auto appearance-none px-4 py-2.5 pr-10 bg-deep-purple/30 border border-mist-lilac/20 rounded-lg text-mist-lilac text-sm hover:border-burnt-lilac/50 focus:border-burnt-lilac focus:outline-none cursor-pointer transition-colors"
+              className="appearance-none px-3 sm:px-4 py-2.5 pr-8 sm:pr-10 bg-deep-purple/30 border border-mist-lilac/20 rounded-lg text-mist-lilac text-sm hover:border-burnt-lilac/50 focus:border-burnt-lilac focus:outline-none cursor-pointer transition-colors"
             >
               {sortOptions.map((option) => (
                 <option key={option.value} value={option.value} className="bg-black">
@@ -127,7 +160,7 @@ export default function ProductFilters({
                 </option>
               ))}
             </select>
-            <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mist-lilac/50 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mist-lilac/50 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </div>
@@ -136,6 +169,30 @@ export default function ProductFilters({
 
       {/* Desktop Sidebar Filters */}
       <aside className="hidden lg:block w-64 shrink-0 space-y-8">
+        {/* Search Filter */}
+        <div className="space-y-3">
+          <h3 className="text-sm font-medium text-mist-lilac uppercase tracking-wider">
+            Search Products
+          </h3>
+          <form onSubmit={handleSearch} className="relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by name..."
+              className="w-full px-4 py-2.5 pr-10 bg-deep-purple/30 border border-mist-lilac/20 rounded-lg text-mist-lilac text-sm placeholder-mist-lilac/40 hover:border-burnt-lilac/50 focus:border-burnt-lilac focus:outline-none transition-colors"
+            />
+            <button
+              type="submit"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 hover:bg-burnt-lilac/10 rounded transition-colors"
+            >
+              <svg className="w-4 h-4 text-burnt-lilac" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+          </form>
+        </div>
+
         {/* Categories */}
         {collections.length > 0 && (
           <FilterSection title="Category">
@@ -212,6 +269,30 @@ export default function ProductFilters({
             
             {/* Filter Content */}
             <div className="flex-1 overflow-y-auto p-4 space-y-6">
+              {/* Search Filter */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-medium text-mist-lilac uppercase tracking-wider">
+                  Search Products
+                </h3>
+                <form onSubmit={handleSearch} className="relative">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by name..."
+                    className="w-full px-4 py-2.5 pr-10 bg-deep-purple/30 border border-mist-lilac/20 rounded-lg text-mist-lilac text-sm placeholder-mist-lilac/40 hover:border-burnt-lilac/50 focus:border-burnt-lilac focus:outline-none transition-colors"
+                  />
+                  <button
+                    type="submit"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 hover:bg-burnt-lilac/10 rounded transition-colors"
+                  >
+                    <svg className="w-4 h-4 text-burnt-lilac" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </button>
+                </form>
+              </div>
+
               {/* Categories */}
               {collections.length > 0 && (
                 <FilterSection title="Category" mobile>

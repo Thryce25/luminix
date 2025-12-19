@@ -23,7 +23,6 @@ const sortOptions = [
   { label: 'Latest', value: 'newest' },
   { label: 'Price: Low', value: 'price-asc' },
   { label: 'Price: High', value: 'price-desc' },
-  { label: 'Popular', value: 'best-selling' },
   { label: 'A-Z', value: 'title-asc' },
 ];
 
@@ -55,6 +54,7 @@ export default function ProductsPageClient({
   const [showFilters, setShowFilters] = useState(false);
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
   const [mobileSortOpen, setMobileSortOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const mobileSortRef = useRef<HTMLDivElement>(null);
 
   const currentSort = searchParams.get('sort') || 'newest';
@@ -67,6 +67,18 @@ export default function ProductsPageClient({
   // Client-side filtering of products
   const filteredProducts = useMemo(() => {
     let result = [...initialProducts];
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      result = result.filter(product => 
+        product.title.toLowerCase().includes(query) ||
+        product.description?.toLowerCase().includes(query) ||
+        product.vendor?.toLowerCase().includes(query) ||
+        product.productType?.toLowerCase().includes(query) ||
+        product.tags?.some(tag => tag.toLowerCase().includes(query))
+      );
+    }
 
     // Filter by product type (search in title since productType might be empty)
     if (currentType) {
@@ -139,7 +151,7 @@ export default function ProductsPageClient({
     }
 
     return result;
-  }, [initialProducts, currentType, currentPrice, currentSize, currentInStock, currentSort]);
+  }, [initialProducts, searchQuery, currentType, currentPrice, currentSize, currentInStock, currentSort]);
 
   const updateFilters = useCallback((key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -153,6 +165,7 @@ export default function ProductsPageClient({
   }, [router, searchParams]);
 
   const clearFilters = () => {
+    setSearchQuery('');
     router.push('/products', { scroll: false });
   };
 
@@ -215,11 +228,11 @@ export default function ProductsPageClient({
       <div className="sticky top-20 z-40 bg-black/95 backdrop-blur-xl border-b border-mist-lilac/10">
         <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-4 gap-4">
-            {/* Left Side - Filter Button & Active Filters */}
-            <div className="flex items-center gap-3">
+            {/* Left Side - Filter Button, Search & Active Filters */}
+            <div className="flex items-center gap-3 flex-1 max-w-2xl">
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-full border transition-all duration-300 ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-full border transition-all duration-300 shrink-0 ${
                   showFilters 
                     ? 'bg-burnt-lilac border-burnt-lilac text-white' 
                     : 'bg-transparent border-mist-lilac/20 text-mist-lilac hover:border-burnt-lilac/50'
@@ -235,6 +248,30 @@ export default function ProductsPageClient({
                   </span>
                 )}
               </button>
+
+              {/* Search Panel */}
+              <div className="relative flex-1 max-w-md">
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-4 py-2.5 pl-11 pr-10 bg-deep-purple/20 border border-mist-lilac/20 rounded-full text-mist-lilac placeholder:text-mist-lilac/40 focus:outline-none focus:border-burnt-lilac/50 focus:bg-deep-purple/30 transition-all duration-300"
+                />
+                <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-mist-lilac/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-mist-lilac/40 hover:text-burnt-lilac transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
 
               {/* Active Filter Pills */}
               {hasActiveFilters && (

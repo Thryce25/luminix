@@ -49,7 +49,7 @@ export default function ReturnsPage() {
   ];
 
   const policies = [
-    { title: '30-Day Window', desc: 'Return within 30 days of delivery' },
+    { title: '4-Day Window', desc: 'Return within 4 days of delivery' },
     { title: 'Original Condition', desc: 'Items must be unworn with tags' },
     { title: 'Free Returns', desc: 'On all domestic orders' },
     { title: 'Easy Exchange', desc: 'Swap sizes hassle-free' },
