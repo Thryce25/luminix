@@ -9,10 +9,23 @@ function ensureAbsoluteCheckoutUrl(checkoutUrl: string): string {
     return checkoutUrl;
   }
   
-  // If already absolute URL, return as-is
+  // If it's an absolute URL with custom domain, replace with Shopify domain
   if (checkoutUrl.startsWith('https://') || checkoutUrl.startsWith('http://')) {
-    console.log('Checkout URL (absolute):', checkoutUrl);
-    return checkoutUrl;
+    try {
+      const url = new URL(checkoutUrl);
+      // Replace any custom domain with the Shopify store domain
+      if (!url.hostname.includes('myshopify.com')) {
+        url.hostname = domain;
+        const correctedUrl = url.toString();
+        console.log('Checkout URL (corrected domain):', correctedUrl);
+        return correctedUrl;
+      }
+      console.log('Checkout URL (absolute):', checkoutUrl);
+      return checkoutUrl;
+    } catch (error) {
+      console.error('Invalid checkout URL:', checkoutUrl);
+      return checkoutUrl;
+    }
   }
   
   // If relative URL, prepend the Shopify store domain
