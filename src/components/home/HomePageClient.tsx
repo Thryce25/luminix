@@ -115,22 +115,6 @@ export default function HomePageClient({ featuredProducts, newArrivals }: HomePa
               New Arrivals
             </Link>
           </div>
-
-          {/* Animated Stats */}
-          <div className={`grid grid-cols-3 gap-8 max-w-lg mx-auto transition-all duration-700 delay-600 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            {[
-              { value: '500+', label: 'Products' },
-              { value: '10K+', label: 'Customers' },
-              { value: '4.9', label: 'Rating' },
-            ].map((stat, i) => (
-              <div key={i} className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-burnt-lilac to-mist-lilac bg-clip-text text-transparent">
-                  {stat.value}
-                </div>
-                <div className="text-mist-lilac/50 text-xs sm:text-sm">{stat.label}</div>
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* Scroll Indicator */}
