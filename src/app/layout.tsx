@@ -21,33 +21,64 @@ const inter = Inter({
   display: "swap",
 });
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://luminixclothing.com";
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.luminixclothing.com";
 
 export const metadata: Metadata = {
   title: {
-    default: "Luminix",
-    template: "%s",
+    default: "Luminix - Gothic Fashion Reimagined | Premium Dark Streetwear",
+    template: "%s | Luminix",
   },
   description:
-    "Discover our curated collection of gothic-inspired fashion and accessories. Where elegance meets the extraordinary.",
+    "Gothic Fashion Reimagined. Embrace the Extraordinary. Where darkness meets elegance. Premium streetwear crafted for those who dare to stand out. Shop exclusive gothic fashion, dark aesthetic clothing, and alternative style pieces.",
   keywords: [
     "gothic fashion",
     "dark aesthetic",
-    "gothic accessories",
+    "gothic streetwear",
     "alternative fashion",
     "dark clothing",
+    "gothic accessories",
+    "premium gothic wear",
+    "dark fashion brand",
+    "gothic style clothing",
+    "alternative streetwear",
+    "gothic clothing online",
+    "dark aesthetic fashion",
+    "goth fashion store",
+    "gothic apparel",
+    "luminix clothing",
   ],
+  authors: [{ name: "Luminix" }],
+  creator: "Luminix",
+  publisher: "Luminix",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
-    title: "Luminix",
-    description:
-      "Discover our curated collection of gothic-inspired fashion and accessories.",
     type: "website",
+    locale: "en_US",
+    url: BASE_URL,
     siteName: "Luminix",
+    title: "Luminix - Gothic Fashion Reimagined | Premium Dark Streetwear",
+    description:
+      "Gothic Fashion Reimagined. Embrace the Extraordinary. Where darkness meets elegance. Premium streetwear crafted for those who dare to stand out.",
+    images: [
+      {
+        url: `${BASE_URL}/images/White%20logo.png`,
+        width: 600,
+        height: 600,
+        alt: "Luminix Logo",
+      },
+    ],
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Luminix",
-    description: "Discover our curated collection of gothic-inspired fashion and accessories.",
+    card: "summary",
+    site: "@luminix.wear",
+    creator: "@luminix.wear",
+    title: "Luminix - Gothic Fashion Reimagined | Premium Dark Streetwear",
+    description: "Gothic Fashion Reimagined. Embrace the Extraordinary. Where darkness meets elegance. Premium streetwear crafted for those who dare to stand out.",
+    images: [`${BASE_URL}/images/White%20logo.png`],
   },
   robots: {
     index: true,
@@ -61,6 +92,12 @@ export const metadata: Metadata = {
     },
   },
   metadataBase: new URL(BASE_URL),
+  alternates: {
+    canonical: BASE_URL,
+  },
+  verification: {
+    google: "piVD_9QAWaFtf9uws45FUo4Ln70EuG5VDH-MYOGFik0",
+  },
 };
 
 export default function RootLayout({

@@ -38,22 +38,37 @@ export function generateProductJsonLd(product: ShopifyProduct, url: string) {
 
 // Generate JSON-LD for the organization/website
 export function generateOrganizationJsonLd() {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.luminixclothing.com';
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'Luminix',
-    description: 'Gothic Fashion & Accessories - Where elegance meets the extraordinary.',
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://luminixclothing.com',
-    logo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://luminixclothing.com'}/logo.png`,
+    alternateName: 'Luminix Clothing',
+    description: 'Gothic Fashion Reimagined. Embrace the Extraordinary. Where darkness meets elegance. Premium streetwear crafted for those who dare to stand out.',
+    url: baseUrl,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${baseUrl}/images/White%20logo.png`,
+      width: '600',
+      height: '600',
+      caption: 'Luminix Logo'
+    },
+    image: `${baseUrl}/images/White%20logo.png`,
     sameAs: [
-      'https://instagram.com/luminix',
-      'https://facebook.com/luminix',
+      'https://instagram.com/luminix.wear',
+      'https://www.instagram.com/luminix.wear',
+      'https://www.luminixclothing.com',
     ],
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'customer service',
-      email: 'support@luminix.store',
+      telephone: '+91-8148826382',
+      availableLanguage: ['English'],
     },
+    address: {
+      '@type': 'PostalAddress',
+      addressCountry: 'IN'
+    }
   };
 }
 
