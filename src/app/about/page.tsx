@@ -72,14 +72,6 @@ export default function AboutPage() {
           <p className="text-mist-lilac/60 max-w-2xl mx-auto text-lg sm:text-xl mb-8">
             Where passion meets fashion. We curate premium streetwear for those who dare to stand out.
           </p>
-
-          {/* Scroll Indicator */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
-            <span className="text-mist-lilac/40 text-xs uppercase tracking-widest">Discover</span>
-            <div className="w-px h-16 bg-linear-to-b from-burnt-lilac/50 to-transparent relative overflow-hidden">
-              <div className="absolute top-0 w-full h-1/2 bg-burnt-lilac animate-pulse" style={{ animation: 'scrollDown 1.5s ease-in-out infinite' }} />
-            </div>
-          </div>
         </div>
       </section>
 
