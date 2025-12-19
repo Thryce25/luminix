@@ -7,10 +7,9 @@ export default function ShippingPage() {
 
   const shippingOptions = [
     {
-      name: 'Standard Shipping',
-      time: '5-7 business days',
-      price: 'Rs.99',
-      freeAbove: 'Rs.999',
+      name: 'Tamil Nadu',
+      time: '3-5 business days',
+      price: 'FREE',
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -18,9 +17,9 @@ export default function ShippingPage() {
       ),
     },
     {
-      name: 'Express Shipping',
-      time: '2-3 business days',
-      price: 'Rs.199',
+      name: 'Other States',
+      time: '5-7 business days',
+      price: 'Rs.89',
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -28,13 +27,13 @@ export default function ShippingPage() {
       ),
     },
     {
-      name: 'Next Day Delivery',
-      time: '1 business day',
-      price: 'Rs.349',
-      note: 'Order before 2 PM',
+      name: 'International',
+      time: '10-21 business days',
+      price: 'Based on country',
+      note: 'Customs may apply',
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
     },
@@ -43,7 +42,6 @@ export default function ShippingPage() {
   const features = [
     { title: 'Real-time Tracking', desc: 'Track your order every step of the way' },
     { title: 'Secure Packaging', desc: 'Premium packaging to protect your items' },
-    { title: 'Insurance Included', desc: 'All shipments are fully insured' },
     { title: 'Easy Returns', desc: '30-day hassle-free return policy' },
   ];
 
@@ -54,26 +52,6 @@ export default function ShippingPage() {
 
       {/* Hero Section */}
       <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0">
-          {[...Array(10)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full mix-blend-overlay"
-              style={{
-                width: `${Math.random() * 80 + 20}px`,
-                height: `${Math.random() * 80 + 20}px`,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                background: i % 2 === 0 
-                  ? 'linear-gradient(135deg, rgba(111,78,124,0.3), transparent)'
-                  : 'linear-gradient(135deg, rgba(214,197,220,0.2), transparent)',
-                animation: `float ${10 + Math.random() * 10}s ease-in-out infinite`,
-                animationDelay: `${i * 0.5}s`,
-              }}
-            />
-          ))}
-        </div>
-
         <div className="relative z-10 text-center px-4">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-burnt-lilac/10 border border-burnt-lilac/20 mb-6">
             <span className="w-2 h-2 bg-burnt-lilac rounded-full animate-pulse" />
@@ -136,7 +114,7 @@ export default function ShippingPage() {
       {/* Features Grid */}
       <section className="relative z-10 py-16 border-y border-mist-lilac/10">
         <div className="max-w-5xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             {features.map((feature, index) => (
               <div key={index} className="text-center p-4" style={{ animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both` }}>
                 <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-burnt-lilac/10 border border-burnt-lilac/20 flex items-center justify-center">

@@ -25,11 +25,11 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.luminixclothin
 
 export const metadata: Metadata = {
   title: {
-    default: "Luminix - Gothic Fashion Reimagined | Premium Dark Streetwear",
+    default: "Luminix - Designed for the Fearless | Premium Dark Streetwear",
     template: "%s | Luminix",
   },
   description:
-    "Gothic Fashion Reimagined. Embrace the Extraordinary. Where darkness meets elegance. Premium streetwear crafted for those who dare to stand out. Shop exclusive gothic fashion, dark aesthetic clothing, and alternative style pieces.",
+    "Designed for the Fearless. Embrace the Extraordinary. Where darkness meets elegance. Premium streetwear crafted for those who dare to stand out. Shop exclusive gothic fashion, dark aesthetic clothing, and alternative style pieces.",
   keywords: [
     "gothic fashion",
     "dark aesthetic",
@@ -60,9 +60,9 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: BASE_URL,
     siteName: "Luminix",
-    title: "Luminix - Gothic Fashion Reimagined | Premium Dark Streetwear",
+    title: "Luminix - Designed for the Fearless | Premium Dark Streetwear",
     description:
-      "Gothic Fashion Reimagined. Embrace the Extraordinary. Where darkness meets elegance. Premium streetwear crafted for those who dare to stand out.",
+      "Designed for the Fearless. Embrace the Extraordinary. Where darkness meets elegance. Premium streetwear crafted for those who dare to stand out.",
     images: [
       {
         url: `${BASE_URL}/images/White%20logo.png`,
@@ -76,8 +76,8 @@ export const metadata: Metadata = {
     card: "summary",
     site: "@luminix.wear",
     creator: "@luminix.wear",
-    title: "Luminix - Gothic Fashion Reimagined | Premium Dark Streetwear",
-    description: "Gothic Fashion Reimagined. Embrace the Extraordinary. Where darkness meets elegance. Premium streetwear crafted for those who dare to stand out.",
+    title: "Luminix - Designed for the Fearless | Premium Dark Streetwear",
+    description: "Designed for the Fearless. Embrace the Extraordinary. Where darkness meets elegance. Premium streetwear crafted for those who dare to stand out.",
     images: [`${BASE_URL}/images/White%20logo.png`],
   },
   robots: {
@@ -110,13 +110,11 @@ export default function RootLayout({
 
   return (
     <html lang="en" className="dark">
-      <head>
-        <JsonLd data={organizationJsonLd} />
-        <JsonLd data={websiteJsonLd} />
-      </head>
       <body
         className={`${playfair.variable} ${inter.variable} antialiased bg-black text-mist-lilac`}
       >
+        <JsonLd data={organizationJsonLd} />
+        <JsonLd data={websiteJsonLd} />
         <FloatingBackground />
         <AuthProvider>
           <CartProvider>

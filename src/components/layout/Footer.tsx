@@ -41,7 +41,7 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-mist-lilac/80 mb-4 sm:mb-6 max-w-sm leading-relaxed text-sm sm:text-base">
-              Embrace the darkness with our curated collection of gothic-inspired fashion. Where the darkness meets light. Crafted for the ones who stand out.
+              Where darkness meets elegance. LUMINIX delivers premium streetwear crafted for those who move with confidence and stand apart.
             </p>
             
             {/* Social Links */}

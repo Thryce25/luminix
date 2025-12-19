@@ -78,7 +78,7 @@ export default function HomePageClient({ featuredProducts, newArrivals }: HomePa
         <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto pt-8 sm:pt-12">
           {/* Tagline */}
           <p className={`text-burnt-lilac uppercase tracking-[0.3em] text-xs sm:text-sm mb-6 transition-all duration-700 delay-200 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            Gothic Fashion Reimagined
+            Designed for the Fearless
           </p>
 
           {/* Main Heading with Gradient */}

@@ -44,7 +44,7 @@ export function generateOrganizationJsonLd() {
     '@type': 'Organization',
     name: 'Luminix',
     alternateName: 'Luminix Clothing',
-    description: 'Gothic Fashion Reimagined. Embrace the Extraordinary. Where darkness meets elegance. Premium streetwear crafted for those who dare to stand out.',
+    description: 'Designed for the Fearless. Embrace the Extraordinary. Where darkness meets elegance. Premium streetwear crafted for those who dare to stand out.',
     url: baseUrl,
     logo: {
       '@type': 'ImageObject',
