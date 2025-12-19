@@ -8,7 +8,7 @@ import CartDrawer from '../cart/CartDrawer';
 
 const collections = [
   {
-    name: "Men's Collection",
+    name: "Men's Fashion",
     href: '/products?category=mens-essentials',
     description: 'Refined essentials',
     subcategories: [

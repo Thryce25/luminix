@@ -52,7 +52,7 @@ export default function HomePageClient({ featuredProducts, newArrivals }: HomePa
   }, []);
 
   const collections = [
-    { name: "Men's Essentials", href: '/collections/mens-essentials', image: '/images/mens.jpg' },
+    { name: "Men's Fashion", href: '/collections/mens-essentials', image: '/images/mens.jpg' },
     { name: 'New Arrivals', href: '/collections/new-arrivals', image: '/images/new_arrivals.jpg' },
     { name: "Women's Fashion", href: '/collections/womens-essentials', image: '/images/womens.jpg' },
   ];
