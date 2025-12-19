@@ -246,14 +246,14 @@ export default function Header() {
         >
           {/* Header */}
           <div className={`relative flex items-center justify-between px-6 py-5 transition-all duration-500 ${mobileMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}>
-            <div className="flex items-center gap-3">
+            <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 touch-manipulation">
               <img 
                 src="/images/Luminix symbol - white.svg" 
                 alt="Luminix Logo" 
                 className="h-8 w-auto"
               />
               <span className="text-2xl font-[family-name:var(--font-bodoni)] tracking-[0.2em] text-white/90">LUMINIX</span>
-            </div>
+            </Link>
             <button
               onClick={() => setMobileMenuOpen(false)}
               className="relative w-10 h-10 flex items-center justify-center touch-manipulation group"
