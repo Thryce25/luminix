@@ -91,8 +91,12 @@ export default function AboutPage() {
             <div className="relative aspect-square max-w-md mx-auto lg:mx-0">
               <div className="absolute inset-0 rounded-3xl bg-linear-to-br from-burnt-lilac/20 to-deep-purple/40 border border-mist-lilac/10" />
               <div className="absolute inset-4 rounded-2xl bg-linear-to-br from-deep-purple/30 to-black border border-mist-lilac/10" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-[200px] font-serif text-mist-lilac/10">L</span>
+              <div className="absolute inset-0 flex items-center justify-center p-8">
+                <img 
+                  src="/images/White logo.png" 
+                  alt="Luminix Logo" 
+                  className="w-full h-full object-contain opacity-80"
+                />
               </div>
               {/* Decorative rings */}
               <div className="absolute inset-0 border-2 border-burnt-lilac/20 rounded-3xl animate-pulse" style={{ animationDuration: '3s' }} />
