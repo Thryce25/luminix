@@ -45,12 +45,7 @@ export default function AboutPage() {
     },
   ];
 
-  const stats = [
-    { number: '10K+', label: 'Happy Customers' },
-    { number: '500+', label: 'Unique Designs' },
-    { number: '50+', label: 'Countries Shipped' },
-    { number: '4.9', label: 'Average Rating' },
-  ];
+
 
   return (
     <div className="min-h-screen bg-black overflow-hidden">
@@ -84,26 +79,6 @@ export default function AboutPage() {
             <div className="w-px h-16 bg-linear-to-b from-burnt-lilac/50 to-transparent relative overflow-hidden">
               <div className="absolute top-0 w-full h-1/2 bg-burnt-lilac animate-pulse" style={{ animation: 'scrollDown 1.5s ease-in-out infinite' }} />
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="relative z-10 py-16 border-y border-mist-lilac/10">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div 
-                key={index}
-                className="text-center"
-                style={{ animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both` }}
-              >
-                <div className="text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-linear-to-r from-burnt-lilac to-mist-lilac mb-2">
-                  {stat.number}
-                </div>
-                <div className="text-mist-lilac/50 text-sm uppercase tracking-wider">{stat.label}</div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
