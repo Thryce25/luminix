@@ -98,9 +98,6 @@ export default function ShippingPage() {
                       {option.price}
                     </span>
                   </div>
-                  {option.freeAbove && (
-                    <p className="text-sm text-green-400">FREE above {option.freeAbove}</p>
-                  )}
                   {option.note && (
                     <p className="text-sm text-burnt-lilac/70 mt-2">{option.note}</p>
                   )}
