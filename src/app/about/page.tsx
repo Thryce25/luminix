@@ -84,9 +84,9 @@ export default function AboutPage() {
       </section>
 
       {/* Story Section */}
-      <section className="relative z-10 py-24">
+      <section className="relative z-10 py-12 sm:py-16 lg:py-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
             {/* Visual Element */}
             <div className="relative aspect-square max-w-md mx-auto lg:mx-0">
               <div className="absolute inset-0 rounded-3xl bg-linear-to-br from-burnt-lilac/20 to-deep-purple/40 border border-mist-lilac/10" />
@@ -104,15 +104,15 @@ export default function AboutPage() {
             </div>
 
             {/* Content */}
-            <div className="space-y-8">
-              <div>
-                <span className="text-burnt-lilac text-sm font-medium tracking-wider uppercase">Our Journey</span>
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-mist-lilac mt-4 mb-6">
+            <div className="space-y-6 sm:space-y-8">
+              <div className="text-center lg:text-left">
+                <span className="text-burnt-lilac text-xs sm:text-sm font-medium tracking-wider uppercase">Our Journey</span>
+                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif text-mist-lilac mt-3 sm:mt-4 mb-4 sm:mb-6">
                   Born from Passion
                 </h2>
               </div>
 
-              <div className="space-y-6 text-mist-lilac/70 text-lg leading-relaxed">
+              <div className="space-y-4 sm:space-y-6 text-mist-lilac/70 text-base sm:text-lg leading-relaxed text-center lg:text-left">
                 <p>
                   Luminix was founded on a simple belief: fashion should be an expression of who you are. 
                   Our journey began with a passion for unique streetwear that makes a statement.
@@ -127,44 +127,46 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <Link 
-                href="/products"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-burnt-lilac text-white font-semibold rounded-full hover:bg-burnt-lilac/80 transition-all duration-300 group"
-              >
-                Explore Collection
-                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
+              <div className="flex justify-center lg:justify-start">
+                <Link 
+                  href="/products"
+                  className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-burnt-lilac text-white font-semibold rounded-full hover:bg-burnt-lilac/80 transition-all duration-300 group text-sm sm:text-base"
+                >
+                  Explore Collection
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Values Section */}
-      <section className="relative z-10 py-24 bg-linear-to-b from-deep-purple/10 via-transparent to-transparent">
+      <section className="relative z-10 py-12 sm:py-16 lg:py-24 bg-linear-to-b from-deep-purple/10 via-transparent to-transparent">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <span className="text-burnt-lilac text-sm font-medium tracking-wider uppercase">What Drives Us</span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-mist-lilac mt-4">Our Values</h2>
+          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+            <span className="text-burnt-lilac text-xs sm:text-sm font-medium tracking-wider uppercase">What Drives Us</span>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif text-mist-lilac mt-3 sm:mt-4">Our Values</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {values.map((value, index) => (
               <div
                 key={index}
-                className="group relative p-8 rounded-2xl bg-linear-to-br from-deep-purple/20 to-transparent border border-mist-lilac/10 hover:border-burnt-lilac/30 transition-all duration-500"
+                className="group relative p-6 sm:p-8 rounded-xl sm:rounded-2xl bg-linear-to-br from-deep-purple/20 to-transparent border border-mist-lilac/10 hover:border-burnt-lilac/30 transition-all duration-500"
                 style={{ animation: `fadeInUp 0.6s ease-out ${index * 0.15}s both` }}
               >
                 {/* Glow Effect */}
                 <div className="absolute inset-0 rounded-2xl bg-burnt-lilac/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
                 
                 <div className="relative z-10">
-                  <div className="w-16 h-16 rounded-2xl bg-burnt-lilac/10 border border-burnt-lilac/20 flex items-center justify-center text-burnt-lilac mb-6 group-hover:scale-110 group-hover:bg-burnt-lilac/20 transition-all duration-300">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-burnt-lilac/10 border border-burnt-lilac/20 flex items-center justify-center text-burnt-lilac mb-4 sm:mb-6 group-hover:scale-110 group-hover:bg-burnt-lilac/20 transition-all duration-300">
                     {value.icon}
                   </div>
-                  <h3 className="text-xl font-semibold text-mist-lilac mb-3">{value.title}</h3>
-                  <p className="text-mist-lilac/60 leading-relaxed">{value.description}</p>
+                  <h3 className="text-lg sm:text-xl font-semibold text-mist-lilac mb-2 sm:mb-3">{value.title}</h3>
+                  <p className="text-sm sm:text-base text-mist-lilac/60 leading-relaxed">{value.description}</p>
                 </div>
               </div>
             ))}
@@ -173,9 +175,9 @@ export default function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="relative z-10 py-24">
+      <section className="relative z-10 py-12 sm:py-16 lg:py-24">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <div className="relative p-12 rounded-3xl bg-linear-to-br from-burnt-lilac/20 to-deep-purple/30 border border-mist-lilac/10 overflow-hidden">
+          <div className="relative p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl bg-linear-to-br from-burnt-lilac/20 to-deep-purple/30 border border-mist-lilac/10 overflow-hidden">
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-10">
               <div className="absolute inset-0" style={{
@@ -185,22 +187,22 @@ export default function AboutPage() {
             </div>
 
             <div className="relative z-10">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-mist-lilac mb-6">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif text-mist-lilac mb-4 sm:mb-6">
                 Ready to Stand Out?
               </h2>
-              <p className="text-mist-lilac/60 text-lg mb-8 max-w-2xl mx-auto">
+              <p className="text-mist-lilac/60 text-sm sm:text-base lg:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto">
                 Join thousands of customers who have discovered their unique style with Luminix.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <Link
                   href="/products"
-                  className="px-8 py-4 bg-white text-black font-semibold rounded-full hover:bg-mist-lilac transition-colors"
+                  className="px-6 sm:px-8 py-3 sm:py-4 bg-white text-black font-semibold rounded-full hover:bg-mist-lilac transition-colors text-sm sm:text-base"
                 >
                   Shop Now
                 </Link>
                 <Link
                   href="/contact"
-                  className="px-8 py-4 bg-transparent border border-mist-lilac/30 text-mist-lilac font-semibold rounded-full hover:bg-mist-lilac/10 transition-colors"
+                  className="px-6 sm:px-8 py-3 sm:py-4 bg-transparent border border-mist-lilac/30 text-mist-lilac font-semibold rounded-full hover:bg-mist-lilac/10 transition-colors text-sm sm:text-base"
                 >
                   Contact Us
                 </Link>
