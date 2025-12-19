@@ -29,6 +29,36 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
 
   const isWishlisted = isInWishlist(product.id);
 
+  // Map color names to hex codes for display
+  const colorHexMap: Record<string, string> = {
+    'Black': '#000000',
+    'White': '#FFFFFF',
+    'Gray': '#6B7280',
+    'Grey': '#6B7280',
+    'Navy': '#1E3A8A',
+    'Navy Blazer': '#1E3A8A',
+    'Red': '#DC2626',
+    'Blue': '#3B82F6',
+    'Royal Blue': '#2563EB',
+    'Sky Blue': '#0EA5E9',
+    'Green': '#10B981',
+    'Forest Green': '#059669',
+    'Yellow': '#EAB308',
+    'Orange': '#F97316',
+    'Pink': '#EC4899',
+    'Purple': '#A855F7',
+    'Brown': '#92400E',
+    'Beige': '#D4A373',
+    'Cream': '#FEF3C7',
+    'Maroon': '#7F1D1D',
+    'Burgundy': '#991B1B',
+  };
+
+  // Find the Color option from product options
+  const colorOption = product.options.find(
+    (opt) => opt.name.toLowerCase() === 'color' || opt.name.toLowerCase() === 'colour'
+  );
+
   const images = product.images.edges.map((edge) => edge.node);
   const currentImage = images[selectedImageIndex] || product.featuredImage;
 
@@ -156,8 +186,63 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
           dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
         />
 
-        {/* Options */}
-        {product.options.map((option) => (
+        {/* Color Selection - Only show if product has color option */}
+        {colorOption && (
+          <div className="mb-4 sm:mb-6">
+            <label className="block text-sm font-medium text-mist-lilac mb-2 sm:mb-3">
+              {colorOption.name} {selectedOptions[colorOption.name] && <span className="text-burnt-lilac">- {selectedOptions[colorOption.name]}</span>}
+            </label>
+            <div className="flex flex-wrap gap-3">
+              {colorOption.values.map((colorValue) => {
+                const isSelected = selectedOptions[colorOption.name] === colorValue;
+                // Check if this color combination is available
+                const colorVariant = findVariant({
+                  ...selectedOptions,
+                  [colorOption.name]: colorValue,
+                });
+                const isAvailable = colorVariant?.availableForSale ?? false;
+                const hexColor = colorHexMap[colorValue] || '#6B7280'; // Default to gray if color not mapped
+
+                return (
+                  <button
+                    key={colorValue}
+                    onClick={() => handleOptionChange(colorOption.name, colorValue)}
+                    disabled={!isAvailable}
+                    className={`group relative flex flex-col items-center gap-1.5 transition-all ${
+                      isSelected ? 'scale-110' : isAvailable ? 'hover:scale-105' : 'opacity-50 cursor-not-allowed'
+                    }`}
+                    title={colorValue}
+                  >
+                    <div
+                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 transition-all ${
+                        isSelected
+                          ? 'border-burnt-lilac ring-2 ring-burnt-lilac/30'
+                          : isAvailable
+                          ? 'border-deep-purple/30 hover:border-burnt-lilac/50'
+                          : 'border-deep-purple/10'
+                      } ${colorValue.toLowerCase().includes('white') ? 'ring-1 ring-inset ring-gray-300' : ''} ${!isAvailable ? 'relative' : ''}`}
+                      style={{ backgroundColor: hexColor }}
+                    >
+                      {!isAvailable && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-full h-0.5 bg-red-500 rotate-45"></div>
+                        </div>
+                      )}
+                    </div>
+                    <span className={`text-xs transition-colors ${
+                      isSelected ? 'text-burnt-lilac' : isAvailable ? 'text-mist-lilac/70 group-hover:text-burnt-lilac' : 'text-mist-lilac/30 line-through'
+                    }`}>
+                      {colorValue}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Options (excluding Color since we already displayed it) */}
+        {product.options.filter(option => option.name.toLowerCase() !== 'color' && option.name.toLowerCase() !== 'colour').map((option) => (
           <div key={option.id} className="mb-4 sm:mb-6">
             <label className="block text-sm font-medium text-mist-lilac mb-2 sm:mb-3">
               {option.name}
