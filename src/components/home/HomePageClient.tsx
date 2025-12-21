@@ -423,10 +423,10 @@ function ProductCardEnhanced({ product, index }: { product: ShopifyProduct; inde
           />
         )}
 
-        {/* Sale Badge */}
+        {/* New Badge */}
         {hasDiscount && (
-          <div className="absolute top-3 left-3 px-2 py-1 bg-linear-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-lg shadow-lg">
-            SALE
+          <div className="absolute top-3 left-3 px-2 py-1 bg-linear-to-r from-purple-500 to-purple-600 text-white text-xs font-bold rounded-lg shadow-lg">
+            NEW
           </div>
         )}
 
