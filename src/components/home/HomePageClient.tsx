@@ -52,9 +52,9 @@ export default function HomePageClient({ featuredProducts, newArrivals }: HomePa
   }, []);
 
   const collections = [
-    { name: "Men's Fashion", href: '/collections/mens-essentials', image: '/images/mens.jpg' },
-    { name: 'New Arrivals', href: '/collections/new-arrivals', image: '/images/new_arrivals.jpg' },
-    { name: "Women's Fashion", href: '/collections/womens-essentials', image: '/images/womens.jpg' },
+    { name: "Men's Fashion", href: '/products?category=mens-essentials', image: '/images/mens.jpg' },
+    { name: 'New Arrivals', href: '/products?category=new-arrivals', image: '/images/new_arrivals.jpg' },
+    { name: "Women's Fashion", href: '/products?category=womens-essentials', image: '/images/womens.jpg' },
   ];
 
   return (
@@ -109,7 +109,7 @@ export default function HomePageClient({ featuredProducts, newArrivals }: HomePa
               <div className="absolute inset-0 bg-linear-to-r from-purple-600 to-burnt-lilac opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </Link>
             <Link
-              href="/collections/new-arrivals"
+              href="/products?category=new-arrivals"
               className="px-10 py-4 bg-white/5 backdrop-blur-sm rounded-xl text-mist-lilac font-medium border border-white/10 hover:bg-white/10 hover:border-burnt-lilac/30 transition-all duration-300"
             >
               New Arrivals
@@ -275,7 +275,7 @@ export default function HomePageClient({ featuredProducts, newArrivals }: HomePa
               </h2>
             </div>
             <Link
-              href="/collections/new-arrivals"
+              href="/products?category=new-arrivals"
               className="inline-flex items-center gap-2 text-burnt-lilac hover:text-mist-lilac transition-colors group"
             >
               View All
@@ -296,7 +296,7 @@ export default function HomePageClient({ featuredProducts, newArrivals }: HomePa
               
               {/* View More Card */}
               <Link
-                href="/collections/new-arrivals"
+                href="/products?category=new-arrivals"
                 className="shrink-0 w-64 sm:w-72 flex flex-col items-center justify-center bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:border-burnt-lilac/30 hover:bg-white/10 transition-all group aspect-3/4"
               >
                 <div className="w-16 h-16 rounded-full bg-burnt-lilac/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
