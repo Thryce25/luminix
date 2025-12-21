@@ -44,11 +44,20 @@ export default function AccountPageClient() {
     console.log('[Modal State] showPhoneModal:', showPhoneModal);
   }, [showPhoneModal]);
 
-  // Check URL params for OAuth signup
+  // Check URL params for action (signin/signup) and OAuth signup
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
+      const action = params.get('action');
       const oauthMode = params.get('oauth_mode');
+      
+      // Set isLogin based on action parameter
+      if (action === 'signin') {
+        setIsLogin(true);
+      } else if (action === 'signup') {
+        setIsLogin(false);
+      }
+      
       console.log('[OAuth Check] oauth_mode:', oauthMode, 'user:', user?.id);
       
       // If coming from OAuth signup, check phone immediately
@@ -146,7 +155,15 @@ export default function AccountPageClient() {
         const { error } = await signIn(email, password);
         if (error) throw error;
         setSuccess('Signed in successfully!');
-        setTimeout(() => router.push('/account'), 1000);
+        
+        // Check for redirect after auth
+        const redirectTo = typeof window !== 'undefined' ? localStorage.getItem('redirectAfterAuth') : null;
+        if (redirectTo) {
+          localStorage.removeItem('redirectAfterAuth');
+          setTimeout(() => router.push(redirectTo), 1000);
+        } else {
+          setTimeout(() => router.push('/account'), 1000);
+        }
       } else {
         // Sign up without phone number - will collect via popup
         const { error } = await signUp(email, password, firstName, lastName, 'NOT_PROVIDED');
@@ -157,6 +174,12 @@ export default function AccountPageClient() {
         setPassword('');
         setFirstName('');
         setLastName('');
+        
+        // Check for redirect after auth (for signup too)
+        const redirectTo = typeof window !== 'undefined' ? localStorage.getItem('redirectAfterAuth') : null;
+        if (redirectTo) {
+          localStorage.removeItem('redirectAfterAuth');
+        }
         
         // Show phone modal immediately after signup
         setIsSubmitting(false);
@@ -275,6 +298,13 @@ export default function AccountPageClient() {
         setUserPhoneNumber(modalPhoneNumber);
         setModalPhoneNumber('');
         setSuccess('Phone number saved! Please check your email to verify your account.');
+        
+        // Check for redirect after auth
+        const redirectTo = typeof window !== 'undefined' ? localStorage.getItem('redirectAfterAuth') : null;
+        if (redirectTo) {
+          localStorage.removeItem('redirectAfterAuth');
+          setTimeout(() => router.push(redirectTo), 1000);
+        }
       } else {
         // Store phone temporarily if user isn't authenticated yet (just signed up)
         if (typeof window !== 'undefined') {
@@ -283,6 +313,13 @@ export default function AccountPageClient() {
         setShowPhoneModal(false);
         setModalPhoneNumber('');
         setSuccess('Account created! Please check your email to verify your account. Your phone number will be saved after verification.');
+        
+        // Check for redirect after auth
+        const redirectTo = typeof window !== 'undefined' ? localStorage.getItem('redirectAfterAuth') : null;
+        if (redirectTo) {
+          localStorage.removeItem('redirectAfterAuth');
+          setTimeout(() => router.push(redirectTo), 1500);
+        }
       }
     } catch (err: any) {
       setError('Failed to save phone number: ' + err.message);
