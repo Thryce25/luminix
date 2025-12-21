@@ -7,6 +7,7 @@ import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { AuthProvider } from "@/context/AuthContext";
 import FloatingBackground from "@/components/common/FloatingBackground";
+import ScrollToTop from "@/components/common/ScrollToTop";
 import { generateOrganizationJsonLd, generateWebsiteJsonLd, JsonLd } from "@/lib/structured-data";
 
 const playfair = Playfair_Display({
@@ -116,6 +117,7 @@ export default function RootLayout({
         <JsonLd data={organizationJsonLd} />
         <JsonLd data={websiteJsonLd} />
         <FloatingBackground />
+        <ScrollToTop />
         <AuthProvider>
           <CartProvider>
             <WishlistProvider>
