@@ -8,9 +8,81 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const SHOPIFY_STORE_DOMAIN = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN!;
+const SHOPIFY_STOREFRONT_ACCESS_TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN!;
 
 // Initialize Supabase with service role key to bypass RLS
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+// Fetch all products from Shopify to match with order items
+async function fetchShopifyProducts() {
+  const products = new Map<string, { id: string; image: string | null }>();
+  let hasNextPage = true;
+  let cursor: string | null = null;
+
+  while (hasNextPage) {
+    const query = `
+      query getProducts($cursor: String) {
+        products(first: 250, after: $cursor) {
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+          edges {
+            node {
+              id
+              title
+              featuredImage {
+                url
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    try {
+      const response = await fetch(
+        `https://${SHOPIFY_STORE_DOMAIN}/api/2024-10/graphql.json`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Storefront-Access-Token': SHOPIFY_STOREFRONT_ACCESS_TOKEN,
+          },
+          body: JSON.stringify({ query, variables: { cursor } }),
+        }
+      );
+
+      const data = await response.json();
+      
+      if (data.errors) {
+        console.error('GraphQL errors:', data.errors);
+        break;
+      }
+
+      const productsData = data.data.products;
+      
+      // Store products by normalized title for matching
+      productsData.edges.forEach((edge: any) => {
+        const product = edge.node;
+        const normalizedTitle = product.title.toLowerCase().trim();
+        products.set(normalizedTitle, {
+          id: product.id.split('/').pop(),
+          image: product.featuredImage?.url || null,
+        });
+      });
+
+      hasNextPage = productsData.pageInfo.hasNextPage;
+      cursor = productsData.pageInfo.endCursor;
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      break;
+    }
+  }
+
+  return products;
+}
 
 interface CSVRow {
   Name: string;
@@ -106,7 +178,7 @@ function groupOrdersByOrderNumber(rows: CSVRow[]): Map<string, CSVRow[]> {
   return orderMap;
 }
 
-function transformOrder(orderRows: CSVRow[]) {
+function transformOrder(orderRows: CSVRow[], productMatches: Map<string, { id: string; image: string | null }>) {
   const firstRow = orderRows[0];
   
   // Extract Shopify order ID from the Id field
@@ -118,19 +190,26 @@ function transformOrder(orderRows: CSVRow[]) {
   const customerName = firstRow['Billing Name'] || firstRow['Shipping Name'] || 'Guest';
   const customerPhone = firstRow['Billing Phone'] || firstRow['Shipping Phone'] || null;
   
-  // Parse line items
+  // Parse line items with product matching
   const lineItems = orderRows
     .filter(row => row['Lineitem name']) // Only rows with line items
-    .map(row => ({
-      id: Math.random().toString(36).substring(7), // Generate a temporary ID
-      title: row['Lineitem name'],
-      quantity: parseInt(row['Lineitem quantity']) || 1,
-      price: row['Lineitem price'],
-      variant_id: null,
-      variant_title: null,
-      product_id: null,
-      image_url: null,
-    }));
+    .map(row => {
+      const itemTitle = row['Lineitem name'];
+      // Normalize title for matching (remove size/variant info)
+      const baseTitle = itemTitle.split(' - ')[0].toLowerCase().trim();
+      const match = productMatches.get(baseTitle);
+      
+      return {
+        id: Math.random().toString(36).substring(7),
+        title: itemTitle,
+        quantity: parseInt(row['Lineitem quantity']) || 1,
+        price: row['Lineitem price'],
+        variant_id: null,
+        variant_title: null,
+        product_id: match?.id || null,
+        image_url: match?.image || null,
+      };
+    });
   
   // Parse addresses
   const shippingAddress = firstRow['Shipping Name'] ? {
@@ -197,6 +276,11 @@ async function importOrders() {
     const csvContent = fs.readFileSync(csvPath, 'utf-8');
     console.log('✅ CSV file loaded\n');
     
+    // Fetch products from Shopify for matching
+    console.log('🔍 Fetching products from Shopify for image matching...');
+    const productMatches = await fetchShopifyProducts();
+    console.log(`✅ Loaded ${productMatches.size} products from Shopify\n`);
+    
     // Parse CSV
     console.log('📊 Parsing CSV...');
     const rows = parseCSV(csvContent);
@@ -213,7 +297,7 @@ async function importOrders() {
     let skippedCount = 0;
     
     for (const [orderNumber, orderRows] of orderMap) {
-      const transformedOrder = transformOrder(orderRows);
+      const transformedOrder = transformOrder(orderRows, productMatches);
       
       // Skip orders without email (unless you want to keep them)
       if (!transformedOrder.customer_email) {

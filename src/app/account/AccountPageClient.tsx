@@ -640,7 +640,7 @@ export default function AccountPageClient() {
                       <div className="relative group/price">
                         <div className="text-right cursor-help">
                           <p className="text-xs text-mist-lilac/50 mb-1">Total Amount</p>
-                          <p className="text-2xl font-bold bg-gradient-to-r from-burnt-lilac to-pink-400 bg-clip-text text-transparent">
+                          <p className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-violet-500 bg-clip-text text-transparent">
                             {order.totalPrice.currencyCode} {parseFloat(order.totalPrice.amount).toFixed(2)}
                           </p>
                         </div>
@@ -713,7 +713,7 @@ export default function AccountPageClient() {
                             
                             {/* Item Price */}
                             <div className="text-right flex-shrink-0">
-                              <p className="text-burnt-lilac font-bold">
+                              <p className="text-purple-400 font-bold">
                                 {order.totalPrice.currencyCode} {parseFloat(item.node.variant.price.amount).toFixed(2)}
                               </p>
                               {item.node.quantity > 1 && (
