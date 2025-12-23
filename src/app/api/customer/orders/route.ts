@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const SHOPIFY_STORE_DOMAIN = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-const SHOPIFY_ADMIN_ACCESS_TOKEN = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+import { createClient } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,143 +16,54 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check if required environment variables are set
-    if (!SHOPIFY_ADMIN_ACCESS_TOKEN) {
-      console.error('[API Orders] SHOPIFY_ADMIN_ACCESS_TOKEN is not set');
-      // Return empty orders instead of error for better UX
-      return NextResponse.json({ orders: [] });
-    }
-
-    if (!SHOPIFY_STORE_DOMAIN) {
-      console.error('[API Orders] SHOPIFY_STORE_DOMAIN is not set');
-      return NextResponse.json({ orders: [] });
-    }
-
-    console.log('[API Orders] Using domain:', SHOPIFY_STORE_DOMAIN);
-
-    // GraphQL query to fetch customer orders
-    const query = `
-      query getCustomerOrders($query: String!) {
-        customers(first: 1, query: $query) {
-          edges {
-            node {
-              id
-              email
-              orders(first: 50, reverse: true, sortKey: PROCESSED_AT) {
-                edges {
-                  node {
-                    id
-                    name
-                    processedAt
-                    financialStatus
-                    fulfillmentStatus
-                    totalPriceSet {
-                      shopMoney {
-                        amount
-                        currencyCode
-                      }
-                    }
-                    lineItems(first: 50) {
-                      edges {
-                        node {
-                          title
-                          quantity
-                          variant {
-                            price
-                            image {
-                              url
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    `;
-
-    const response = await fetch(
-      `https://${SHOPIFY_STORE_DOMAIN}/admin/api/2024-01/graphql.json`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Shopify-Access-Token': SHOPIFY_ADMIN_ACCESS_TOKEN,
-        },
-        body: JSON.stringify({
-          query,
-          variables: { query: `email:${email}` },
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Shopify API error:', response.status, errorText);
-      return NextResponse.json({ orders: [] });
-    }
-
-    const data = await response.json();
-
-    console.log('[API Orders] Shopify response:', JSON.stringify(data, null, 2));
-
-    if (data.errors) {
-      console.error('[API Orders] Shopify GraphQL errors:', data.errors);
-      return NextResponse.json({ orders: [] });
-    }
-
-    const customerEdges = data.data?.customers?.edges || [];
-    console.log('[API Orders] Found', customerEdges.length, 'customers');
+    // Fetch orders from Supabase
+    const supabase = await createClient();
     
-    if (customerEdges.length === 0) {
-      console.log('[API Orders] No customer found for email:', email);
+    const { data: orders, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('customer_email', email)
+      .order('processed_at', { ascending: false });
+
+    if (error) {
+      console.error('[API Orders] Supabase error:', error);
       return NextResponse.json({ orders: [] });
     }
 
-    const customer = customerEdges[0].node;
-    const orderEdges = customer.orders?.edges || [];
-    console.log('[API Orders] Customer has', orderEdges.length, 'orders');
+    console.log('[API Orders] Found', orders?.length || 0, 'orders for', email);
 
-    // Transform orders to match the frontend interface
-    const orders = orderEdges.map((edge: any) => {
-      const order = edge.node;
-      return {
-        id: order.id,
-        orderNumber: parseInt(order.name.replace('#', '')),
-        processedAt: order.processedAt,
-        financialStatus: order.financialStatus,
-        fulfillmentStatus: order.fulfillmentStatus,
-        totalPrice: {
-          amount: order.totalPriceSet.shopMoney.amount,
-          currencyCode: order.totalPriceSet.shopMoney.currencyCode,
-        },
-        lineItems: {
-          edges: order.lineItems.edges.map((item: any) => ({
-            node: {
-              title: item.node.title,
-              quantity: item.node.quantity,
-              variant: {
-                price: {
-                  amount: item.node.variant?.price || '0',
-                  currencyCode: order.totalPriceSet.shopMoney.currencyCode,
-                },
-                image: item.node.variant?.image || null,
+    // Transform to match frontend interface
+    const formattedOrders = (orders || []).map((order) => ({
+      id: order.shopify_order_id,
+      orderNumber: parseInt(order.order_number),
+      processedAt: order.processed_at,
+      financialStatus: order.financial_status,
+      fulfillmentStatus: order.fulfillment_status || 'UNFULFILLED',
+      totalPrice: {
+        amount: order.total_price.toString(),
+        currencyCode: order.currency,
+      },
+      lineItems: {
+        edges: order.line_items.map((item: any) => ({
+          node: {
+            title: item.title,
+            quantity: item.quantity,
+            variant: {
+              price: {
+                amount: item.price,
+                currencyCode: order.currency,
               },
+              image: item.image_url ? { url: item.image_url } : null,
             },
-          })),
-        },
-      };
-    });
+          },
+        })),
+      },
+    }));
 
-    console.log('[API Orders] Returning', orders.length, 'formatted orders');
-    return NextResponse.json({ orders });
+    console.log('[API Orders] Returning', formattedOrders.length, 'formatted orders');
+    return NextResponse.json({ orders: formattedOrders });
   } catch (error: any) {
     console.error('[API Orders] Error:', error);
-    // Return empty array instead of error for better UX
     return NextResponse.json({ orders: [] });
   }
 }
