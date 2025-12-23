@@ -3,6 +3,7 @@ import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import AnnouncementBar from "@/components/common/AnnouncementBar";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { AuthProvider } from "@/context/AuthContext";
@@ -121,8 +122,9 @@ export default function RootLayout({
         <AuthProvider>
           <CartProvider>
             <WishlistProvider>
+              <AnnouncementBar />
               <Header />
-              <main className="min-h-screen pt-20 relative" style={{ zIndex: 10 }}>{children}</main>
+              <main className="min-h-screen pt-28 relative" style={{ zIndex: 10 }}>{children}</main>
               <Footer />
             </WishlistProvider>
           </CartProvider>

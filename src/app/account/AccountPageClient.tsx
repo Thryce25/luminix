@@ -20,6 +20,35 @@ interface Address {
   isDefault?: boolean;
 }
 
+interface Order {
+  id: string;
+  orderNumber: number;
+  processedAt: string;
+  financialStatus: string;
+  fulfillmentStatus: string;
+  totalPrice: {
+    amount: string;
+    currencyCode: string;
+  };
+  lineItems: {
+    edges: Array<{
+      node: {
+        title: string;
+        quantity: number;
+        variant: {
+          price: {
+            amount: string;
+            currencyCode: string;
+          };
+          image: {
+            url: string;
+          } | null;
+        };
+      };
+    }>;
+  };
+}
+
 export default function AccountPageClient() {
   const { user, loading, signIn, signUp, signInWithGoogle, signInWithGitHub, signOut, updateProfile } = useAuth();
   const router = useRouter();
@@ -144,6 +173,10 @@ export default function AccountPageClient() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [isAddingAddress, setIsAddingAddress] = useState(false);
 
+  // Orders state
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -197,6 +230,32 @@ export default function AccountPageClient() {
     await signOut();
     router.push('/');
   };
+
+  // Fetch customer orders
+  const fetchOrders = async () => {
+    if (!user?.email) return;
+
+    setOrdersLoading(true);
+    try {
+      const response = await fetch(`/api/customer/orders?email=${encodeURIComponent(user.email)}`);
+      if (!response.ok) throw new Error('Failed to fetch orders');
+      
+      const data = await response.json();
+      setOrders(data.orders || []);
+    } catch (err: any) {
+      console.error('Error fetching orders:', err);
+      setError(err.message || 'Failed to load orders');
+    } finally {
+      setOrdersLoading(false);
+    }
+  };
+
+  // Fetch orders when orders tab is selected
+  useEffect(() => {
+    if (activeTab === 'orders' && user && orders.length === 0) {
+      fetchOrders();
+    }
+  }, [activeTab, user]);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -525,7 +584,70 @@ export default function AccountPageClient() {
         {activeTab === 'orders' && (
           <div className="card-gothic p-4 sm:p-6 md:p-8 lg:p-12 animate-scale-in">
             <h2 className="text-xl sm:text-2xl font-serif text-burnt-lilac mb-6 sm:mb-8">Order History</h2>
-            <div className="space-y-4">
+            
+            {ordersLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <svg className="animate-spin h-10 w-10 text-burnt-lilac" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+            ) : orders.length > 0 ? (
+              <div className="space-y-6">
+                {orders.map((order) => (
+                  <div key={order.id} className="bg-white/5 border border-burnt-lilac/20 rounded-lg p-6 hover:border-burnt-lilac/40 transition-all duration-300">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                      <div>
+                        <h3 className="text-lg font-semibold text-mist-lilac">Order #{order.orderNumber}</h3>
+                        <p className="text-sm text-mist-lilac/60">
+                          {new Date(order.processedAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-start sm:items-end gap-2">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          order.fulfillmentStatus === 'FULFILLED' 
+                            ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+                            : order.fulfillmentStatus === 'PARTIALLY_FULFILLED'
+                            ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                            : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                        }`}>
+                          {order.fulfillmentStatus === 'FULFILLED' ? 'Delivered' : 
+                           order.fulfillmentStatus === 'PARTIALLY_FULFILLED' ? 'In Transit' : 'Processing'}
+                        </span>
+                        <p className="text-lg font-semibold text-burnt-lilac">
+                          {order.totalPrice.currencyCode} {parseFloat(order.totalPrice.amount).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="border-t border-burnt-lilac/10 pt-4 space-y-3">
+                      {order.lineItems.edges.map((item, idx) => (
+                        <div key={idx} className="flex gap-4">
+                          {item.node.variant?.image && (
+                            <img 
+                              src={item.node.variant.image.url} 
+                              alt={item.node.title}
+                              className="w-16 h-16 object-cover rounded-lg bg-white/5"
+                            />
+                          )}
+                          <div className="flex-1">
+                            <p className="text-mist-lilac font-medium">{item.node.title}</p>
+                            <p className="text-sm text-mist-lilac/60">Quantity: {item.node.quantity}</p>
+                          </div>
+                          <p className="text-mist-lilac font-medium">
+                            {order.totalPrice.currencyCode} {parseFloat(item.node.variant.price.amount).toFixed(2)}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
               <div className="text-center py-12">
                 <svg className="w-16 h-16 mx-auto text-mist-lilac/30 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -535,7 +657,7 @@ export default function AccountPageClient() {
                   Start Shopping
                 </Link>
               </div>
-            </div>
+            )}
           </div>
         )}
 
