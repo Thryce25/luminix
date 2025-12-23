@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { ShopifyProduct, ShopifyProductVariant, formatPrice, getProductImageUrl } from '@/lib/shopify';
 import { useCart } from '@/context/CartContext';
@@ -26,6 +26,10 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
+  
+  // Touch/swipe handling
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(0);
 
   const isWishlisted = isInWishlist(product.id);
 
@@ -109,12 +113,49 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
     }
   };
 
+  // Handle swipe navigation
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX.current - touchEndX.current > 50) {
+      // Swipe left - next image
+      handleNextImage();
+    }
+    if (touchEndX.current - touchStartX.current > 50) {
+      // Swipe right - previous image
+      handlePreviousImage();
+    }
+  };
+
+  const handleNextImage = () => {
+    if (selectedImageIndex < images.length - 1) {
+      setSelectedImageIndex(selectedImageIndex + 1);
+    }
+  };
+
+  const handlePreviousImage = () => {
+    if (selectedImageIndex > 0) {
+      setSelectedImageIndex(selectedImageIndex - 1);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 xl:gap-16">
       {/* Image Gallery */}
       <div className="space-y-3 sm:space-y-4">
         {/* Main Image */}
-        <div className="relative aspect-square sm:aspect-square bg-deep-purple/10 rounded-lg overflow-hidden">
+        <div 
+          className="relative aspect-square sm:aspect-square bg-deep-purple/10 rounded-lg overflow-hidden group"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           {currentImage && (
             <Image
               src={currentImage.url}
@@ -124,6 +165,37 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
               className="object-cover"
               priority
             />
+          )}
+          
+          {/* Arrow Navigation - Desktop only */}
+          {images.length > 1 && (
+            <>
+              {/* Previous Button */}
+              {selectedImageIndex > 0 && (
+                <button
+                  onClick={handlePreviousImage}
+                  className="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center bg-black/50 hover:bg-black/70 text-white rounded-full transition-all opacity-0 group-hover:opacity-100"
+                  aria-label="Previous image"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+              )}
+              
+              {/* Next Button */}
+              {selectedImageIndex < images.length - 1 && (
+                <button
+                  onClick={handleNextImage}
+                  className="hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center bg-black/50 hover:bg-black/70 text-white rounded-full transition-all opacity-0 group-hover:opacity-100"
+                  aria-label="Next image"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              )}
+            </>
           )}
         </div>
 
