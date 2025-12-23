@@ -671,19 +671,8 @@ export default function AccountPageClient() {
                     {/* Product Items with Images */}
                     <div className="space-y-3">
                       {order.lineItems.edges.map((item, idx) => {
-                        const ItemWrapper = item.node.productHandle ? Link : 'div';
-                        const wrapperProps = item.node.productHandle 
-                          ? { href: `/products/${item.node.productHandle}` }
-                          : {};
-                        
-                        return (
-                          <ItemWrapper 
-                            key={idx} 
-                            {...wrapperProps}
-                            className={`flex gap-4 items-center bg-white/[0.03] rounded-lg p-3 hover:bg-white/[0.06] transition-all ${
-                              item.node.productHandle ? 'cursor-pointer hover:border-burnt-lilac/30 border border-transparent' : ''
-                            }`}
-                          >
+                        const itemContent = (
+                          <>
                             {/* Product Image */}
                             <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-burnt-lilac/10 to-transparent border border-burnt-lilac/20">
                               {item.node.variant?.image ? (
@@ -733,7 +722,24 @@ export default function AccountPageClient() {
                                 </p>
                               )}
                             </div>
-                          </ItemWrapper>
+                          </>
+                        );
+                        
+                        return item.node.productHandle ? (
+                          <Link
+                            key={idx}
+                            href={`/products/${item.node.productHandle}`}
+                            className="flex gap-4 items-center bg-white/[0.03] rounded-lg p-3 hover:bg-white/[0.06] transition-all cursor-pointer hover:border-burnt-lilac/30 border border-transparent"
+                          >
+                            {itemContent}
+                          </Link>
+                        ) : (
+                          <div
+                            key={idx}
+                            className="flex gap-4 items-center bg-white/[0.03] rounded-lg p-3"
+                          >
+                            {itemContent}
+                          </div>
                         );
                       })}
                     </div>
