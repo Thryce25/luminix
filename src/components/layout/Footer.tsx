@@ -2,10 +2,10 @@ import Link from 'next/link';
 
 const footerLinks = {
   shop: [
-    { name: 'New Arrivals', href: '/products?sort=newest' },
+    { name: 'New Arrivals', href: '/products?category=new-arrivals' },
     { name: 'Best Sellers', href: '/products?sort=best-selling' },
-    { name: 'Men', href: '/products?category=men' },
-    { name: 'Women', href: '/products?category=women' },
+    { name: 'Men', href: '/products?category=mens-essentials' },
+    { name: 'Women', href: '/products?category=womens-essentials' },
     { name: 'Sale', href: '/products?sale=true' },
   ],
   help: [

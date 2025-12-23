@@ -112,25 +112,6 @@ export default function ProductFilters({
         </div>
         
         <div className="flex items-center gap-2">
-          {/* Search Bar - Mobile/Tablet only */}
-          <form onSubmit={handleSearch} className="relative lg:hidden">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search..."
-              className="w-32 sm:w-48 px-3 py-2.5 pr-9 bg-deep-purple/30 border border-mist-lilac/20 rounded-lg text-mist-lilac text-sm placeholder-mist-lilac/40 hover:border-burnt-lilac/50 focus:border-burnt-lilac focus:outline-none transition-colors"
-            />
-            <button
-              type="submit"
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-burnt-lilac/10 rounded transition-colors"
-            >
-              <svg className="w-4 h-4 text-burnt-lilac" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
-          </form>
-
           {/* Mobile Filter Button */}
           <button
             onClick={() => setMobileFiltersOpen(true)}
