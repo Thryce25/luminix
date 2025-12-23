@@ -42,7 +42,7 @@ async function fetchShopifyProducts() {
     `;
 
     try {
-      const response = await fetch(
+      const response: Response = await fetch(
         `https://${SHOPIFY_STORE_DOMAIN}/api/2024-10/graphql.json`,
         {
           method: 'POST',
