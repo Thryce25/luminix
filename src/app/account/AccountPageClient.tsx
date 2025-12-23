@@ -233,15 +233,27 @@ export default function AccountPageClient() {
 
   // Fetch customer orders
   const fetchOrders = async () => {
-    if (!user?.email) return;
+    if (!user?.email) {
+      console.log('[Orders] No user email available');
+      return;
+    }
 
+    console.log('[Orders] Fetching orders for email:', user.email);
     setOrdersLoading(true);
     try {
-      const response = await fetch(`/api/customer/orders?email=${encodeURIComponent(user.email)}`);
+      const url = `/api/customer/orders?email=${encodeURIComponent(user.email)}`;
+      console.log('[Orders] API URL:', url);
+      
+      const response = await fetch(url);
+      console.log('[Orders] Response status:', response.status);
+      
       const data = await response.json();
+      console.log('[Orders] Response data:', data);
+      
       setOrders(data.orders || []);
+      console.log('[Orders] Orders set:', data.orders?.length || 0, 'orders');
     } catch (err: any) {
-      console.error('Error fetching orders:', err);
+      console.error('[Orders] Error fetching orders:', err);
       // Silently fail and show empty state
       setOrders([]);
     } finally {
@@ -251,7 +263,9 @@ export default function AccountPageClient() {
 
   // Fetch orders when orders tab is selected
   useEffect(() => {
+    console.log('[Orders Effect] activeTab:', activeTab, 'user:', !!user, 'orders.length:', orders.length);
     if (activeTab === 'orders' && user && orders.length === 0) {
+      console.log('[Orders Effect] Triggering fetchOrders');
       fetchOrders();
     }
   }, [activeTab, user]);

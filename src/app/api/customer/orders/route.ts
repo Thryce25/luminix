@@ -8,7 +8,10 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const email = searchParams.get('email');
 
+    console.log('[API Orders] Request received for email:', email);
+
     if (!email) {
+      console.log('[API Orders] No email provided');
       return NextResponse.json(
         { error: 'Email is required' },
         { status: 400 }
@@ -17,15 +20,17 @@ export async function GET(request: NextRequest) {
 
     // Check if required environment variables are set
     if (!SHOPIFY_ADMIN_ACCESS_TOKEN) {
-      console.error('SHOPIFY_ADMIN_ACCESS_TOKEN is not set');
+      console.error('[API Orders] SHOPIFY_ADMIN_ACCESS_TOKEN is not set');
       // Return empty orders instead of error for better UX
       return NextResponse.json({ orders: [] });
     }
 
     if (!SHOPIFY_STORE_DOMAIN) {
-      console.error('SHOPIFY_STORE_DOMAIN is not set');
+      console.error('[API Orders] SHOPIFY_STORE_DOMAIN is not set');
       return NextResponse.json({ orders: [] });
     }
+
+    console.log('[API Orders] Using domain:', SHOPIFY_STORE_DOMAIN);
 
     // GraphQL query to fetch customer orders
     const query = `
@@ -95,19 +100,24 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
 
+    console.log('[API Orders] Shopify response:', JSON.stringify(data, null, 2));
+
     if (data.errors) {
-      console.error('Shopify GraphQL errors:', data.errors);
+      console.error('[API Orders] Shopify GraphQL errors:', data.errors);
       return NextResponse.json({ orders: [] });
     }
 
     const customerEdges = data.data?.customers?.edges || [];
+    console.log('[API Orders] Found', customerEdges.length, 'customers');
     
     if (customerEdges.length === 0) {
+      console.log('[API Orders] No customer found for email:', email);
       return NextResponse.json({ orders: [] });
     }
 
     const customer = customerEdges[0].node;
     const orderEdges = customer.orders?.edges || [];
+    console.log('[API Orders] Customer has', orderEdges.length, 'orders');
 
     // Transform orders to match the frontend interface
     const orders = orderEdges.map((edge: any) => {
@@ -140,9 +150,10 @@ export async function GET(request: NextRequest) {
       };
     });
 
+    console.log('[API Orders] Returning', orders.length, 'formatted orders');
     return NextResponse.json({ orders });
   } catch (error: any) {
-    console.error('Error fetching orders:', error);
+    console.error('[API Orders] Error:', error);
     // Return empty array instead of error for better UX
     return NextResponse.json({ orders: [] });
   }
