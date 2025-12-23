@@ -606,54 +606,111 @@ export default function AccountPageClient() {
                 </svg>
               </div>
             ) : orders.length > 0 ? (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {orders.map((order) => (
-                  <div key={order.id} className="bg-white/5 border border-burnt-lilac/20 rounded-lg p-6 hover:border-burnt-lilac/40 transition-all duration-300">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-                      <div>
-                        <h3 className="text-lg font-semibold text-mist-lilac">Order #{order.orderNumber}</h3>
-                        <p className="text-sm text-mist-lilac/60">
+                  <div key={order.id} className="group bg-gradient-to-br from-white/5 to-white/[0.02] border border-burnt-lilac/20 rounded-xl p-5 hover:border-burnt-lilac/50 hover:shadow-lg hover:shadow-burnt-lilac/10 transition-all duration-300">
+                    {/* Order Header */}
+                    <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-5">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-1">
+                          <h3 className="text-lg font-bold text-burnt-lilac">Order #{order.orderNumber}</h3>
+                          <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                            order.fulfillmentStatus === 'fulfilled' 
+                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' 
+                              : order.fulfillmentStatus === 'partial'
+                              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                              : 'bg-violet-500/20 text-violet-300 border border-violet-500/40'
+                          }`}>
+                            {order.fulfillmentStatus === 'fulfilled' ? '✓ Delivered' : 
+                             order.fulfillmentStatus === 'partial' ? '⟳ In Transit' : '⏱ Processing'}
+                          </span>
+                        </div>
+                        <p className="text-sm text-mist-lilac/50">
                           {new Date(order.processedAt).toLocaleDateString('en-US', {
                             year: 'numeric',
-                            month: 'long',
+                            month: 'short',
                             day: 'numeric'
                           })}
                         </p>
                       </div>
-                      <div className="flex flex-col items-start sm:items-end gap-2">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          order.fulfillmentStatus === 'FULFILLED' 
-                            ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
-                            : order.fulfillmentStatus === 'PARTIALLY_FULFILLED'
-                            ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
-                            : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                        }`}>
-                          {order.fulfillmentStatus === 'FULFILLED' ? 'Delivered' : 
-                           order.fulfillmentStatus === 'PARTIALLY_FULFILLED' ? 'In Transit' : 'Processing'}
-                        </span>
-                        <p className="text-lg font-semibold text-burnt-lilac">
-                          {order.totalPrice.currencyCode} {parseFloat(order.totalPrice.amount).toFixed(2)}
-                        </p>
+                      
+                      {/* Total Price with Hover Details */}
+                      <div className="relative group/price">
+                        <div className="text-right cursor-help">
+                          <p className="text-xs text-mist-lilac/50 mb-1">Total Amount</p>
+                          <p className="text-2xl font-bold bg-gradient-to-r from-burnt-lilac to-pink-400 bg-clip-text text-transparent">
+                            {order.totalPrice.currencyCode} {parseFloat(order.totalPrice.amount).toFixed(2)}
+                          </p>
+                        </div>
+                        
+                        {/* Hover Dropdown - Order Details */}
+                        <div className="absolute right-0 top-full mt-2 w-72 bg-deep-purple/95 backdrop-blur-sm border border-burnt-lilac/30 rounded-lg p-4 opacity-0 invisible group-hover/price:opacity-100 group-hover/price:visible transition-all duration-300 shadow-xl z-10">
+                          <h4 className="text-sm font-bold text-burnt-lilac mb-3 border-b border-burnt-lilac/20 pb-2">Order Summary</h4>
+                          <div className="space-y-2 text-xs">
+                            <div className="flex justify-between text-mist-lilac/80">
+                              <span>Payment Status:</span>
+                              <span className="font-semibold text-green-400">{order.financialStatus || 'Paid'}</span>
+                            </div>
+                            <div className="flex justify-between text-mist-lilac/80">
+                              <span>Items:</span>
+                              <span className="font-semibold text-mist-lilac">{order.lineItems.edges.reduce((sum, item) => sum + item.node.quantity, 0)}</span>
+                            </div>
+                            <div className="flex justify-between text-mist-lilac/80">
+                              <span>Order Date:</span>
+                              <span className="font-semibold text-mist-lilac">
+                                {new Date(order.processedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     
-                    <div className="border-t border-burnt-lilac/10 pt-4 space-y-3">
+                    {/* Product Items with Images */}
+                    <div className="space-y-3">
                       {order.lineItems.edges.map((item, idx) => (
-                        <div key={idx} className="flex gap-4">
-                          {item.node.variant?.image && (
-                            <img 
-                              src={item.node.variant.image.url} 
-                              alt={item.node.title}
-                              className="w-16 h-16 object-cover rounded-lg bg-white/5"
-                            />
-                          )}
-                          <div className="flex-1">
-                            <p className="text-mist-lilac font-medium">{item.node.title}</p>
-                            <p className="text-sm text-mist-lilac/60">Quantity: {item.node.quantity}</p>
+                        <div key={idx} className="flex gap-4 items-center bg-white/[0.03] rounded-lg p-3 hover:bg-white/[0.06] transition-colors">
+                          {/* Product Image */}
+                          <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-burnt-lilac/10 to-transparent border border-burnt-lilac/20">
+                            {item.node.variant?.image ? (
+                              <img 
+                                src={item.node.variant.image.url} 
+                                alt={item.node.title}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <svg className="w-8 h-8 text-mist-lilac/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                              </div>
+                            )}
                           </div>
-                          <p className="text-mist-lilac font-medium">
-                            {order.totalPrice.currencyCode} {parseFloat(item.node.variant.price.amount).toFixed(2)}
-                          </p>
+                          
+                          {/* Product Details */}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-mist-lilac font-semibold truncate mb-1">{item.node.title}</p>
+                            <div className="flex items-center gap-4 text-sm text-mist-lilac/60">
+                              <span className="flex items-center gap-1">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                </svg>
+                                Qty: {item.node.quantity}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {/* Item Price */}
+                          <div className="text-right flex-shrink-0">
+                            <p className="text-burnt-lilac font-bold">
+                              {order.totalPrice.currencyCode} {parseFloat(item.node.variant.price.amount).toFixed(2)}
+                            </p>
+                            {item.node.quantity > 1 && (
+                              <p className="text-xs text-mist-lilac/40">
+                                @{(parseFloat(item.node.variant.price.amount) / item.node.quantity).toFixed(2)} each
+                              </p>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>
