@@ -20,12 +20,18 @@ function verifyShopifyWebhook(body: string, hmacHeader: string): boolean {
 }
 
 export async function POST(request: NextRequest) {
+  // Log immediately - this should always appear if the endpoint is hit
+  console.log('[Webhook] ===== WEBHOOK ENDPOINT HIT =====');
+  console.log('[Webhook] Headers:', Object.fromEntries(request.headers.entries()));
+  
   try {
     // Get the raw body for signature verification
     const body = await request.text();
     const hmacHeader = request.headers.get('x-shopify-hmac-sha256');
 
     console.log('[Webhook] Received order webhook');
+    console.log('[Webhook] Body length:', body.length);
+    console.log('[Webhook] HMAC header present:', !!hmacHeader);
 
     // Verify webhook signature
     if (!hmacHeader || !verifyShopifyWebhook(body, hmacHeader)) {
