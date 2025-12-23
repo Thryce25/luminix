@@ -249,8 +249,8 @@ export default function ProductsPageClient({
                 )}
               </button>
 
-              {/* Search Panel */}
-              <div className="relative flex-1 max-w-md">
+              {/* Search Panel - Desktop Only */}
+              <div className="relative flex-1 max-w-md hidden lg:block">
                 <input
                   type="text"
                   placeholder="Search products..."
