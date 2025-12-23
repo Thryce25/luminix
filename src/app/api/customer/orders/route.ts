@@ -34,13 +34,13 @@ export async function GET(request: NextRequest) {
 
     // GraphQL query to fetch customer orders
     const query = `
-      query getCustomerOrders($email: String!) {
-        customers(first: 1, query: $email) {
+      query getCustomerOrders($query: String!) {
+        customers(first: 1, query: $query) {
           edges {
             node {
               id
               email
-              orders(first: 50, reverse: true) {
+              orders(first: 50, reverse: true, sortKey: PROCESSED_AT) {
                 edges {
                   node {
                     id
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
         },
         body: JSON.stringify({
           query,
-          variables: { email: `email:${email}` },
+          variables: { query: `email:${email}` },
         }),
       }
     );
