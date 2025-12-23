@@ -238,13 +238,12 @@ export default function AccountPageClient() {
     setOrdersLoading(true);
     try {
       const response = await fetch(`/api/customer/orders?email=${encodeURIComponent(user.email)}`);
-      if (!response.ok) throw new Error('Failed to fetch orders');
-      
       const data = await response.json();
       setOrders(data.orders || []);
     } catch (err: any) {
       console.error('Error fetching orders:', err);
-      setError(err.message || 'Failed to load orders');
+      // Silently fail and show empty state
+      setOrders([]);
     } finally {
       setOrdersLoading(false);
     }

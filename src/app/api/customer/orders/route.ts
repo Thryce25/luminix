@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const SHOPIFY_STORE_DOMAIN = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN!;
-const SHOPIFY_ADMIN_ACCESS_TOKEN = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN!;
+const SHOPIFY_STORE_DOMAIN = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+const SHOPIFY_ADMIN_ACCESS_TOKEN = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,6 +13,18 @@ export async function GET(request: NextRequest) {
         { error: 'Email is required' },
         { status: 400 }
       );
+    }
+
+    // Check if required environment variables are set
+    if (!SHOPIFY_ADMIN_ACCESS_TOKEN) {
+      console.error('SHOPIFY_ADMIN_ACCESS_TOKEN is not set');
+      // Return empty orders instead of error for better UX
+      return NextResponse.json({ orders: [] });
+    }
+
+    if (!SHOPIFY_STORE_DOMAIN) {
+      console.error('SHOPIFY_STORE_DOMAIN is not set');
+      return NextResponse.json({ orders: [] });
     }
 
     // GraphQL query to fetch customer orders
@@ -76,17 +88,16 @@ export async function GET(request: NextRequest) {
     );
 
     if (!response.ok) {
-      throw new Error('Failed to fetch from Shopify');
+      const errorText = await response.text();
+      console.error('Shopify API error:', response.status, errorText);
+      return NextResponse.json({ orders: [] });
     }
 
     const data = await response.json();
 
     if (data.errors) {
       console.error('Shopify GraphQL errors:', data.errors);
-      return NextResponse.json(
-        { error: 'Failed to fetch orders' },
-        { status: 500 }
-      );
+      return NextResponse.json({ orders: [] });
     }
 
     const customerEdges = data.data?.customers?.edges || [];
@@ -132,9 +143,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ orders });
   } catch (error: any) {
     console.error('Error fetching orders:', error);
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    );
+    // Return empty array instead of error for better UX
+    return NextResponse.json({ orders: [] });
   }
 }
