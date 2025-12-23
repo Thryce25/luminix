@@ -35,6 +35,8 @@ interface Order {
       node: {
         title: string;
         quantity: number;
+        productId?: string;
+        productHandle?: string | null;
         variant: {
           price: {
             amount: string;
@@ -668,51 +670,72 @@ export default function AccountPageClient() {
                     
                     {/* Product Items with Images */}
                     <div className="space-y-3">
-                      {order.lineItems.edges.map((item, idx) => (
-                        <div key={idx} className="flex gap-4 items-center bg-white/[0.03] rounded-lg p-3 hover:bg-white/[0.06] transition-colors">
-                          {/* Product Image */}
-                          <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-burnt-lilac/10 to-transparent border border-burnt-lilac/20">
-                            {item.node.variant?.image ? (
-                              <img 
-                                src={item.node.variant.image.url} 
-                                alt={item.node.title}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <svg className="w-8 h-8 text-mist-lilac/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                              </div>
-                            )}
-                          </div>
-                          
-                          {/* Product Details */}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-mist-lilac font-semibold truncate mb-1">{item.node.title}</p>
-                            <div className="flex items-center gap-4 text-sm text-mist-lilac/60">
-                              <span className="flex items-center gap-1">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                                </svg>
-                                Qty: {item.node.quantity}
-                              </span>
+                      {order.lineItems.edges.map((item, idx) => {
+                        const ItemWrapper = item.node.productHandle ? Link : 'div';
+                        const wrapperProps = item.node.productHandle 
+                          ? { href: `/products/${item.node.productHandle}` }
+                          : {};
+                        
+                        return (
+                          <ItemWrapper 
+                            key={idx} 
+                            {...wrapperProps}
+                            className={`flex gap-4 items-center bg-white/[0.03] rounded-lg p-3 hover:bg-white/[0.06] transition-all ${
+                              item.node.productHandle ? 'cursor-pointer hover:border-burnt-lilac/30 border border-transparent' : ''
+                            }`}
+                          >
+                            {/* Product Image */}
+                            <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-burnt-lilac/10 to-transparent border border-burnt-lilac/20">
+                              {item.node.variant?.image ? (
+                                <img 
+                                  src={item.node.variant.image.url} 
+                                  alt={item.node.title}
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <svg className="w-8 h-8 text-mist-lilac/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                  </svg>
+                                </div>
+                              )}
                             </div>
-                          </div>
-                          
-                          {/* Item Price */}
-                          <div className="text-right flex-shrink-0">
-                            <p className="text-burnt-lilac font-bold">
-                              {order.totalPrice.currencyCode} {parseFloat(item.node.variant.price.amount).toFixed(2)}
-                            </p>
-                            {item.node.quantity > 1 && (
-                              <p className="text-xs text-mist-lilac/40">
-                                @{(parseFloat(item.node.variant.price.amount) / item.node.quantity).toFixed(2)} each
+                            
+                            {/* Product Details */}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-mist-lilac font-semibold truncate mb-1">{item.node.title}</p>
+                              <div className="flex items-center gap-4 text-sm text-mist-lilac/60">
+                                <span className="flex items-center gap-1">
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                  </svg>
+                                  Qty: {item.node.quantity}
+                                </span>
+                                {item.node.productHandle && (
+                                  <span className="text-xs text-burnt-lilac/80 flex items-center gap-1">
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                    View Product
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            
+                            {/* Item Price */}
+                            <div className="text-right flex-shrink-0">
+                              <p className="text-burnt-lilac font-bold">
+                                {order.totalPrice.currencyCode} {parseFloat(item.node.variant.price.amount).toFixed(2)}
                               </p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+                              {item.node.quantity > 1 && (
+                                <p className="text-xs text-mist-lilac/40">
+                                  @{(parseFloat(item.node.variant.price.amount) / item.node.quantity).toFixed(2)} each
+                                </p>
+                              )}
+                            </div>
+                          </ItemWrapper>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
