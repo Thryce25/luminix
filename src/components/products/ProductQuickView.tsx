@@ -162,16 +162,30 @@ export default function ProductQuickView({ product, open, onClose }: ProductQuic
 
                         {/* Description */}
                         <div
-                            className="text-mist-lilac/70 text-sm leading-relaxed mb-6 max-h-32 overflow-y-auto"
+                            className="text-mist-lilac/70 text-sm leading-relaxed mb-6 max-h-32 overflow-y-auto text-justify"
                             dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
                         />
 
                         {/* Options */}
                         {product.options.map((option) => (
                             <div key={option.id} className="mb-4">
-                                <label className="text-sm font-medium text-mist-lilac mb-2 block">
-                                    {option.name}
-                                </label>
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="text-sm font-medium text-mist-lilac">
+                                        {option.name}
+                                    </label>
+                                    {option.name.toLowerCase() === 'size' && (
+                                        <Link 
+                                            href="/size-guide"
+                                            onClick={onClose}
+                                            className="text-xs text-burnt-lilac hover:text-mist-lilac transition-colors flex items-center gap-1"
+                                        >
+                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                            </svg>
+                                            Size Guide
+                                        </Link>
+                                    )}
+                                </div>
                                 <div className="flex flex-wrap gap-2">
                                     {option.values.map((value, index) => (
                                         <button
