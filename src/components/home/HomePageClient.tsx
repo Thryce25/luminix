@@ -8,11 +8,10 @@ import { useCart } from '@/context/CartContext';
 import FloatingBackground from '@/components/common/FloatingBackground';
 
 interface HomePageClientProps {
-  featuredProducts: ShopifyProduct[];
   newArrivals: ShopifyProduct[];
 }
 
-export default function HomePageClient({ featuredProducts, newArrivals }: HomePageClientProps) {
+export default function HomePageClient({ newArrivals }: HomePageClientProps) {
   const [scrollY, setScrollY] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
   const [activeCollection, setActiveCollection] = useState(0);
@@ -204,58 +203,6 @@ export default function HomePageClient({ featuredProducts, newArrivals }: HomePa
               />
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ===== FEATURED PRODUCTS ===== */}
-      <section className="relative py-24 sm:py-32">
-        {/* Background decoration */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-burnt-lilac/30 to-transparent" />
-          <div className="absolute bottom-0 left-0 w-full h-px bg-linear-to-r from-transparent via-burnt-lilac/30 to-transparent" />
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-12 gap-6">
-            <div>
-              <p className="text-burnt-lilac uppercase tracking-[0.2em] text-xs sm:text-sm mb-4">
-                Handpicked Selection
-              </p>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif">
-                <span className="bg-linear-to-r from-white via-mist-lilac to-burnt-lilac bg-clip-text text-transparent">
-                  Featured Products
-                </span>
-              </h2>
-            </div>
-            <Link
-              href="/products"
-              className="inline-flex items-center gap-2 text-burnt-lilac hover:text-mist-lilac transition-colors group"
-            >
-              View All
-              <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
-          </div>
-
-          {/* Products Grid */}
-          {featuredProducts.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-              {featuredProducts.slice(0, 8).map((product, index) => (
-                <ProductCardEnhanced key={product.id} product={product} index={index} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-20">
-              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-burnt-lilac/10 flex items-center justify-center">
-                <svg className="w-10 h-10 text-mist-lilac/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-              </div>
-              <p className="text-mist-lilac/50">Products loading...</p>
-            </div>
-          )}
         </div>
       </section>
 

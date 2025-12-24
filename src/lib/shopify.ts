@@ -909,41 +909,8 @@ export async function getFeaturedProducts(first: number = 8): Promise<ShopifyPro
 }
 
 export async function getNewArrivals(first: number = 8): Promise<ShopifyProduct[]> {
-  // Try to fetch from "new-arrivals" collection first
+  // Fetch newest products by update date
   const query = `
-    ${PRODUCT_FRAGMENT}
-    query GetNewArrivalsCollection($handle: String!, $first: Int!) {
-      collection(handle: $handle) {
-        products(first: $first) {
-          edges {
-            node {
-              ...ProductFragment
-            }
-          }
-        }
-      }
-    }
-  `;
-
-  try {
-    const data = await shopifyFetch<{
-      collection: { products: { edges: Array<{ node: ShopifyProduct }> } } | null;
-    }>({
-      query,
-      variables: { handle: 'new-arrivals', first },
-      cache: 'no-store',
-    });
-
-    // If collection exists and has products, return them
-    if (data.collection?.products?.edges?.length) {
-      return data.collection.products.edges.map((edge) => edge.node);
-    }
-  } catch (error) {
-    console.log('New Arrivals collection not found, falling back to newest products');
-  }
-
-  // Fallback: fetch newest products by update date
-  const fallbackQuery = `
     ${PRODUCT_FRAGMENT}
     query GetNewArrivals($first: Int!) {
       products(first: $first, sortKey: UPDATED_AT, reverse: true) {
@@ -956,15 +923,15 @@ export async function getNewArrivals(first: number = 8): Promise<ShopifyProduct[
     }
   `;
 
-  const fallbackData = await shopifyFetch<{
+  const data = await shopifyFetch<{
     products: { edges: Array<{ node: ShopifyProduct }> };
   }>({
-    query: fallbackQuery,
+    query,
     variables: { first },
     cache: 'no-store',
   });
 
-  return fallbackData.products.edges.map((edge) => edge.node);
+  return data.products.edges.map((edge) => edge.node);
 }
 
 export async function searchProducts(searchQuery: string, first: number = 20): Promise<ShopifyProduct[]> {
