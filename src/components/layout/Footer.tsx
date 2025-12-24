@@ -10,8 +10,7 @@ const footerLinks = {
   ],
   help: [
     { name: 'About Us', href: '/about' },
-    { name: 'Shipping & Delivery', href: '/shipping' },
-    { name: 'Returns & Exchanges', href: '/returns' },
+    { name: 'Shipping & Returns', href: '/shipping-and-returns' },
     { name: 'Size Guide', href: '/size-guide' },
     { name: 'Contact Us', href: '/contact' },
   ],
