@@ -41,6 +41,7 @@ export default function CollectionPageClient({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [filteredProducts, setFilteredProducts] = useState(products);
+  const [sortedProducts, setSortedProducts] = useState(products);
   const [isAnimating, setIsAnimating] = useState(true);
   const [activeFilter, setActiveFilter] = useState(currentType || 'all');
   const [sortBy, setSortBy] = useState(currentSort);
@@ -170,6 +171,35 @@ export default function CollectionPageClient({
     params.set('sort', sort);
     router.push(`/collections/${handle}?${params.toString()}`, { scroll: false });
   };
+
+  // Apply sorting when sortBy or filteredProducts changes
+  useEffect(() => {
+    const sorted = [...filteredProducts];
+    
+    switch (sortBy) {
+      case 'price-asc':
+        sorted.sort((a, b) => 
+          parseFloat(a.priceRange.minVariantPrice.amount) - parseFloat(b.priceRange.minVariantPrice.amount)
+        );
+        break;
+      case 'price-desc':
+        sorted.sort((a, b) => 
+          parseFloat(b.priceRange.minVariantPrice.amount) - parseFloat(a.priceRange.minVariantPrice.amount)
+        );
+        break;
+      case 'newest':
+        sorted.sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        break;
+      case 'best-selling':
+      default:
+        // Keep current order for best-selling
+        break;
+    }
+    
+    setSortedProducts(sorted);
+  }, [sortBy, filteredProducts]);
 
   // Parallax effect on scroll
   useEffect(() => {
@@ -367,9 +397,9 @@ export default function CollectionPageClient({
       {/* Products Grid */}
       <section className="py-8 sm:py-12 lg:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {filteredProducts.length > 0 ? (
+          {sortedProducts.length > 0 ? (
             <div className={viewMode === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6' : 'flex flex-col gap-4'}>
-              {filteredProducts.map((product, index) => (
+              {sortedProducts.map((product, index) => (
                 <ProductCard 
                   key={product.id} 
                   product={product} 

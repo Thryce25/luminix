@@ -204,7 +204,10 @@ export default function ProductsPageClient({
         break;
       case 'newest':
       default:
-        // Keep original order (newest first from API)
+        // Sort by creation date (newest first)
+        result.sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
         break;
     }
 
