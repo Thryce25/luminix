@@ -34,7 +34,7 @@ const collections = [
     ],
   },
   {
-    name: "Women's Collection",
+    name: "Women's Fashion",
     href: '/products?category=womens-essentials',
     description: 'Curated pieces',
     subcategories: [
