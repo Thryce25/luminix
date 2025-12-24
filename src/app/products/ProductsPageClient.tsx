@@ -70,6 +70,14 @@ export default function ProductsPageClient({
   const filteredProducts = useMemo(() => {
     let result = [...initialProducts];
 
+    // Log product timestamps
+    console.log('📅 Product Timestamps:');
+    initialProducts.forEach(product => {
+      console.log(`  ${product.title}:`);
+      console.log(`    Created: ${product.createdAt}`);
+      console.log(`    Updated: ${product.updatedAt}`);
+    });
+
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
@@ -204,9 +212,9 @@ export default function ProductsPageClient({
         break;
       case 'newest':
       default:
-        // Sort by creation date (newest first)
+        // Sort by update date (latest updated first)
         result.sort((a, b) => 
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
         );
         break;
     }
