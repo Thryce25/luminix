@@ -418,7 +418,7 @@ function productMatchesType(product: ShopifyProduct, typeFilter: string): boolea
       'top': ['top', 'crop top'],
       'tops': ['top', 'crop top'],
       'pants': ['pant', 'trouser', 'bottom'],
-      'bottoms': ['pant', 'trouser', 'bottom'],
+      'bottoms': ['pant', 'trouser', 'bottom', 'jogger'],
     };
     
     const keywords = titleKeywords[normalizedFilter] || [normalizedFilter];
@@ -458,8 +458,8 @@ function productMatchesType(product: ShopifyProduct, typeFilter: string): boolea
     'sweatshirts': ['sweatshirt', 'sweatshirts'],
     'top': ['top', 'tops'],
     'tops': ['top', 'tops'],
-    'pants': ['pants', 'pant', 'trousers', 'bottoms'],
-    'bottoms': ['pants', 'pant', 'trousers', 'bottoms'],
+    'pants': ['pants', 'pant', 'trousers', 'bottoms', 'joggers'],
+    'bottoms': ['pants', 'pant', 'trousers', 'bottoms', 'joggers'],
   };
   
   const filterVariations = typeVariations[normalizedFilter] || [normalizedFilter];
@@ -731,7 +731,7 @@ export async function getProductTypes(): Promise<string[]> {
   });
 
   // Always include these standard types even if no products match yet
-  const standardTypes = ['Hoodies', 'T-Shirts', 'Sweatshirts', 'Shirts', 'Tops', 'Pants'];
+  const standardTypes = ['Hoodies', 'T-Shirts', 'Sweatshirts', 'Shirts', 'Tops', 'Pants', 'Bottoms'];
   standardTypes.forEach(type => types.add(type));
 
   return Array.from(types).sort();

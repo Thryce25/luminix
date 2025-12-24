@@ -103,7 +103,7 @@ export default function ProductsPageClient({
             'top': ['top', 'crop top'],
             'tops': ['top', 'crop top'],
             'pants': ['pant', 'trouser', 'bottom'],
-            'bottoms': ['pant', 'trouser', 'bottom'],
+            'bottoms': ['pant', 'trouser', 'bottom', 'jogger'],
           };
           
           const keywords = titleKeywords[filter] || [filter];
@@ -137,8 +137,8 @@ export default function ProductsPageClient({
           'sweatshirts': ['sweatshirt', 'sweatshirts'],
           'top': ['top', 'tops'],
           'tops': ['top', 'tops'],
-          'pants': ['pants', 'pant', 'trousers', 'bottoms'],
-          'bottoms': ['pants', 'pant', 'trousers', 'bottoms'],
+          'pants': ['pants', 'pant', 'trousers', 'bottoms', 'joggers'],
+          'bottoms': ['pants', 'pant', 'trousers', 'bottoms', 'joggers'],
         };
         
         const filterVariations = typeVariations[filter] || [filter];

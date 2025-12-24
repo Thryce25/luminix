@@ -4,29 +4,176 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import FloatingBackground from '@/components/common/FloatingBackground';
 
+type Category = 'men-oversized-tshirt' | 'women-oversized-tshirt' | 'men-hoodie' | 'women-hoodie' | 
+                'men-sweatshirt' | 'women-sweatshirt' | 'men-regular-tshirt' | 'women-regular-tshirt' | 
+                'men-pant' | 'women-pant' | 'women-crop-top';
+
 export default function SizeGuidePage() {
-  const [activeTab, setActiveTab] = useState<'men' | 'women'>('men');
+  const [activeGender, setActiveGender] = useState<'men' | 'women'>('men');
+  const [activeCategory, setActiveCategory] = useState<Category>('men-oversized-tshirt');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const menSizes = [
-    { size: 'S', chest: '34-36', waist: '28-30', sleeve: '32-33' },
-    { size: 'M', chest: '38-40', waist: '32-34', sleeve: '33-34' },
-    { size: 'L', chest: '42-44', waist: '36-38', sleeve: '34-35' },
-    { size: 'XL', chest: '46-48', waist: '40-42', sleeve: '35-36' },
-    { size: 'XXL', chest: '50-52', waist: '44-46', sleeve: '36-37' },
+  // Size data for all categories
+  const sizeData = {
+    'men-oversized-tshirt': {
+      title: "Men's Oversized T-Shirt",
+      fit: "Relaxed / Streetwear Oversized",
+      headers: ['Size', 'Chest', 'Length', 'Shoulder'],
+      rows: [
+        { size: 'S', chest: '42', length: '27', shoulder: '20' },
+        { size: 'M', chest: '44', length: '28', shoulder: '21' },
+        { size: 'L', chest: '46', length: '29', shoulder: '22' },
+        { size: 'XL', chest: '48', length: '30', shoulder: '23' },
+        { size: 'XXL', chest: '50', length: '31', shoulder: '24' },
+      ]
+    },
+    'women-oversized-tshirt': {
+      title: "Women's Oversized T-Shirt",
+      fit: "Relaxed / Streetwear Oversized",
+      headers: ['Size', 'Chest', 'Length', 'Shoulder'],
+      rows: [
+        { size: 'XS', chest: '38', length: '25', shoulder: '18' },
+        { size: 'S', chest: '40', length: '26', shoulder: '19' },
+        { size: 'M', chest: '42', length: '27', shoulder: '20' },
+        { size: 'L', chest: '44', length: '28', shoulder: '21' },
+        { size: 'XL', chest: '46', length: '29', shoulder: '22' },
+      ]
+    },
+    'men-hoodie': {
+      title: "Men's Hoodie",
+      fit: "Regular Fit",
+      headers: ['Size', 'Chest', 'Length', 'Sleeve'],
+      rows: [
+        { size: 'S', chest: '42', length: '26', sleeve: '24' },
+        { size: 'M', chest: '44', length: '27', sleeve: '25' },
+        { size: 'L', chest: '46', length: '28', sleeve: '26' },
+        { size: 'XL', chest: '48', length: '29', sleeve: '27' },
+        { size: 'XXL', chest: '50', length: '30', sleeve: '28' },
+      ]
+    },
+    'women-hoodie': {
+      title: "Women's Hoodie",
+      fit: "Regular Fit",
+      headers: ['Size', 'Chest', 'Length', 'Sleeve'],
+      rows: [
+        { size: 'XS', chest: '38', length: '24', sleeve: '22' },
+        { size: 'S', chest: '40', length: '25', sleeve: '23' },
+        { size: 'M', chest: '42', length: '26', sleeve: '24' },
+        { size: 'L', chest: '44', length: '27', sleeve: '25' },
+        { size: 'XL', chest: '46', length: '28', sleeve: '26' },
+      ]
+    },
+    'men-sweatshirt': {
+      title: "Men's Sweatshirt",
+      fit: "Regular Fit",
+      headers: ['Size', 'Chest', 'Length', 'Sleeve'],
+      rows: [
+        { size: 'S', chest: '40', length: '26', sleeve: '24' },
+        { size: 'M', chest: '42', length: '27', sleeve: '25' },
+        { size: 'L', chest: '44', length: '28', sleeve: '26' },
+        { size: 'XL', chest: '46', length: '29', sleeve: '27' },
+        { size: 'XXL', chest: '48', length: '30', sleeve: '28' },
+      ]
+    },
+    'women-sweatshirt': {
+      title: "Women's Sweatshirt",
+      fit: "Regular Fit",
+      headers: ['Size', 'Chest', 'Length', 'Sleeve'],
+      rows: [
+        { size: 'XS', chest: '36', length: '24', sleeve: '22' },
+        { size: 'S', chest: '38', length: '25', sleeve: '23' },
+        { size: 'M', chest: '40', length: '26', sleeve: '24' },
+        { size: 'L', chest: '42', length: '27', sleeve: '25' },
+        { size: 'XL', chest: '44', length: '28', sleeve: '26' },
+      ]
+    },
+    'men-regular-tshirt': {
+      title: "Men's Regular T-Shirt",
+      fit: "Regular Fit",
+      headers: ['Size', 'Chest', 'Length'],
+      rows: [
+        { size: 'S', chest: '38', length: '26' },
+        { size: 'M', chest: '40', length: '27' },
+        { size: 'L', chest: '42', length: '28' },
+        { size: 'XL', chest: '44', length: '29' },
+        { size: 'XXL', chest: '46', length: '30' },
+      ]
+    },
+    'women-regular-tshirt': {
+      title: "Women's Regular T-Shirt",
+      fit: "Regular Fit",
+      headers: ['Size', 'Chest', 'Length'],
+      rows: [
+        { size: 'XS', chest: '34', length: '24' },
+        { size: 'S', chest: '36', length: '25' },
+        { size: 'M', chest: '38', length: '26' },
+        { size: 'L', chest: '40', length: '27' },
+        { size: 'XL', chest: '42', length: '28' },
+      ]
+    },
+    'men-pant': {
+      title: "Men's Pant",
+      fit: "Regular Fit",
+      headers: ['Size', 'Waist', 'Length'],
+      rows: [
+        { size: 'S', waist: '28–30', length: '40' },
+        { size: 'M', waist: '30–32', length: '41' },
+        { size: 'L', waist: '32–34', length: '42' },
+        { size: 'XL', waist: '34–36', length: '43' },
+        { size: 'XXL', waist: '36–38', length: '44' },
+      ]
+    },
+    'women-pant': {
+      title: "Women's Pant",
+      fit: "Regular Fit",
+      headers: ['Size', 'Waist', 'Length'],
+      rows: [
+        { size: 'XS', waist: '24–26', length: '38' },
+        { size: 'S', waist: '26–28', length: '39' },
+        { size: 'M', waist: '28–30', length: '40' },
+        { size: 'L', waist: '30–32', length: '41' },
+        { size: 'XL', waist: '32–34', length: '42' },
+      ]
+    },
+    'women-crop-top': {
+      title: "Women's Crop Top",
+      fit: "Fitted",
+      headers: ['Size', 'Bust', 'Length'],
+      rows: [
+        { size: 'XS', bust: '30–32', length: '15' },
+        { size: 'S', bust: '32–34', length: '16' },
+        { size: 'M', bust: '34–36', length: '17' },
+        { size: 'L', bust: '36–38', length: '18' },
+        { size: 'XL', bust: '38–40', length: '19' },
+      ]
+    },
+  };
+
+  const menCategories = [
+    { id: 'men-oversized-tshirt' as Category, label: 'Oversized T-Shirt' },
+    { id: 'men-hoodie' as Category, label: 'Hoodie' },
+    { id: 'men-sweatshirt' as Category, label: 'Sweatshirt' },
+    { id: 'men-regular-tshirt' as Category, label: 'Regular T-Shirt' },
+    { id: 'men-pant' as Category, label: 'Pants' },
   ];
 
-  const womenSizes = [
-    { size: 'XS', bust: '31-32', waist: '24-25', hips: '34-35' },
-    { size: 'S', bust: '33-34', waist: '26-27', hips: '36-37' },
-    { size: 'M', bust: '35-36', waist: '28-29', hips: '38-39' },
-    { size: 'L', bust: '37-39', waist: '30-32', hips: '40-42' },
-    { size: 'XL', bust: '40-42', waist: '33-35', hips: '43-45' },
+  const womenCategories = [
+    { id: 'women-oversized-tshirt' as Category, label: 'Oversized T-Shirt' },
+    { id: 'women-hoodie' as Category, label: 'Hoodie' },
+    { id: 'women-sweatshirt' as Category, label: 'Sweatshirt' },
+    { id: 'women-regular-tshirt' as Category, label: 'Regular T-Shirt' },
+    { id: 'women-pant' as Category, label: 'Pants' },
+    { id: 'women-crop-top' as Category, label: 'Crop Top' },
   ];
+
+  const handleGenderChange = (gender: 'men' | 'women') => {
+    setActiveGender(gender);
+    setActiveCategory(gender === 'men' ? 'men-oversized-tshirt' : 'women-oversized-tshirt');
+  };
 
   const tshirtIcon = (
     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -107,95 +254,91 @@ export default function SizeGuidePage() {
 
       {/* Size Charts */}
       <section className="relative z-10 py-16">
-        <div className="max-w-4xl mx-auto px-4">
-          {/* Tab Buttons */}
-          <div className="flex justify-center gap-4 mb-12">
+        <div className="max-w-6xl mx-auto px-4">
+          {/* Gender Tab Buttons */}
+          <div className="flex justify-center gap-4 mb-8">
             <button
-              onClick={() => setActiveTab('men')}
+              onClick={() => handleGenderChange('men')}
               className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 ${
-                activeTab === 'men'
+                activeGender === 'men'
                   ? 'bg-burnt-lilac text-white'
                   : 'bg-deep-purple/30 text-mist-lilac/70 hover:bg-deep-purple/50'
               }`}
             >
-              Men&apos;s Sizes
+              Men&apos;s
             </button>
             <button
-              onClick={() => setActiveTab('women')}
+              onClick={() => handleGenderChange('women')}
               className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 ${
-                activeTab === 'women'
+                activeGender === 'women'
                   ? 'bg-burnt-lilac text-white'
                   : 'bg-deep-purple/30 text-mist-lilac/70 hover:bg-deep-purple/50'
               }`}
             >
-              Women&apos;s Sizes
+              Women&apos;s
             </button>
           </div>
 
+          {/* Category Pills */}
+          <div className="flex flex-wrap justify-center gap-3 mb-12">
+            {(activeGender === 'men' ? menCategories : womenCategories).map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  activeCategory === cat.id
+                    ? 'bg-burnt-lilac/20 text-burnt-lilac border-2 border-burnt-lilac'
+                    : 'bg-deep-purple/20 text-mist-lilac/70 border border-mist-lilac/20 hover:border-burnt-lilac/50'
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+
           {/* Size Table */}
-          <div className="relative rounded-2xl overflow-hidden border border-mist-lilac/10 bg-linear-to-br from-deep-purple/20 to-black">
-            <div className="absolute inset-0 bg-linear-to-br from-burnt-lilac/5 to-transparent" />
+          <div className="relative rounded-2xl overflow-hidden border border-mist-lilac/10 bg-gradient-to-br from-deep-purple/20 to-black mb-8">
+            <div className="absolute inset-0 bg-gradient-to-br from-burnt-lilac/5 to-transparent" />
+            
+            {/* Category Title */}
+            <div className="relative p-6 border-b border-mist-lilac/10">
+              <h2 className="text-2xl font-serif text-mist-lilac mb-1">
+                {sizeData[activeCategory].title}
+              </h2>
+              <p className="text-sm text-burnt-lilac">
+                Fit: {sizeData[activeCategory].fit} • All measurements in inches
+              </p>
+            </div>
             
             <div className="relative overflow-x-auto">
-              {activeTab === 'men' ? (
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-mist-lilac/10">
-                      <th className="px-6 py-4 text-left text-mist-lilac font-semibold">Size</th>
-                      <th className="px-6 py-4 text-left text-mist-lilac font-semibold">Chest (in)</th>
-                      <th className="px-6 py-4 text-left text-mist-lilac font-semibold">Waist (in)</th>
-                      <th className="px-6 py-4 text-left text-mist-lilac font-semibold">Sleeve (in)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {menSizes.map((row, index) => (
-                      <tr 
-                        key={row.size}
-                        className="border-b border-mist-lilac/5 hover:bg-burnt-lilac/5 transition-colors"
-                        style={{ animation: `fadeInUp 0.4s ease-out ${index * 0.05}s both` }}
-                      >
-                        <td className="px-6 py-4">
-                          <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-burnt-lilac/20 text-burnt-lilac font-bold">
-                            {row.size}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-mist-lilac/70">{row.chest}</td>
-                        <td className="px-6 py-4 text-mist-lilac/70">{row.waist}</td>
-                        <td className="px-6 py-4 text-mist-lilac/70">{row.sleeve}</td>
-                      </tr>
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-mist-lilac/10">
+                    {sizeData[activeCategory].headers.map((header) => (
+                      <th key={header} className="px-6 py-4 text-left text-mist-lilac font-semibold">
+                        {header}
+                      </th>
                     ))}
-                  </tbody>
-                </table>
-              ) : (
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-mist-lilac/10">
-                      <th className="px-6 py-4 text-left text-mist-lilac font-semibold">Size</th>
-                      <th className="px-6 py-4 text-left text-mist-lilac font-semibold">Bust (in)</th>
-                      <th className="px-6 py-4 text-left text-mist-lilac font-semibold">Waist (in)</th>
-                      <th className="px-6 py-4 text-left text-mist-lilac font-semibold">Hips (in)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {womenSizes.map((row, index) => (
-                      <tr 
-                        key={row.size}
-                        className="border-b border-mist-lilac/5 hover:bg-burnt-lilac/5 transition-colors"
-                        style={{ animation: `fadeInUp 0.4s ease-out ${index * 0.05}s both` }}
-                      >
-                        <td className="px-6 py-4">
-                          <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-burnt-lilac/20 text-burnt-lilac font-bold">
-                            {row.size}
-                          </span>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sizeData[activeCategory].rows.map((row, idx) => (
+                    <tr 
+                      key={row.size}
+                      className={`border-b border-mist-lilac/5 hover:bg-burnt-lilac/5 transition-colors ${
+                        idx % 2 === 0 ? 'bg-deep-purple/5' : ''
+                      }`}
+                    >
+                      <td className="px-6 py-4 text-mist-lilac font-semibold">{row.size}</td>
+                      {Object.entries(row).slice(1).map(([key, value]) => (
+                        <td key={key} className="px-6 py-4 text-mist-lilac/80">
+                          {value}"
                         </td>
-                        <td className="px-6 py-4 text-mist-lilac/70">{row.bust}</td>
-                        <td className="px-6 py-4 text-mist-lilac/70">{row.waist}</td>
-                        <td className="px-6 py-4 text-mist-lilac/70">{row.hips}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
 
