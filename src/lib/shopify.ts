@@ -942,11 +942,11 @@ export async function getNewArrivals(first: number = 8): Promise<ShopifyProduct[
     console.log('New Arrivals collection not found, falling back to newest products');
   }
 
-  // Fallback: fetch newest products by creation date
+  // Fallback: fetch newest products by update date
   const fallbackQuery = `
     ${PRODUCT_FRAGMENT}
     query GetNewArrivals($first: Int!) {
-      products(first: $first, sortKey: CREATED_AT, reverse: true) {
+      products(first: $first, sortKey: UPDATED_AT, reverse: true) {
         edges {
           node {
             ...ProductFragment
