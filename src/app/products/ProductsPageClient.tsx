@@ -80,14 +80,62 @@ export default function ProductsPageClient({
       );
     }
 
-    // Filter by product type (search in title since productType might be empty)
+    // Filter by product type with proper matching logic
     if (currentType) {
-      const searchTerm = currentType.replace(/-/g, ' ').toLowerCase();
-      result = result.filter(product => 
-        product.title.toLowerCase().includes(searchTerm) ||
-        product.productType?.toLowerCase().includes(searchTerm) ||
-        product.tags?.some(tag => tag.toLowerCase().includes(searchTerm))
-      );
+      result = result.filter(product => {
+        const productType = product.productType?.toLowerCase().replace(/\s+/g, '-') || '';
+        const filter = currentType.toLowerCase().replace(/\s+/g, '-');
+        const productTitle = product.title.toLowerCase();
+        
+        // If productType is empty, fall back to title matching
+        if (!productType || productType === '') {
+          const titleKeywords: Record<string, string[]> = {
+            't-shirt': ['t-shirt', 'tshirt', 'tee'],
+            't-shirts': ['t-shirt', 'tshirt', 'tee'],
+            'shirt': ['shirt'],
+            'shirts': ['shirt'],
+            'hoodie': ['hoodie'],
+            'hoodies': ['hoodie'],
+            'sweatshirt': ['sweatshirt'],
+            'sweatshirts': ['sweatshirt'],
+          };
+          
+          const keywords = titleKeywords[filter] || [filter];
+          
+          for (const keyword of keywords) {
+            if (productTitle.includes(keyword)) {
+              // Special case: don't match "t-shirt" when looking for "shirt"
+              if (filter === 'shirt' || filter === 'shirts') {
+                if (productTitle.includes('t-shirt') || productTitle.includes('tshirt') || productTitle.includes('tee')) {
+                  continue;
+                }
+              }
+              return true;
+            }
+          }
+          return false;
+        }
+        
+        // Direct match
+        if (productType === filter) return true;
+        
+        // Handle variations
+        const typeVariations: Record<string, string[]> = {
+          't-shirt': ['t-shirt', 't-shirts', 'tshirt', 'tshirts', 'tee', 'tees'],
+          't-shirts': ['t-shirt', 't-shirts', 'tshirt', 'tshirts', 'tee', 'tees'],
+          'shirt': ['shirt', 'shirts'],
+          'shirts': ['shirt', 'shirts'],
+          'hoodie': ['hoodie', 'hoodies'],
+          'hoodies': ['hoodie', 'hoodies'],
+          'sweatshirt': ['sweatshirt', 'sweatshirts'],
+          'sweatshirts': ['sweatshirt', 'sweatshirts'],
+        };
+        
+        const filterVariations = typeVariations[filter] || [filter];
+        const productVariations = typeVariations[productType] || [productType];
+        
+        return filterVariations.some(fv => productVariations.includes(fv));
+      });
     }
 
     // Filter by price range

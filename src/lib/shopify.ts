@@ -364,6 +364,107 @@ function getSortKey(sort: SortOption): { sortKey: string; reverse: boolean } {
   }
 }
 
+// Helper function to normalize product types for comparison
+// Maps URL-friendly type names (e.g., 't-shirt') to actual Shopify productType values
+function normalizeProductType(type: string): string {
+  const typeMap: Record<string, string[]> = {
+    't-shirt': ['T-Shirts', 't-shirts', 't-shirt', 'tshirt', 'tee', 'tees'],
+    'shirt': ['Shirts', 'shirts', 'shirt'],
+    'hoodie': ['Hoodies', 'hoodies', 'hoodie'],
+    'sweatshirt': ['Sweatshirts', 'sweatshirts', 'sweatshirt'],
+    'pants': ['Pants', 'pants', 'trousers'],
+    'shorts': ['Shorts', 'shorts'],
+    'jacket': ['Jackets', 'jackets', 'jacket'],
+    'dress': ['Dresses', 'dresses', 'dress'],
+    'top': ['Tops', 'tops', 'top'],
+  };
+
+  const normalized = type.toLowerCase().replace(/\s+/g, '-');
+  
+  // Return all possible variations for this type
+  return typeMap[normalized]?.[0] || type;
+}
+
+// Helper to check if a product matches a given type
+function productMatchesType(product: ShopifyProduct, typeFilter: string): boolean {
+  if (!typeFilter) return true;
+  
+  const normalizedFilter = typeFilter.toLowerCase().replace(/\s+/g, '-');
+  const productType = product.productType?.toLowerCase().replace(/\s+/g, '-') || '';
+  const productTitle = product.title.toLowerCase();
+  
+  console.log('🔍 Matching:', {
+    productTitle: product.title,
+    productType: product.productType,
+    normalizedProductType: productType,
+    filter: typeFilter,
+    normalizedFilter: normalizedFilter
+  });
+  
+  // If productType is empty, fall back to title matching
+  if (!productType || productType === '') {
+    console.log('⚠️ Empty productType, using title matching');
+    
+    // Map filter to title keywords
+    const titleKeywords: Record<string, string[]> = {
+      't-shirt': ['t-shirt', 'tshirt', 'tee'],
+      't-shirts': ['t-shirt', 'tshirt', 'tee'],
+      'shirt': ['shirt'],
+      'shirts': ['shirt'],
+      'hoodie': ['hoodie'],
+      'hoodies': ['hoodie'],
+      'sweatshirt': ['sweatshirt'],
+      'sweatshirts': ['sweatshirt'],
+    };
+    
+    const keywords = titleKeywords[normalizedFilter] || [normalizedFilter];
+    
+    for (const keyword of keywords) {
+      if (productTitle.includes(keyword)) {
+        // Special case: don't match "t-shirt" when looking for "shirt"
+        if (normalizedFilter === 'shirt' || normalizedFilter === 'shirts') {
+          if (productTitle.includes('t-shirt') || productTitle.includes('tshirt') || productTitle.includes('tee')) {
+            console.log('❌ Title contains t-shirt, not a regular shirt');
+            continue;
+          }
+        }
+        console.log('✅ Title match!');
+        return true;
+      }
+    }
+    console.log('❌ No title match');
+    return false;
+  }
+  
+  // Direct match
+  if (productType === normalizedFilter) {
+    console.log('✅ Direct match!');
+    return true;
+  }
+  
+  // Check variations (e.g., 't-shirt' should match 't-shirts')
+  const typeVariations: Record<string, string[]> = {
+    't-shirt': ['t-shirt', 't-shirts', 'tshirt', 'tshirts', 'tee', 'tees'],
+    't-shirts': ['t-shirt', 't-shirts', 'tshirt', 'tshirts', 'tee', 'tees'],
+    'shirt': ['shirt', 'shirts'],
+    'shirts': ['shirt', 'shirts'],
+    'hoodie': ['hoodie', 'hoodies'],
+    'hoodies': ['hoodie', 'hoodies'],
+    'sweatshirt': ['sweatshirt', 'sweatshirts'],
+    'sweatshirts': ['sweatshirt', 'sweatshirts'],
+  };
+  
+  const filterVariations = typeVariations[normalizedFilter] || [normalizedFilter];
+  const productVariations = typeVariations[productType] || [productType];
+  
+  console.log('🔄 Checking variations:', { filterVariations, productVariations });
+  
+  // Check if any variation matches
+  const matches = filterVariations.some(fv => productVariations.includes(fv));
+  console.log(matches ? '✅ Variation match!' : '❌ No match');
+  return matches;
+}
+
 // Product Queries with filtering and sorting
 export interface ProductQueryOptions {
   first?: number;
@@ -388,7 +489,17 @@ export async function getProducts(
 
   // If collection is specified, fetch from collection
   if (collection) {
-    return getProductsByCollection(collection, first, sort);
+    console.log('🏷️ Fetching collection:', collection);
+    const collectionProducts = await getProductsByCollection(collection, first, sort);
+    console.log('📦 Collection products:', collectionProducts.length);
+    // Apply productType filter client-side for collection products too
+    if (productType) {
+      console.log('🎯 Filtering collection by productType:', productType);
+      const filtered = collectionProducts.filter(p => productMatchesType(p, productType));
+      console.log('📦 Filtered collection products:', filtered.length);
+      return filtered;
+    }
+    return collectionProducts;
   }
 
   // Build search query for filtering - Shopify Storefront API syntax
@@ -396,13 +507,6 @@ export async function getProducts(
   
   if (searchQuery) {
     queryParts.push(searchQuery);
-  }
-  
-  // For product type filtering, search in title since productType field may be empty
-  if (productType) {
-    // Convert type value back to searchable term (e.g., "t-shirt" -> "t shirt" -> search term)
-    const searchTerm = productType.replace(/-/g, ' ');
-    queryParts.push(searchTerm);
   }
   
   // Price filtering
@@ -451,7 +555,18 @@ export async function getProducts(
     cache: 'no-store',
   });
 
-  return data.products.edges.map((edge) => edge.node);
+  let products = data.products.edges.map((edge) => edge.node);
+  
+  console.log('📦 Fetched products:', products.length);
+  
+  // Apply productType filter client-side for accurate matching
+  if (productType) {
+    console.log('🎯 Filtering by productType:', productType);
+    products = products.filter(p => productMatchesType(p, productType));
+    console.log('📦 Filtered products:', products.length);
+  }
+  
+  return products;
 }
 
 // Get products by collection handle with sorting
@@ -491,7 +606,16 @@ export async function getProductsByCollection(
     cache: 'no-store',
   });
 
-  return data.collection?.products.edges.map((edge) => edge.node) || [];
+  const products = data.collection?.products.edges.map((edge) => edge.node) || [];
+  
+  console.log('📋 Raw products from Shopify:');
+  products.forEach(p => {
+    console.log(`  - ${p.title}`);
+    console.log(`    productType: "${p.productType}"`);
+    console.log(`    tags: [${p.tags?.join(', ')}]`);
+  });
+  
+  return products;
 }
 
 // Get all unique product types (from productType field, tags, or title patterns)
@@ -539,40 +663,56 @@ export async function getProductTypes(): Promise<string[]> {
     
     // First, try productType field
     if (productType && productType.trim() !== '') {
-      types.add(productType.trim());
+      const cleanType = productType.trim();
+      // Normalize to standard form
+      const normalized = cleanType.toLowerCase().replace(/s$/, '');
+      if (normalized === 't-shirt' || normalized === 'tee') types.add('T-Shirts');
+      else if (normalized === 'hoodie' || normalized === 'hoody') types.add('Hoodies');
+      else if (normalized === 'sweatshirt') types.add('Sweatshirts');
+      else if (normalized === 'jacket') types.add('Jackets');
+      else if (normalized === 'pant' || normalized === 'trouser') types.add('Pants');
+      else if (normalized === 'short') types.add('Shorts');
+      else if (normalized === 'dress') types.add('Dresses');
+      else if (normalized === 'top') types.add('Tops');
+      else if (normalized === 'shirt') types.add('Shirts');
+      else types.add(cleanType);
     }
     
     // Then check tags for category-like values
     if (tags && tags.length > 0) {
       tags.forEach(tag => {
-        const normalizedTag = tag.trim();
-        // Check if tag matches known categories
-        categoryKeywords.forEach(keyword => {
-          if (normalizedTag.toLowerCase() === keyword.toLowerCase()) {
-            types.add(keyword);
-          }
-        });
+        const normalizedTag = tag.trim().toLowerCase();
+        // Check if tag matches known categories and normalize
+        if (normalizedTag === 't-shirt' || normalizedTag === 't-shirts' || normalizedTag === 'tee' || normalizedTag === 'tees') {
+          types.add('T-Shirts');
+        } else if (normalizedTag === 'hoodie' || normalizedTag === 'hoodies') {
+          types.add('Hoodies');
+        } else if (normalizedTag === 'sweatshirt' || normalizedTag === 'sweatshirts') {
+          types.add('Sweatshirts');
+        } else if (normalizedTag === 'shirt' || normalizedTag === 'shirts') {
+          types.add('Shirts');
+        } else if (normalizedTag === 'jacket' || normalizedTag === 'jackets') {
+          types.add('Jackets');
+        } else if (normalizedTag === 'pants' || normalizedTag === 'trousers') {
+          types.add('Pants');
+        }
       });
     }
     
     // Finally, check title for category keywords
     if (title) {
-      categoryKeywords.forEach(keyword => {
-        if (title.toLowerCase().includes(keyword.toLowerCase())) {
-          // Normalize to singular/standard form
-          const normalized = keyword.replace(/s$/, '').replace(/ies$/, 'y');
-          if (normalized === 'Hoodie' || normalized === 'Hoody') types.add('Hoodie');
-          else if (normalized === 'Sweatshirt') types.add('Sweatshirt');
-          else if (normalized === 'T-Shirt' || normalized === 'Tee') types.add('T-Shirt');
-          else if (normalized === 'Jacket') types.add('Jacket');
-          else if (normalized === 'Pant' || normalized === 'Trouser') types.add('Pants');
-          else if (normalized === 'Short') types.add('Shorts');
-          else if (normalized === 'Dress') types.add('Dress');
-          else if (normalized === 'Top') types.add('Top');
-          else if (normalized === 'Shirt') types.add('Shirt');
-          else if (normalized === 'Cap' || normalized === 'Hat') types.add('Caps & Hats');
-        }
-      });
+      const lowerTitle = title.toLowerCase();
+      if ((lowerTitle.includes('t-shirt') || lowerTitle.includes('tee')) && !lowerTitle.includes('shirt')) {
+        types.add('T-Shirts');
+      } else if (lowerTitle.includes('hoodie')) {
+        types.add('Hoodies');
+      } else if (lowerTitle.includes('sweatshirt')) {
+        types.add('Sweatshirts');
+      } else if (lowerTitle.includes('jacket')) {
+        types.add('Jackets');
+      } else if (lowerTitle.includes('shirt') && !lowerTitle.includes('t-shirt') && !lowerTitle.includes('sweatshirt')) {
+        types.add('Shirts');
+      }
     }
   });
 
