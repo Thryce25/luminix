@@ -41,6 +41,8 @@ const sizeOptions = [
   { label: 'XL', value: 'xl' },
   { label: 'XXL', value: 'xxl' },
   { label: '3XL', value: '3xl' },
+  { label: '4XL', value: '4xl' },
+  { label: '5XL', value: '5xl' },
 ];
 
 export default function ProductsPageClient({
@@ -98,6 +100,10 @@ export default function ProductsPageClient({
             'hoodies': ['hoodie'],
             'sweatshirt': ['sweatshirt'],
             'sweatshirts': ['sweatshirt'],
+            'top': ['top', 'crop top'],
+            'tops': ['top', 'crop top'],
+            'pants': ['pant', 'trouser', 'bottom'],
+            'bottoms': ['pant', 'trouser', 'bottom'],
           };
           
           const keywords = titleKeywords[filter] || [filter];
@@ -129,6 +135,10 @@ export default function ProductsPageClient({
           'hoodies': ['hoodie', 'hoodies'],
           'sweatshirt': ['sweatshirt', 'sweatshirts'],
           'sweatshirts': ['sweatshirt', 'sweatshirts'],
+          'top': ['top', 'tops'],
+          'tops': ['top', 'tops'],
+          'pants': ['pants', 'pant', 'trousers', 'bottoms'],
+          'bottoms': ['pants', 'pant', 'trousers', 'bottoms'],
         };
         
         const filterVariations = typeVariations[filter] || [filter];

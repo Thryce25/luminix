@@ -92,6 +92,10 @@ export default function CollectionPageClient({
             'hoodies': ['hoodie'],
             'sweatshirt': ['sweatshirt'],
             'sweatshirts': ['sweatshirt'],
+            'top': ['top', 'crop top'],
+            'tops': ['top', 'crop top'],
+            'pants': ['pant', 'trouser', 'bottom'],
+            'bottoms': ['pant', 'trouser', 'bottom'],
           };
           
           const keywords = titleKeywords[filter] || [filter];
@@ -129,6 +133,10 @@ export default function CollectionPageClient({
           'hoodies': ['hoodie', 'hoodies'],
           'sweatshirt': ['sweatshirt', 'sweatshirts'],
           'sweatshirts': ['sweatshirt', 'sweatshirts'],
+          'top': ['top', 'tops'],
+          'tops': ['top', 'tops'],
+          'pants': ['pants', 'pant', 'trousers', 'bottoms'],
+          'bottoms': ['pants', 'pant', 'trousers', 'bottoms'],
         };
         
         const filterVariations = typeVariations[filter] || [filter];

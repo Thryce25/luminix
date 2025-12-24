@@ -415,6 +415,10 @@ function productMatchesType(product: ShopifyProduct, typeFilter: string): boolea
       'hoodies': ['hoodie'],
       'sweatshirt': ['sweatshirt'],
       'sweatshirts': ['sweatshirt'],
+      'top': ['top', 'crop top'],
+      'tops': ['top', 'crop top'],
+      'pants': ['pant', 'trouser', 'bottom'],
+      'bottoms': ['pant', 'trouser', 'bottom'],
     };
     
     const keywords = titleKeywords[normalizedFilter] || [normalizedFilter];
@@ -452,6 +456,10 @@ function productMatchesType(product: ShopifyProduct, typeFilter: string): boolea
     'hoodies': ['hoodie', 'hoodies'],
     'sweatshirt': ['sweatshirt', 'sweatshirts'],
     'sweatshirts': ['sweatshirt', 'sweatshirts'],
+    'top': ['top', 'tops'],
+    'tops': ['top', 'tops'],
+    'pants': ['pants', 'pant', 'trousers', 'bottoms'],
+    'bottoms': ['pants', 'pant', 'trousers', 'bottoms'],
   };
   
   const filterVariations = typeVariations[normalizedFilter] || [normalizedFilter];
@@ -693,8 +701,10 @@ export async function getProductTypes(): Promise<string[]> {
           types.add('Shirts');
         } else if (normalizedTag === 'jacket' || normalizedTag === 'jackets') {
           types.add('Jackets');
-        } else if (normalizedTag === 'pants' || normalizedTag === 'trousers') {
+        } else if (normalizedTag === 'pants' || normalizedTag === 'trousers' || normalizedTag === 'bottoms') {
           types.add('Pants');
+        } else if (normalizedTag === 'top' || normalizedTag === 'tops') {
+          types.add('Tops');
         }
       });
     }
@@ -712,9 +722,17 @@ export async function getProductTypes(): Promise<string[]> {
         types.add('Jackets');
       } else if (lowerTitle.includes('shirt') && !lowerTitle.includes('t-shirt') && !lowerTitle.includes('sweatshirt')) {
         types.add('Shirts');
+      } else if (lowerTitle.includes('pant') || lowerTitle.includes('trouser') || lowerTitle.includes('bottom')) {
+        types.add('Pants');
+      } else if (lowerTitle.includes(' top') || lowerTitle.includes('crop top')) {
+        types.add('Tops');
       }
     }
   });
+
+  // Always include these standard types even if no products match yet
+  const standardTypes = ['Hoodies', 'T-Shirts', 'Sweatshirts', 'Shirts', 'Tops', 'Pants'];
+  standardTypes.forEach(type => types.add(type));
 
   return Array.from(types).sort();
 }
